@@ -29,9 +29,6 @@ FTSPRandomIntegration::FTSPRandomIntegration(const alps::ProcessList& where,cons
     */
 
     
-
-
-    
     measurements << alps::RealObservable("Energy");
     measurements << alps::RealObservable("Energy2");
     cout<<"init ok"<<endl;
@@ -50,6 +47,5 @@ void FTSPRandomIntegration::do_measurements() {
     */
     measurements["Energy"] << double(NofD)/(numspins);
     measurements["Energy2"] << double(NofD*NofD)/(numspins*numspins);
-
 }
 
