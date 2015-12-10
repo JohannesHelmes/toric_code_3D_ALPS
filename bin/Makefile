@@ -8,6 +8,8 @@
 
 
 ALPS_ROOT = /scratch/alps
+SRC = /home/helmes/Work/toric_code_3D_ALPS/src
+
 
 include $(ALPS_ROOT)/share/alps/include.mk
 
@@ -15,24 +17,19 @@ CXXFLAGS = -O2 -DNDEBUG -march=corei7
 
 all: FTRandomIntegration FTRandomSwitch
 
-toric3DFTSingleSpin.o: ../src/toric3DFTSingleSpin.cpp ../src/toric3DFTSingleSpin.h
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -std=c++0x -c ../src/toric3DFTSingleSpin.cpp -o toric3DFTSingleSpin.o $(COMFLAG)
+#######################  Patterns ################################
+%.o:: $(SRC)/%.cpp $(SRC)/%.h
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -std=c++0x -c $< -o $@ $(COMFLAG)
 
-FTSPRandomSwitch.o: ../src/FTSPRandomSwitch.cpp ../src/FTSPRandomSwitch.h
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -std=c++0x -c ../src/FTSPRandomSwitch.cpp -o FTSPRandomSwitch.o $(COMFLAG)
+main%.o: $(SRC)/main%.C
+	$(CXX) $(CPPFLAGS)  $(CXXFLAGS) -std=c++0x -c $<
+###################### End Patterns ##############################
+
 FTSPRandomSwitch: toric3DFTSingleSpin.o FTSPRandomSwitch.o mainFTSPRandomSwitch.o
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ mainFTSPRandomSwitch.o FTSPRandomSwitch.o toric3DFTSingleSpin.o $(LDFLAGS) $(LIBS) $(LINKFLAG)
 
-FTSPRandomIntegration.o: ../src/FTSPRandomIntegration.cpp ../src/FTSPRandomIntegration.h
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -std=c++0x -c ../src/FTSPRandomIntegration.cpp -o FTSPRandomIntegration.o $(COMFLAG)
 FTSPRandomIntegration: toric3DFTSingleSpin.o FTSPRandomIntegration.o mainFTSPRandomIntegration.o
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ mainFTSPRandomIntegration.o FTSPRandomIntegration.o toric3DFTSingleSpin.o $(LDFLAGS) $(LIBS) $(LINKFLAG)
-
-mainFTSPRandomSwitch.o: ../src/mainFTSPRandomSwitch.C
-	$(CXX) $(CPPFLAGS)  $(CXXFLAGS) -std=c++0x -c ../src/mainFTSPRandomSwitch.C
-mainFTSPRandomIntegration.o: ../src/mainFTSPRandomIntegration.C
-	$(CXX) $(CPPFLAGS)  $(CXXFLAGS) -std=c++0x -c ../src/mainFTSPRandomIntegration.C
-
 
 clean:
 	$(RM) $(RMFLAGS) *.o FTRandomIntegration FTRandomSwitch toric3DFiniteTemp FTSPRandomIntegration FTSPMembraneRandomIntegration FTSPRandomSwitch toric3DFTSingleSpin toric3DFTMembraneSingleSpin
