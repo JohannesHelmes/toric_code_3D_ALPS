@@ -25,13 +25,14 @@ args=parser.parse_args()
 
 REntropy={}
 
-dataset = pyalps.loadMeasurements(pyalps.getResultFiles(prefix=args.infile),[args.Y])
+path=os.path.dirname(args.infile)
+filename=os.path.basename(args.infile)
+print path, filename
+dataset= pyalps.loadMeasurements(pyalps.getResultFiles(dirname=path,prefix=filename),args.Y)
 
-'''
 if args.verbose:
-    print args.infile
-    print datasets
-'''
+    print pyalps.getResultFiles(prefix=args.infile)
+    #print dataset
 
 renyi_dataG = pyalps.collectXY(dataset, x=args.X, y=args.Y, foreach=['IncNo'])
 n=args.N
@@ -59,8 +60,8 @@ if args.Simple:
 
         for i in range(N):
             Bstrap_magn=[np.random.normal(av_magn[j],av_magn_err[j]) for j in range(len(y))]
-            S[i]=simps(Bstrap_magn,beta,even='avg')
-        print S[2]
+            S[i]=simps(Bstrap_magn,beta,even='even')
+        print beta
 
 
         gamma=1./(n-1)*np.array([args.Const-(n*factor[args.System]*renyi_dataG[0].props['L']**args.Dim)*S[l] for l in range(N)])
