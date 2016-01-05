@@ -153,7 +153,7 @@ void toricFTSP::dostep() {
 }
 
 
-bool toricFTSP::IsInA(site_descriptor where) {
+bool toricFTSP::IsInA(site_descriptor where) const {
     return (geom[where]);
 }
 

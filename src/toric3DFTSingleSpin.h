@@ -35,10 +35,11 @@ public :
     bool is_thermalized() const;
     double work_done() const;
 protected :
-    alps::uint64_t Nb_Steps;
-    alps::uint64_t Nb_Therm_Steps;
+    alps::uint64_t const Nb_Steps;
+    alps::uint64_t const Nb_Therm_Steps;
     alps::uint64_t Total_Steps;
-    int L,W,N,numspins,numsites,start,B,n,d,replica,NofD;
+    int W,N,numspins,numsites,start,B,n,d,replica,NofD;
+    int const L;
     bool WasInA, InA, found;
     string IncStep;
     std::vector<bool> geom,edge;
@@ -64,7 +65,8 @@ protected :
     void flip(int replica, int spin);
 
     virtual void do_measurements()=0;
-    bool IsInA(site_descriptor);
+    bool IsInA(site_descriptor) const;
+
     template<class T> typename deque<T>::reverse_iterator back_find(std::deque<T> *d,T item) {
         typename deque<T>::reverse_iterator rdit;
         rdit= std::find((*d).rbegin(),(*d).rend(),item);
