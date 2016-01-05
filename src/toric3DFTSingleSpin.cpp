@@ -40,9 +40,9 @@ toricFTSP::toricFTSP(const alps::ProcessList& where,const alps::Parameters& p,in
     
     std::cout << "# L: " << L << " Steps: " << Nb_Steps  << " Spins: " <<numspins<<" Sites: "<<numsites<< std::endl;
 
-    expmB.resize(2*n+1);
+    expmB.resize(4*n+1);
     expmB[0]=1.0;
-    for (int i=1; i<=n; ++i) 
+    for (int i=1; i<=2*n; ++i) 
         expmB[2*i]=std::exp(-2.*i*beta*B);
 
     NofD=-n*N;
@@ -115,6 +115,7 @@ void toricFTSP::dostep() {
             start=4*random_int(N)+2+random_int(2); //choose the spin to flip
         
         weight=1.0;
+        ediff=0;
 
         vneighs.clear();
         for (nit=neighbors(start).first; nit!=neighbors(start).second; ++nit) {
@@ -123,13 +124,18 @@ void toricFTSP::dostep() {
                 if (IsInA(start)) {
                     for (int i=0; i<n; ++i) {
                         weight*=vertex_defects[i][*nit]? 1 : expmB[2];
+                        ediff+=vertex_defects[i][*nit]? -2 : 2 ;
+
                     }
                 }
                 else {
                     weight*=vertex_defects[replica][*nit]? 1 : expmB[2];
+                    ediff+=vertex_defects[replica][*nit]? -2 : 2 ;
                 }
             }
         }
+        ediff= (ediff<0)? 0 : ediff;
+        weight = expmB[ediff];
 
         if ((weight>=1)||(random_01()<weight)) {
             flip(replica,start);
