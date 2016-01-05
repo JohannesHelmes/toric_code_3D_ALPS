@@ -3,19 +3,30 @@
 #      (See accompanying file LICENSE_1_0.txt or copy at
 #          http://www.boost.org/LICENSE_1_0.txt)
 #
-#  Makefile for ALPS code on local thp-machine
-#       Johannes Helmes
+#  Makefile for ALPS code on different machines
+#       Johannes Helmes, 2016
 
+host=$(shell hostname)
 
-ALPS_ROOT = /scratch/alps
-SRC = /home/helmes/Work/toric_code_3D_ALPS/src
+ifeq ($(host), l29)
+	ALPS_ROOT = /scratch/alps
+	SRC = /home/helmes/Work/toric_code_3D_ALPS/src
+
+	CXXFLAGS = -O2 -DNDEBUG -march=corei7
+endif
+ifeq ($(host), cheops0)
+	ALPS_ROOT = /projects/ag-trebst/alps/alps-svn-intel-openmpi
+	SRC = /home/jhelmes/Work/toric_code_3D_ALPS/src
+
+	CXXFLAGS = -O2 -DNDEBUG -march=native
+endif
 
 
 include $(ALPS_ROOT)/share/alps/include.mk
 
-CXXFLAGS = -O2 -DNDEBUG -march=corei7
 
 all: FTRandomIntegration FTRandomSwitch
+	@echo $(host)
 
 #######################  Patterns ################################
 %.o:: $(SRC)/%.cpp $(SRC)/%.h
