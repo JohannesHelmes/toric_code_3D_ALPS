@@ -72,26 +72,28 @@ if args.Simple:
 else:
     S=np.zeros((5,N))
 
-    with open(args.outfile,'w') as outfile:
-        for k in range(3,len(renyi_dataG[0].x),args.Step):
-            beta=np.array(renyi_dataG[0].x)[:k]
-            for schemes in renyi_dataG:
-                scheme=int(schemes.props['IncNo'])
-                y=np.array(schemes.y)[:k]
-                av_magn=np.array([float(str(y[i]).split(" ")[0]) for i in range(len(y))])
-                av_magn_err=np.array([float(str(y[i]).split(" ")[2]) for i in range(len(y))])
+    if args.outfile!=None:
+        outfile=open(args.outfile,'w')
+    for k in range(3,len(renyi_dataG[0].x),args.Step):
+        beta=np.array(renyi_dataG[0].x)[:k]
+        for schemes in renyi_dataG:
+            scheme=int(schemes.props['IncNo'])
+            y=np.array(schemes.y)[:k]
+            av_magn=np.array([float(str(y[i]).split(" ")[0]) for i in range(len(y))])
+            av_magn_err=np.array([float(str(y[i]).split(" ")[2]) for i in range(len(y))])
 
-                for i in range(N):
-                    Bstrap_magn=[np.random.normal(av_magn[j],av_magn_err[j]+0.001*abs(av_magn[j])) for j in range(len(y))]
-                    S[scheme,i]=simps(Bstrap_magn,beta,even='avg')
+            for i in range(N):
+                Bstrap_magn=[np.random.normal(av_magn[j],av_magn_err[j]+0.001*abs(av_magn[j])) for j in range(len(y))]
+                S[scheme,i]=simps(Bstrap_magn,beta,even='avg')
 
-            if args.alternate:
-                gamma=np.array([args.Const-(2*factor[args.System]*schemes.props['L']**args.Dim)*(S[0,l]-S[1,l]-S[2,l]+S[3,l]) for l in range(N)])
-            else :
-                gamma=1./(n-1)*np.array([args.Const-(n*factor[args.System]*schemes.props['L']**args.Dim)*(S[0,l]-2*S[1,l]+S[2,l]) for l in range(N)])
+        if args.alternate:
+            gamma=np.array([args.Const-(2*factor[args.System]*schemes.props['L']**args.Dim)*(S[0,l]-S[1,l]-S[2,l]+S[3,l]) for l in range(N)])
+        else :
+            gamma=1./(n-1)*np.array([args.Const-(n*factor[args.System]*schemes.props['L']**args.Dim)*(S[0,l]-2*S[1,l]+S[2,l]) for l in range(N)])
 
-            if args.outfile==None:
-                print beta[-1], np.mean(gamma), np.std(gamma)#, np.mean(SZ2), np.mean(S[0]), np.mean(S[1]), np.mean(S[2])
-            else:
-                outfile.write("{0:f} {1:f} {2:f} \n".format(beta[-1], np.mean(gamma), np.std(gamma)) )
+        if args.outfile==None:
+            print beta[-1], np.mean(gamma), np.std(gamma)#, np.mean(SZ2), np.mean(S[0]), np.mean(S[1]), np.mean(S[2])
+        else:
+            outfile.write("{0:f} {1:f} {2:f} \n".format(beta[-1], np.mean(gamma), np.std(gamma)) )
+    if args.outfile!=None:
         outfile.close()
