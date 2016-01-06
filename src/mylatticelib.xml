@@ -390,7 +390,7 @@
 
 <LATTICEGRAPH name = "toric code">
   <FINITELATTICE>
-    <LATTICE ref="centered rectangular lattice"/>
+    <LATTICE ref="square lattice"/>
     <PARAMETER name="W" default="L"/>
     <EXTENT dimension="1" size="L"/>
     <EXTENT dimension="2" size="W"/>
