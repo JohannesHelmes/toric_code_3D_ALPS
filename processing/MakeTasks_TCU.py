@@ -11,7 +11,7 @@ parser = argparse.ArgumentParser(description='Create input files for ALPS simula
 
 filegroup=parser.add_argument_group()
 
-parser.add_argument('paramfilename'),help='Name of the parameter file. If not provided, "-infile" will be used. If existing file, all following parameters will be ignored.')
+parser.add_argument('paramfilename',help='Name of the parameter file. If not provided, "-infile" will be used. If existing file, all following parameters will be ignored.')
 parser.add_argument('--verbose','-v',help='Print some extra stuff',action='store_true')
 
 paramgroup=parser.add_argument_group()
@@ -33,6 +33,9 @@ paramgroup.add_argument('--temper','-T',help='interpret beta as temperature',act
 paramgroup.add_argument('--directory','-d',help='Directory of the parameter files, default= /scratch/helmes/simulations/"name of parent directory"/')
 
 args=parser.parse_args()
+
+testargs=parser.parse_known_args()
+print testargs
 
 if args.directory==None:
     dirpath='/scratch/helmes/simulations/'+os.path.split(os.path.split(os.getcwd())[0])[1]
