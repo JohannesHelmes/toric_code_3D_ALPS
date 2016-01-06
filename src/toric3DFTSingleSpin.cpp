@@ -17,6 +17,7 @@ toricFTSP::toricFTSP(const alps::ProcessList& where,const alps::Parameters& p,in
     B(static_cast<double>(p.value_or_default("B",1.0))),
     n(static_cast<alps::uint32_t>(p.value_or_default("n",2))),      // Renyi index
     d(static_cast<alps::uint32_t>(p.value_or_default("d",3))),      // dimension 
+    exc(static_cast<alps::uint32_t>(p.value_or_default("ExcType",2))),      // Type of excitation: 1(plaquettes) 2(vertices) 
     Total_Steps(0),
     IncStep(static_cast<string>(p["IncStep"]))
 {
@@ -119,7 +120,7 @@ void toricFTSP::dostep() {
 
         vneighs.clear();
         for (nit=neighbors(start).first; nit!=neighbors(start).second; ++nit) {
-            if (site_type(*nit)==2) {
+            if (site_type(*nit)==exc) {
                 vneighs.push_back(*nit);
                 if (IsInA(start)) {
                     for (int i=0; i<n; ++i) {

@@ -39,7 +39,7 @@ protected :
     alps::uint64_t const Nb_Therm_Steps;
     alps::uint64_t Total_Steps;
     int W,N,numspins,numsites,start,B,replica,NofD,ediff;
-    int const L,n,d;
+    int const L,n,d,exc;
     bool WasInA, InA, found;
     string IncStep;
     std::vector<bool> geom,edge;
