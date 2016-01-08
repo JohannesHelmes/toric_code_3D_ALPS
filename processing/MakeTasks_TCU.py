@@ -35,11 +35,13 @@ paramgroup.add_argument('--directory','-d',help='Directory of the parameter file
 args=parser.parse_args()
 
 testargs=parser.parse_known_args()
-print testargs
+if args.verbose:
+    print testargs
 
 if args.directory==None:
     dirpath='/scratch/helmes/simulations/'+os.path.split(os.path.split(os.getcwd())[0])[1]
-    print dirpath
+    if args.verbose:
+        print dirpath
 else:
     dirpath=args.directory
 
@@ -47,6 +49,15 @@ if args.paramfilename==None:
     paramfilename=args.infile
 else:
     paramfilename=args.paramfilename
+
+#Maybe I DONT want this: ????
+
+paramfilename = dirpath+"/"+paramfilename
+ext = os.path.splitext(paramfilename)[1]
+print ext
+if ext=='':
+    paramfilename = paramfilename+".conf"
+
 
 config['DEFAULT'] = { 'sweeps': args.sweeps, 'therm': args.therm, 'n': args.n, 'length': args.length, 'lattice': args.lattice, 'ExcType':args.ExcType, 'beta': args.beta,
         'magnetization': args.magnetization, 'infile': args.infile, 'geofile':args.geofile.name, 'partsize':args.partsize, 'temper':args.temper, 'directory':dirpath} 
