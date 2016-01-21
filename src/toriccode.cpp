@@ -19,8 +19,9 @@ toricFTSPMembrane::toricFTSPMembrane(const alps::ProcessList& where,const alps::
     Total_Steps(0),
     IncStep(static_cast<string>(p["IncStep"])),
     NofD(0),
+    numspins(0),
     connected(false),
-    mes(static_cast<alps::uint32_t>(p.value_or_default("method",0)) == 0 ? thermo_int(&measurements,&NofD) : switching(&measurements,&connected))
+    mes(static_cast<alps::uint32_t>(p.value_or_default("method",0)) == 0 ? thermo_int(&measurements,&NofD,&numspins) : switching(&measurements,&connected))
 {
     
 
