@@ -15,6 +15,13 @@ ifeq ($(host), l29)
 
 	CXXFLAGS = -O2 -DNDEBUG -march=corei7
 endif
+ifeq ($(host), johannes-thinkpad)
+	ALPS_ROOT = /opt/alps
+	SRC = /home/johannes/Work/toric_code_3D_ALPS/src
+	BIN = /home/johannes/Work/toric_code_3D_ALPS/bin
+
+	CXXFLAGS = -O2 -DNDEBUG 
+endif
 ifeq ($(host), cheops0)
 	ALPS_ROOT = /projects/ag-trebst/alps/alps-svn-intel-intelmpi
 	SRC = /home/jhelmes/Work/toric_code_3D_ALPS/src

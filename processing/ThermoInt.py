@@ -1,7 +1,6 @@
 import matplotlib.pylab as plt
 import pyalps,argparse
 import os
-import plottery
 import numpy as np
 from scipy.integrate import simps, romb
 
