@@ -6,7 +6,7 @@ site::site() : value(false) { }
 
 
 /********  class spin  **************/
-spin::spin(int inReps) : site(), weight(-4*inReps) { }
+spin::spin(int inReps): site(), weight(-4*inReps) { }
 
 void spin::add_neighbor(plaq_ptr nb) {
     plaq_ptr new_nb(nb);
@@ -36,3 +36,6 @@ void plaquette::flip() {
     for (spit=neighbors.begin(); spit!=neighbors.end(); ++spit)
         (*spit)->mod_weight(value);
 }
+
+/********* class vertex  ***********/
+vertex::vertex(): site() { }

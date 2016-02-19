@@ -56,8 +56,8 @@ FTSPRandomSwitch: $(BIN)/toric3DFTSingleSpin.o $(BIN)/FTSPRandomSwitch.o $(BIN)/
 FTSPRandomIntegration: $(BIN)/toric3DFTSingleSpin.o $(BIN)/FTSPRandomIntegration.o $(BIN)/mainFTSPRandomIntegration.o
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $(BIN)/$@ $(BIN)/mainFTSPRandomIntegration.o $(BIN)/FTSPRandomIntegration.o $(BIN)/toric3DFTSingleSpin.o $(LDFLAGS) $(LIBS) $(LINKFLAG)
 
-FTSPMembraneRandomIntegration: $(BIN)/toric3DFTMembraneSingleSpin.o $(BIN)/FTSPMembraneRandomIntegration.o $(BIN)/mainFTSPMembraneRandomIntegration.o
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $(BIN)/$@ $(BIN)/mainFTSPMembraneRandomIntegration.o $(BIN)/FTSPMembraneRandomIntegration.o $(BIN)/toric3DFTMembraneSingleSpin.o $(LDFLAGS) $(LIBS) $(LINKFLAG)
+FTSPMembraneRandomIntegration: $(BIN)/site.o $(BIN)/toric3DFTMembraneSingleSpin.o $(BIN)/FTSPMembraneRandomIntegration.o $(BIN)/mainFTSPMembraneRandomIntegration.o
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $(BIN)/$@ $(BIN)/site.o $(BIN)/mainFTSPMembraneRandomIntegration.o $(BIN)/FTSPMembraneRandomIntegration.o $(BIN)/toric3DFTMembraneSingleSpin.o $(LDFLAGS) $(LIBS) $(LINKFLAG)
 
 clean:
 	$(RM) $(RMFLAGS) $(BIN)/*.o FTRandomIntegration FTRandomSwitch toric3DFiniteTemp FTSPRandomIntegration FTSPMembraneRandomIntegration FTSPRandomSwitch toric3DFTSingleSpin toric3DFTMembraneSingleSpin

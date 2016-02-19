@@ -1,9 +1,12 @@
 #include<vector>
 #include<memory>
 
-
+class site;
 class spin;
 class plaquette;
+
+typedef std::shared_ptr<site> site_ptr;
+typedef std::vector<site_ptr>::iterator site_t;
 
 typedef std::shared_ptr<spin> spin_ptr;
 typedef std::vector<spin_ptr>::iterator spit_t;
@@ -43,5 +46,11 @@ private:
     void flip();
 
     friend void spin::flip();
+};
+
+class vertex : site {
+    vertex();
+private:
+    void flip() { };
 };
 

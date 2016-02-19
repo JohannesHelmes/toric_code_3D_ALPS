@@ -6,8 +6,9 @@
 #include <alps/alea.h>
 #include <alps/alea/histogram.h>
 #include <alps/scheduler/montecarlo.h>
-#include <tuple>
 #include <string>
+#include <memory>
+#include "site.h"
 
 
 
@@ -15,14 +16,6 @@
 typedef alps::scheduler::LatticeMCRun<>::graph_type graph_type;
 
 using namespace std;
-
-struct defect {
-    int vertex;
-    int spin;
-
-    defect() {vertex=-5; spin=-5;}
-    defect(int a, int b) {vertex=a; spin=b;}
-};
 
 class toricFTSPMembrane : public alps::scheduler::LatticeMCRun<graph_type>{
 
@@ -46,6 +39,8 @@ protected :
     std::vector<bool> spins_;
     std::vector<std::vector<bool> > plaquette_defects;
     std::vector<int> pneighs;
+    std::vector<spin_ptr> spins;
+    std::vector<plaq_ptr> plaquettes;
 
     void heal_chain(int replica, std::deque<int> chain, std::deque<int> back_chain);
     void heal_chain_open(int replica, std::deque<int> chain, std::deque<int> back_chain);

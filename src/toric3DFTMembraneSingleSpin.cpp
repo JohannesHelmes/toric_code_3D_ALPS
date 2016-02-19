@@ -31,6 +31,24 @@ toricFTSPMembrane::toricFTSPMembrane(const alps::ProcessList& where,const alps::
         numspins=n*3*N;
     }
 
+    //ToDo: make mappings lattice_index_to_spin_index, lattice_index_to_plaq_index
+    for (int i=0; i<n; ++i) {
+        for (sit=sites().first; sit!=sites().second; ++sit) {
+            if (site_type(*sit)==0) {
+                //ToDo: Create a new spin only for n=0, otherwise push back the zeroths replica spin
+                spin_ptr nspin = std::make_shared<spin>(n*IsInA(*sit));
+                spins.push_back(nspin);
+            }
+            else if (site_type(*sit)==1) {
+                plaq_ptr nplaq = std::make_shared<plaq>();
+                plaqs.push_back(nplaq);
+            }
+        }
+    }
+    //ToDo: add ALL!! neighbors.
+
+
+
     spins_.resize(n*numsites,0);
     plaquette_defects.resize(n);
     for (int i=0; i<n; ++i) 
