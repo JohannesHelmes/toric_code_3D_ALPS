@@ -1,0 +1,47 @@
+#include<vector>
+#include<memory>
+
+
+class spin;
+class plaquette;
+
+typedef std::shared_ptr<spin> spin_ptr;
+typedef std::vector<spin_ptr>::iterator spit_t;
+typedef std::shared_ptr<plaquette> plaq_ptr;
+typedef std::vector<plaq_ptr>::iterator plit_t;
+
+class site {
+protected:
+    bool value;
+public:
+    site();
+    virtual void flip()=0;
+};
+
+
+class spin : site {
+    
+private:
+    int weight;
+    std::vector<plaq_ptr> neighbors;
+    plit_t plit;
+public:
+    spin(int inReps);
+    void add_neighbor(plaq_ptr nb);
+    void flip();
+    void mod_weight(bool plusminus); //False = decrease, True = increase
+    int const get_weight() {return weight; }
+
+};
+
+class plaquette : site {
+    plaquette();
+    void add_neighbor(spin_ptr nb);
+private:
+    std::vector<spin_ptr> neighbors;
+    spit_t spit;
+    void flip();
+
+    friend void spin::flip();
+};
+
