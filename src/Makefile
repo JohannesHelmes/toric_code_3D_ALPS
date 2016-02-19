@@ -6,33 +6,37 @@
 #  Makefile for ALPS code on different machines
 #       Johannes Helmes, 2016
 
+
 host=$(shell hostname)
 
 ifeq ($(host), l29)
 	ALPS_ROOT = /scratch/alps
 	SRC = /home/helmes/Work/toric_code_3D_ALPS/src
 	BIN = /home/helmes/Work/toric_code_3D_ALPS/bin
-
-	CXXFLAGS = -O2 -DNDEBUG -march=corei7
 endif
 ifeq ($(host), johannes-thinkpad)
 	ALPS_ROOT = /opt/alps
 	SRC = /home/johannes/Work/toric_code_3D_ALPS/src
 	BIN = /home/johannes/Work/toric_code_3D_ALPS/bin
-
-	CXXFLAGS = -O2 -DNDEBUG 
 endif
 ifeq ($(host), cheops0)
 	ALPS_ROOT = /projects/ag-trebst/alps/alps-svn-intel-intelmpi
 	SRC = /home/jhelmes/Work/toric_code_3D_ALPS/src
 	BIN = /home/jhelmes/Work/toric_code_3D_ALPS/bin
-
-	CXXFLAGS = -O2 -DNDEBUG -march=native
 endif
 
 
 include $(ALPS_ROOT)/share/alps/include.mk
 
+ifeq ($(host), l29)
+	CXXFLAGS = -O2 -DNDEBUG -march=corei7 -std=c++0x 
+endif
+ifeq ($(host), johannes-thinkpad)
+	CXXFLAGS = -O2 -DNDEBUG -std=c++11
+endif
+ifeq ($(host), cheops0)
+	CXXFLAGS = -O2 -DNDEBUG -march=native -std=c++0x 
+endif
 
 all: FTSPRandomIntegration FTSPRandomSwitch FTSPMembraneRandomIntegration
 	@echo $(host)
@@ -40,10 +44,10 @@ all: FTSPRandomIntegration FTSPRandomSwitch FTSPMembraneRandomIntegration
 
 #######################  Patterns ################################
 $(BIN)/%.o: $(SRC)/%.cpp $(SRC)/%.h
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -std=c++0x -c $< -o $@ $(COMFLAG)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@ $(COMFLAG)
 
 $(BIN)/main%.o: $(SRC)/main%.C
-	$(CXX) $(CPPFLAGS)  $(CXXFLAGS) -std=c++0x -c $< -o $@ 
+	$(CXX) $(CPPFLAGS)  $(CXXFLAGS) -c $< -o $@ 
 ###################### End Patterns ##############################
 
 FTSPRandomSwitch: $(BIN)/toric3DFTSingleSpin.o $(BIN)/FTSPRandomSwitch.o $(BIN)/mainFTSPRandomSwitch.o

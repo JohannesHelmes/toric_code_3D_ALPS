@@ -54,7 +54,6 @@ else:
 
 paramfilename = dirpath+"/"+paramfilename
 ext = os.path.splitext(paramfilename)[1]
-print ext
 if ext=='':
     paramfilename = paramfilename+".conf"
 
@@ -67,29 +66,50 @@ with open(paramfilename,'w') as configfile:
     configfile.write("# created on " + timestring)
     config.write(configfile)
 
+
+#Check beta and magnetization grid
+
 beta=args.beta
+if (beta==None):
+    beta=[2*args.length]
+
+if (len(args.beta)>1) and (len(args.magnetization)>1):
+    raise ValueError('There can be either a grid of betas or of magnetizations!')
+
+betalist=[]
+hlist=[]
+if len(beta)>1:
+    if len(beta)%2==0:
+         raise ValueError('beta grid needs odd number of arguments.')
+    for i in range(0,len(beta)-1,2):
+        betalist+=(np.linspace(beta[i],beta[i+2],beta[i+1]).tolist())
+    hlist=args.magnetization*len(betalist)
+    betalist = sorted(list(set(betalist))) # remove duplicates
+    
+magn=args.magnetization
+if len(magn)>1:
+    if len(magn)%2==0:
+         raise ValueError('magn grid needs odd number of arguments.')
+    for i in range(0,len(magn)-1,2):
+        hlist.append(np.linspace(magn[i],magn[i+2],magn[i+1]).tolist())
+    betalist=beta*len(hlist)
+    hlist = sorted(list(set(hlist)))
+
+if (len(magn)==1)and(len(beta)==1):
+    hlist=magn
+    betalist=beta
+
+print betalist
+print hlist
 
 latticename=["toric code","toric code fcr","toric code 3D"]
 dimension=3 if args.lattice==2 else 2
-
-if (beta==None):
-    beta=[2*args.length]
 
 if args.geofile==None:
     geo="0"
 else:
     geo=os.path.abspath(args.geofile.name)
 
-
-parms = []
-betagrid=beta if len(beta)==3 else np.array((beta[0],beta[0],1))
-magngrid=np.array(args.magnetization) if len(args.magnetization)==3 else np.array((args.magnetization[0],args.magnetization[0],1))
-if args.verbose:
-    print "magngrid ", magngrid
-
-betalist,hlist= np.mgrid[betagrid[0]:betagrid[1]:betagrid[2]*1j,magngrid[0]:magngrid[1]:magngrid[2]*1j]
-if args.verbose:
-    print "Blist", Blist
 if geo=="0":
     Geometry=[""]
 else:
@@ -104,11 +124,13 @@ if len(Geometry[0])!=dimension*args.length**dimension: #first factor is the numb
 if args.verbose:
     print Geometry
 
+
+parms = []
 for i,IncEl in enumerate(Geometry):
 
-    for beta,h in zip(betalist.flat,hlist.flat):
+    for beta,h in zip(betalist,hlist):
         if args.verbose:
-            print B,beta,h
+            print beta,h
  
         parms.append(
             {
