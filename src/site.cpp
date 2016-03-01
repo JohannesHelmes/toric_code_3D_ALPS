@@ -23,6 +23,14 @@ void spin::mod_weight(bool plusminus) {
     weight += (plusminus)? 2: -2 ;
 }
 
+int const spin::get_weight() {
+    energy = 0;
+    for (plit=neighbors.begin(); plit!=neighbors.end(); ++plit) {
+        energy+=(*plit)->get_value();
+    }
+    return energy;
+}
+
 /********** class plaquette *********/
 plaquette::plaquette(): site() { }
 
@@ -33,8 +41,9 @@ void plaquette::add_neighbor(spin_ptr nb) {
 
 void plaquette::flip() {
     value=!value;
-    for (spit=neighbors.begin(); spit!=neighbors.end(); ++spit)
-        (*spit)->mod_weight(value);
+    //DON'T DO THIS!!!
+    //for (spit=neighbors.begin(); spit!=neighbors.end(); ++spit)
+    //    (*spit)->mod_weight(value);
 }
 
 /********* class vertex  ***********/

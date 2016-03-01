@@ -31,30 +31,58 @@ toricFTSPMembrane::toricFTSPMembrane(const alps::ProcessList& where,const alps::
         numspins=n*3*N;
     }
 
-    //ToDo: make mappings lattice_index_to_spin_index, lattice_index_to_plaq_index
+    geom.resize(numsites,false);
+
+    sit=sites().first;
+    for (int i=0; i<IncStep.length(); ++i,++sit) {
+        if (sit==sites().second)
+            break;
+        while (site_type(*sit)!=0)
+            ++sit;
+        if (sit==sites().second)
+            break;
+        if (IncStep[i]!='0') {
+            geom[*sit]=true;
+        }
+         
+    }
+
+    map_lat_to_spin.resize(n*numsites);
+    map_lat_to_plaq.resize(n*numsites);
+    cout<<"numsites "<<numsites<<" total "<<n*numsites<<endl;
     for (int i=0; i<n; ++i) {
         for (sit=sites().first; sit!=sites().second; ++sit) {
             if (site_type(*sit)==0) {
-                //ToDo: Create a new spin only for n=0, otherwise push back the zeroths replica spin
-                spin_ptr nspin = std::make_shared<spin>(n*IsInA(*sit));
-                spins.push_back(nspin);
+                if ((!geom[*sit])||(i==0)) {
+                    spin_ptr nspin = std::make_shared<spin>((n-1)*geom[*sit]+1);
+                    spins.push_back(nspin);
+                }
+                else 
+                    spins.push_back(spins[map_lat_to_spin[*sit]]);
+
+                map_lat_to_spin[*sit + i*numsites]=spins.size()-1;
             }
             else if (site_type(*sit)==1) {
-                plaq_ptr nplaq = std::make_shared<plaq>();
+                plaq_ptr nplaq = std::make_shared<plaquette>();
                 plaqs.push_back(nplaq);
+                map_lat_to_plaq[*sit + i*numsites]=plaqs.size()-1;
             }
         }
     }
-    //ToDo: add ALL!! neighbors.
 
+    //create all neighbor pairs
+    for (int i=0; i<n; ++i) {
+        for (sit=sites().first; sit!=sites().second; ++sit) {
+            if (site_type(*sit)==0) {
+                for (nit=neighbors(*sit).first; nit!=neighbors(*sit).second; ++nit) {
+                    //cout<<"Try to add neighbors between "<<*sit<<" and "<<*nit<<endl;
+                    spins[map_lat_to_spin[*sit + i*numsites]]->add_neighbor(plaqs[map_lat_to_plaq[*nit + i*numsites]]);
+                    plaqs[map_lat_to_plaq[*nit + i*numsites]]->add_neighbor(spins[map_lat_to_spin[*sit + i*numsites]]);
+                }
+            }
+        }
+    }
 
-
-    spins_.resize(n*numsites,0);
-    plaquette_defects.resize(n);
-    for (int i=0; i<n; ++i) 
-        plaquette_defects[i].resize(numsites,false); 
-    geom.resize(numsites,false);
-    edge.resize(numsites,false);
     
     std::cout << "# L: " << L << " Steps: " << Nb_Steps  << " Spins: " <<numspins<<" Sites: "<<numsites<< std::endl;
 
@@ -121,6 +149,15 @@ void toricFTSPMembrane::dostep() {
     //this code is for zero-field only!!
 
     for (int j=0; j<N/2; ++j) {
+
+        int cand=random_int(spins.size());
+        candidate=spins[cand];
+        //cout<<Total_Steps<<": Try to flip "<<cand<<" with weight "<<candidate->get_weight()<<endl;
+
+        if ((candidate->get_weight()>=0)||(random_01()<expmB[-candidate->get_weight()])) 
+            candidate->flip();
+
+        /*
         replica=random_int(n);
 
         if (d==3)
@@ -162,6 +199,7 @@ void toricFTSPMembrane::dostep() {
                 flip_defect(replica,pneighs[3]);
             }
         }
+        */
     }
 
     

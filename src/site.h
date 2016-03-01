@@ -25,7 +25,7 @@ public:
 class spin : site {
     
 private:
-    int weight;
+    int weight, energy;
     std::vector<plaq_ptr> neighbors;
     plit_t plit;
 public:
@@ -33,13 +33,15 @@ public:
     void add_neighbor(plaq_ptr nb);
     void flip();
     void mod_weight(bool plusminus); //False = decrease, True = increase
-    int const get_weight() {return weight; }
+    int const get_weight(); 
 
 };
 
 class plaquette : site {
+public:
     plaquette();
     void add_neighbor(spin_ptr nb);
+    int get_value(){ return value? 1 : -1 ; }
 private:
     std::vector<spin_ptr> neighbors;
     spit_t spit;

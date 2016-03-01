@@ -4,17 +4,6 @@ using namespace boost;
 
 FTSPMembraneRandomIntegration::FTSPMembraneRandomIntegration(const alps::ProcessList& where,const alps::Parameters& p,int node) : toricFTSPMembrane(where,p,node) {
 
-    sit=sites().first;
-    for (int i=0; i<IncStep.length(); ++i,++sit) {
-        if (sit==sites().second)
-            break;
-        while (site_type(*sit)!=0)
-            ++sit;
-        if (sit==sites().second)
-            break;
-        if (IncStep[i]!='0')
-            geom[*sit]=true;
-    }
 
     /* print lattice connections
     for (sit=sites().first; sit!=sites().second; ++sit) {
