@@ -17,6 +17,7 @@ toricFTSPMembrane::toricFTSPMembrane(const alps::ProcessList& where,const alps::
     B(static_cast<double>(p.value_or_default("B",1.0))),
     n(static_cast<alps::uint32_t>(p.value_or_default("n",2))),      // Renyi index
     d(static_cast<alps::uint32_t>(p.value_or_default("d",3))),      // dimension 
+    exc(static_cast<alps::uint32_t>(p.value_or_default("ExcType",2))),      // Type of excitation: 1(plaquettes) 2(vertices) 
     Total_Steps(0),
     IncStep(static_cast<string>(p["IncStep"]))
 {
@@ -62,7 +63,7 @@ toricFTSPMembrane::toricFTSPMembrane(const alps::ProcessList& where,const alps::
 
                 map_lat_to_spin[*sit + i*numsites]=spins.size()-1;
             }
-            else if (site_type(*sit)==1) {
+            else if (site_type(*sit)==exc) {
                 plaq_ptr nplaq = std::make_shared<plaquette>();
                 plaqs.push_back(nplaq);
                 map_lat_to_plaq[*sit + i*numsites]=plaqs.size()-1;
@@ -75,8 +76,7 @@ toricFTSPMembrane::toricFTSPMembrane(const alps::ProcessList& where,const alps::
         for (sit=sites().first; sit!=sites().second; ++sit) {
             if (site_type(*sit)==0) {
                 for (nit=neighbors(*sit).first; nit!=neighbors(*sit).second; ++nit) {
-                    //cout<<"Try to add neighbors between "<<*sit<<" and "<<*nit<<endl;
-                    if (site_type(*nit)==1) {
+                    if (site_type(*nit)==exc) { //plaqs is not a good variable name - can be vertices as well
                         spins[map_lat_to_spin[*sit + i*numsites]]->add_neighbor(plaqs[map_lat_to_plaq[*nit + i*numsites]]);
                         plaqs[map_lat_to_plaq[*nit + i*numsites]]->add_neighbor(spins[map_lat_to_spin[*sit + i*numsites]]);
                     }
