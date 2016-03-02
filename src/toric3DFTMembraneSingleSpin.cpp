@@ -85,12 +85,14 @@ toricFTSPMembrane::toricFTSPMembrane(const alps::ProcessList& where,const alps::
         }
     }
 
+    /*
     for (sit=sites().first; sit!=sites().second; ++sit) {
         if (site_type(*sit)==0) { 
             cout<<*sit<<" has spin index "<<map_lat_to_spin[*sit]<<endl;
             cout<<"IN A = "<<geom[*sit]<<" and the weight is "<<spins[map_lat_to_spin[*sit]]->get_weight()<<" and has num neighbors"<<spins[map_lat_to_spin[*sit]]->num_neighbors()<<endl;
         }
     }
+    */
     std::cout << "# L: " << L << " Steps: " << Nb_Steps  << " Spins: " <<numspins<<" Sites: "<<numsites<< std::endl;
 
     expmB.resize(8*n+1);
