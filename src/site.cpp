@@ -31,6 +31,10 @@ int const spin::get_weight() {
     return energy;
 }
 
+int const spin::num_neighbors() {
+    return neighbors.size();
+}
+
 /********** class plaquette *********/
 plaquette::plaquette(): site() { }
 

@@ -76,22 +76,31 @@ toricFTSPMembrane::toricFTSPMembrane(const alps::ProcessList& where,const alps::
             if (site_type(*sit)==0) {
                 for (nit=neighbors(*sit).first; nit!=neighbors(*sit).second; ++nit) {
                     //cout<<"Try to add neighbors between "<<*sit<<" and "<<*nit<<endl;
-                    spins[map_lat_to_spin[*sit + i*numsites]]->add_neighbor(plaqs[map_lat_to_plaq[*nit + i*numsites]]);
-                    plaqs[map_lat_to_plaq[*nit + i*numsites]]->add_neighbor(spins[map_lat_to_spin[*sit + i*numsites]]);
+                    if (site_type(*nit)==1) {
+                        spins[map_lat_to_spin[*sit + i*numsites]]->add_neighbor(plaqs[map_lat_to_plaq[*nit + i*numsites]]);
+                        plaqs[map_lat_to_plaq[*nit + i*numsites]]->add_neighbor(spins[map_lat_to_spin[*sit + i*numsites]]);
+                    }
                 }
             }
         }
     }
 
-    
+    for (sit=sites().first; sit!=sites().second; ++sit) {
+        if (site_type(*sit)==0) { 
+            cout<<*sit<<" has spin index "<<map_lat_to_spin[*sit]<<endl;
+            cout<<"IN A = "<<geom[*sit]<<" and the weight is "<<spins[map_lat_to_spin[*sit]]->get_weight()<<" and has num neighbors"<<spins[map_lat_to_spin[*sit]]->num_neighbors()<<endl;
+        }
+    }
     std::cout << "# L: " << L << " Steps: " << Nb_Steps  << " Spins: " <<numspins<<" Sites: "<<numsites<< std::endl;
 
-    expmB.resize(2*n+1);
+    expmB.resize(8*n+1);
     expmB[0]=1.0;
-    for (int i=1; i<=n; ++i) 
-        expmB[2*i]=std::exp(-2.*i*beta*B);
+    for (int i=1; i<=8*n; ++i) 
+        expmB[i]=std::exp(-1.*i*beta*B);
 
-    NofD=-n*N;
+    //NofD=-n*N;
+    //cout<<"initial NofD "<<NofD<<" vs "<<plaqs.size()<<endl;
+    NofD=-plaqs.size();
 
 }
 
@@ -150,12 +159,16 @@ void toricFTSPMembrane::dostep() {
 
     for (int j=0; j<N/2; ++j) {
 
-        int cand=random_int(spins.size());
-        candidate=spins[cand];
-        //cout<<Total_Steps<<": Try to flip "<<cand<<" with weight "<<candidate->get_weight()<<endl;
+        candidate=spins[random_int(spins.size())];
+        int cand_weight = candidate->get_weight();
+        //cout<<Total_Steps<<": Try to flip "<<cand<<" with ediff"<<candidate->get_weight()<<" and weight "<<expmB[-2*candidate->get_weight()]<<endl;
 
-        if ((candidate->get_weight()>=0)||(random_01()<expmB[-candidate->get_weight()])) 
+        if ((cand_weight>=0)||(random_01()<expmB[-2*cand_weight])) {
+            NofD -= 2*cand_weight; //is the old weight
             candidate->flip();
+        }
+        //cout<<NofD<<endl;
+
 
         /*
         replica=random_int(n);

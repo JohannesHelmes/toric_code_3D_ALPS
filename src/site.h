@@ -34,6 +34,7 @@ public:
     void flip();
     void mod_weight(bool plusminus); //False = decrease, True = increase
     int const get_weight(); 
+    int const num_neighbors(); 
 
 };
 
