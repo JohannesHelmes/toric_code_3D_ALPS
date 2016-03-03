@@ -94,7 +94,6 @@ toricFTSPMembrane::toricFTSPMembrane(const alps::ProcessList& where,const alps::
         }
     }
     */
-    std::cout << "# L: " << L << " Steps: " << Nb_Steps  << " Spins: " <<numspins<<" Sites: "<<numsites<< std::endl;
 
     expmB.resize(8*n+1);
     expmB[0]=1.0;
@@ -102,9 +101,10 @@ toricFTSPMembrane::toricFTSPMembrane(const alps::ProcessList& where,const alps::
         expmB[i]=std::exp(-1.*i*beta*B);
 
     //NofD=-n*N;
+    NofD=(exc==1)? -plaqs.size() : -verts.size();
     //cout<<"initial NofD "<<NofD<<" vs "<<plaqs.size()<<endl;
-    NofD=(exc==2)? -plaqs.size() : -verts.size();
     numspins=spins.size();
+    std::cout << "# L: " << L << " Steps: " << Nb_Steps  << " Spins: " <<numspins<<" Sites: "<<numsites<< std::endl;
 
 }
 
@@ -141,20 +141,21 @@ void toricFTSPMembrane::dostep() {
     //insert or remove electric defects
     //this code is for zero-field only!!
 
-    for (int j=0; j<N/2; ++j) {
+    for (int j=0; j<numspins/7; ++j) {
 
         candidate=spins[random_int(spins.size())];
-        int cand_weight = (exc==2)? candidate->get_weight_from_plaqs() : candidate->get_weight_from_verts();
-        //cout<<Total_Steps<<": Try to flip "<<cand<<" with ediff"<<candidate->get_weight()<<" and weight "<<expmB[-2*candidate->get_weight()]<<endl;
+        int cand_weight = (exc==1)? candidate->get_weight_from_plaqs() : candidate->get_weight_from_verts();
+        //cout<<Total_Steps<<": Try to flip  with ediff"<<cand_weight<<" and weight "<<expmB[-2*cand_weight]<<endl;
 
         if ((cand_weight>=0)||(random_01()<expmB[-2*cand_weight])) {
             NofD -= 2*cand_weight; //is the old weight
-            if (exc==2)
+            if (exc==1)
                 candidate->flip_and_flip_plaqs();
             else
                 candidate->flip_and_flip_verts();
         }
     }
+    //cout<<NofD<<endl;
 
     
     if (is_thermalized()) 
