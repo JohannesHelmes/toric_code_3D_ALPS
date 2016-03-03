@@ -23,17 +23,8 @@ toricFTSPMembrane::toricFTSPMembrane(const alps::ProcessList& where,const alps::
 {
 
     numsites=num_sites();
-    if (d==2) {
-        N=numsites/4;
-        numspins=n*2*N;
-    }
-    else {
-        N=pow(L,d);
-        numspins=n*3*N;
-    }
 
     geom.resize(numsites,false);
-
     sit=sites().first;
     for (int i=0; i<IncStep.length(); ++i,++sit) {
         if (sit==sites().second)
@@ -50,12 +41,13 @@ toricFTSPMembrane::toricFTSPMembrane(const alps::ProcessList& where,const alps::
 
     map_lat_to_spin.resize(n*numsites);
     map_lat_to_plaq.resize(n*numsites);
+    map_lat_to_vert.resize(n*numsites);
     cout<<"numsites "<<numsites<<" total "<<n*numsites<<endl;
     for (int i=0; i<n; ++i) {
         for (sit=sites().first; sit!=sites().second; ++sit) {
             if (site_type(*sit)==0) {
                 if ((!geom[*sit])||(i==0)) {
-                    spin_ptr nspin = std::make_shared<spin>((n-1)*geom[*sit]+1);
+                    spin_ptr nspin = std::make_shared<spin>();
                     spins.push_back(nspin);
                 }
                 else 
@@ -63,10 +55,15 @@ toricFTSPMembrane::toricFTSPMembrane(const alps::ProcessList& where,const alps::
 
                 map_lat_to_spin[*sit + i*numsites]=spins.size()-1;
             }
-            else if (site_type(*sit)==exc) {
+            else if (site_type(*sit)==1) {
                 plaq_ptr nplaq = std::make_shared<plaquette>();
                 plaqs.push_back(nplaq);
                 map_lat_to_plaq[*sit + i*numsites]=plaqs.size()-1;
+            }
+            else if (site_type(*sit)==2) {
+                vert_ptr nver = std::make_shared<vertexx>();
+                verts.push_back(nver);
+                map_lat_to_vert[*sit + i*numsites]=verts.size()-1;
             }
         }
     }
@@ -76,9 +73,13 @@ toricFTSPMembrane::toricFTSPMembrane(const alps::ProcessList& where,const alps::
         for (sit=sites().first; sit!=sites().second; ++sit) {
             if (site_type(*sit)==0) {
                 for (nit=neighbors(*sit).first; nit!=neighbors(*sit).second; ++nit) {
-                    if (site_type(*nit)==exc) { //plaqs is not a good variable name - can be vertices as well
+                    if (site_type(*nit)==1) { //plaqs is not a good variable name - can be vertices as well
                         spins[map_lat_to_spin[*sit + i*numsites]]->add_neighbor(plaqs[map_lat_to_plaq[*nit + i*numsites]]);
                         plaqs[map_lat_to_plaq[*nit + i*numsites]]->add_neighbor(spins[map_lat_to_spin[*sit + i*numsites]]);
+                    }
+                    if (site_type(*nit)==2) { //plaqs is not a good variable name - can be vertices as well
+                        spins[map_lat_to_spin[*sit + i*numsites]]->add_neighbor(verts[map_lat_to_vert[*nit + i*numsites]]);
+                        verts[map_lat_to_vert[*nit + i*numsites]]->add_neighbor(spins[map_lat_to_spin[*sit + i*numsites]]);
                     }
                 }
             }
@@ -102,7 +103,8 @@ toricFTSPMembrane::toricFTSPMembrane(const alps::ProcessList& where,const alps::
 
     //NofD=-n*N;
     //cout<<"initial NofD "<<NofD<<" vs "<<plaqs.size()<<endl;
-    NofD=-plaqs.size();
+    NofD=(exc==2)? -plaqs.size() : -verts.size();
+    numspins=spins.size();
 
 }
 
@@ -134,26 +136,6 @@ double toricFTSPMembrane::work_done() const {
 }
 
 
-void toricFTSPMembrane::flip(int replica, int spin) {
-    if (geom[spin]) {
-        for (int i=0; i<n; ++i) 
-            spins_[numsites*i+spin]=!spins_[numsites*i+spin];
-    }
-    else 
-        spins_[numsites*replica+spin]=!spins_[numsites*replica+spin];
-}
-
-void toricFTSPMembrane::flip_defect(int replica, int plaquette) {
-    if (plaquette_defects[replica][plaquette]) {
-        plaquette_defects[replica][plaquette]=false;
-        NofD-=2;
-    }
-    else {
-        plaquette_defects[replica][plaquette]=true;
-        NofD+=2;
-    }
-}
-
 void toricFTSPMembrane::dostep() {
 
     //insert or remove electric defects
@@ -162,59 +144,16 @@ void toricFTSPMembrane::dostep() {
     for (int j=0; j<N/2; ++j) {
 
         candidate=spins[random_int(spins.size())];
-        int cand_weight = candidate->get_weight();
+        int cand_weight = (exc==2)? candidate->get_weight_from_plaqs() : candidate->get_weight_from_verts();
         //cout<<Total_Steps<<": Try to flip "<<cand<<" with ediff"<<candidate->get_weight()<<" and weight "<<expmB[-2*candidate->get_weight()]<<endl;
 
         if ((cand_weight>=0)||(random_01()<expmB[-2*cand_weight])) {
             NofD -= 2*cand_weight; //is the old weight
-            candidate->flip();
+            if (exc==2)
+                candidate->flip_and_flip_plaqs();
+            else
+                candidate->flip_and_flip_verts();
         }
-        //cout<<NofD<<endl;
-
-
-        /*
-        replica=random_int(n);
-
-        if (d==3)
-            start=7*random_int(N)+4+random_int(3); //choose the spin to flip 
-        if (d==2)
-            start=4*random_int(N)+2+random_int(2); //choose the spin to flip
-        
-        weight=1.0;
-
-        pneighs.clear();
-        for (nit=neighbors(start).first; nit!=neighbors(start).second; ++nit) {
-            if (site_type(*nit)==1) {
-                pneighs.push_back(*nit);
-                if (IsInA(start)) {
-                    for (int i=0; i<n; ++i) {
-                        weight*=plaquette_defects[i][*nit]? 1 : expmB[2];
-                    }
-                }
-                else {
-                    weight*=plaquette_defects[replica][*nit]? 1 : expmB[2];
-                }
-            }
-        }
-
-        if ((weight>=1)||(random_01()<weight)) {
-            flip(replica,start);
-            if (IsInA(start)) {
-                for (int i=0; i<n; ++i) {
-                    flip_defect(i,pneighs[0]);
-                    flip_defect(i,pneighs[1]);
-                    flip_defect(i,pneighs[2]);
-                    flip_defect(i,pneighs[3]);
-                }
-            }
-            else {
-                flip_defect(replica,pneighs[0]);
-                flip_defect(replica,pneighs[1]);
-                flip_defect(replica,pneighs[2]);
-                flip_defect(replica,pneighs[3]);
-            }
-        }
-        */
     }
 
     
@@ -224,7 +163,4 @@ void toricFTSPMembrane::dostep() {
 }
 
 
-bool toricFTSPMembrane::IsInA(site_descriptor where) {
-    return (geom[where]);
-}
 

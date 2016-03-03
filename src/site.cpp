@@ -6,49 +6,55 @@ site::site() : value(false) { }
 
 
 /********  class spin  **************/
-spin::spin(int inReps): site(), weight(-4*inReps) { }
+spin::spin(): site()  { }
 
 void spin::add_neighbor(plaq_ptr nb) {
     plaq_ptr new_nb(nb);
-    neighbors.push_back(new_nb);
+    p_neighbors.push_back(new_nb);
 }
 
-void spin::flip() {
+void spin::add_neighbor(vert_ptr nb) {
+    vert_ptr new_nb(nb);
+    v_neighbors.push_back(new_nb);
+}
+
+void spin::flip_and_flip_plaqs() {
     value=!value;
-    for (plit=neighbors.begin(); plit!=neighbors.end(); ++plit) 
+    for (plit=p_neighbors.begin(); plit!=p_neighbors.end(); ++plit) 
         (*plit)->flip();
 }
 
-void spin::mod_weight(bool plusminus) {
-    weight += (plusminus)? 2: -2 ;
+void spin::flip_and_flip_verts() {
+    value=!value;
+    for (vit=v_neighbors.begin(); vit!=v_neighbors.end(); ++vit) 
+        (*vit)->flip();
 }
 
-int const spin::get_weight() {
+int spin::get_weight_from_plaqs() {
     energy = 0;
-    for (plit=neighbors.begin(); plit!=neighbors.end(); ++plit) {
+    for (plit=p_neighbors.begin(); plit!=p_neighbors.end(); ++plit) {
         energy+=(*plit)->get_value();
     }
     return energy;
 }
 
-int const spin::num_neighbors() {
-    return neighbors.size();
+int spin::get_weight_from_verts() {
+    energy = 0;
+    for (vit=v_neighbors.begin(); vit!=v_neighbors.end(); ++vit) {
+        energy+=(*vit)->get_value();
+    }
+    return energy;
 }
 
-/********** class plaquette *********/
-plaquette::plaquette(): site() { }
+/********** class interaction *********/
+interaction::interaction(): site() { }
 
-void plaquette::add_neighbor(spin_ptr nb) {
+void interaction::add_neighbor(spin_ptr nb) {
     spin_ptr new_nb(nb);
     neighbors.push_back(new_nb);
 }
 
-void plaquette::flip() {
+void interaction::flip() {
     value=!value;
-    //DON'T DO THIS!!!
-    //for (spit=neighbors.begin(); spit!=neighbors.end(); ++spit)
-    //    (*spit)->mod_weight(value);
 }
 
-/********* class vertex  ***********/
-vertex::vertex(): site() { }

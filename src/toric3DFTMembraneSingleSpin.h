@@ -38,9 +38,10 @@ protected :
     std::set<site_descriptor> edge_sites;
     std::vector<bool> spins_;
     std::vector<std::vector<bool> > plaquette_defects;
-    std::vector<int> map_lat_to_spin, map_lat_to_plaq;
+    std::vector<int> map_lat_to_spin, map_lat_to_plaq, map_lat_to_vert;
     std::vector<spin_ptr> spins;
     std::vector<plaq_ptr> plaqs;
+    std::vector<vert_ptr> verts;
     spin_ptr candidate;
 
     void heal_chain(int replica, std::deque<int> chain, std::deque<int> back_chain);

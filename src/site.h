@@ -1,59 +1,63 @@
 #include<vector>
 #include<memory>
 
-class site;
 class spin;
 class plaquette;
+class vertexx; //vertex is somehow used by ALPS
 
-typedef std::shared_ptr<site> site_ptr;
-typedef std::vector<site_ptr>::iterator site_t;
+//typedef std::shared_ptr<site> site_ptr;
+//typedef std::vector<site_ptr>::iterator site_t;
 
 typedef std::shared_ptr<spin> spin_ptr;
 typedef std::vector<spin_ptr>::iterator spit_t;
 typedef std::shared_ptr<plaquette> plaq_ptr;
 typedef std::vector<plaq_ptr>::iterator plit_t;
+typedef std::shared_ptr<vertexx> vert_ptr;
+typedef std::vector<vert_ptr>::iterator vit_t;
 
 class site {
 protected:
     bool value;
 public:
     site();
-    virtual void flip()=0;
+    //virtual void flip()=0;
 };
 
 
 class spin : site {
     
 private:
-    int weight, energy;
-    std::vector<plaq_ptr> neighbors;
+    int energy;
+    std::vector<plaq_ptr> p_neighbors;
+    std::vector<vert_ptr> v_neighbors;
     plit_t plit;
+    vit_t vit;
 public:
-    spin(int inReps);
+    spin();
     void add_neighbor(plaq_ptr nb);
-    void flip();
-    void mod_weight(bool plusminus); //False = decrease, True = increase
-    int const get_weight(); 
-    int const num_neighbors(); 
+    void add_neighbor(vert_ptr nb);
+    void flip_and_flip_plaqs();
+    void flip_and_flip_verts();
+    int get_weight_from_plaqs(); 
+    int get_weight_from_verts(); 
 
 };
 
-class plaquette : site {
+class interaction : site { // plaquette or vertex
 public:
-    plaquette();
+    interaction();
     void add_neighbor(spin_ptr nb);
     int get_value(){ return value? 1 : -1 ; }
-private:
+protected:
     std::vector<spin_ptr> neighbors;
     spit_t spit;
     void flip();
 
-    friend void spin::flip();
+    friend void spin::flip_and_flip_plaqs();
+    friend void spin::flip_and_flip_verts();
 };
 
-class vertex : site {
-    vertex();
-private:
-    void flip() { };
-};
+class plaquette : public interaction { using interaction::interaction; }; //inherit constructor
+class vertexx : public interaction { using interaction::interaction; };
+
 

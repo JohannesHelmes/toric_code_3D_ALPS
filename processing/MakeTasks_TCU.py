@@ -100,7 +100,6 @@ if (len(magn)==1)and(len(beta)==1):
     betalist=beta
 
 print betalist
-print hlist
 
 latticename=["toric code","toric code fcr","toric code 3D"]
 dimension=3 if args.lattice==2 else 2
