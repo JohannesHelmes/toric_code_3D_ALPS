@@ -1,14 +1,13 @@
 #ifndef MYBASEMC_HPP
 #define MYBASEMC_HPP
-#include <boost/random.hpp>
 #include <alps/scheduler.h>
 #include <alps/lattice/graph_helper.h>
 #include <alps/alea.h>
-#include <alps/alea/histogram.h>
 #include <alps/scheduler/montecarlo.h>
 #include <string>
 #include <memory>
 #include "site.h"
+#include "updater.h"
 
 
 
