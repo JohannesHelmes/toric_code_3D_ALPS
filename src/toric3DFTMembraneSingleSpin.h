@@ -6,8 +6,7 @@
 #include <alps/scheduler/montecarlo.h>
 #include <string>
 #include <memory>
-#include "site.h"
-#include "updater.h"
+#include "updater.h" //includes site.h
 
 
 
@@ -42,6 +41,7 @@ protected :
     std::vector<plaq_ptr> plaqs;
     std::vector<vert_ptr> verts;
     spin_ptr candidate;
+    std::shared_ptr<updater> update_object;
 
     void heal_chain(int replica, std::deque<int> chain, std::deque<int> back_chain);
     void heal_chain_open(int replica, std::deque<int> chain, std::deque<int> back_chain);
