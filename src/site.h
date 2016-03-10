@@ -20,7 +20,7 @@ protected:
     bool value;
 public:
     site();
-    //virtual void flip()=0;
+    //IMPLEMENT Operator>> and Operator<< HERE!!!
 };
 
 

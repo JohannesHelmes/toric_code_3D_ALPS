@@ -110,16 +110,12 @@ toricFTSPMembrane::toricFTSPMembrane(const alps::ProcessList& where,const alps::
 
 void toricFTSPMembrane::save(alps::ODump& dump) const
 {
-    dump << Total_Steps<<spins_<<plaquette_defects;
+    dump << Total_Steps; //IMPLEMENT OutStream of spins, plaqs, verts
 }
 
 void toricFTSPMembrane::load(alps::IDump& dump)
 {
-    plaquette_defects.clear();
-    plaquette_defects.resize(n);
-    dump >> Total_Steps>>spins_>>plaquette_defects;
-//    if(!where.empty())
-//        dump >> spins_;
+    dump >> Total_Steps; //IMPLEMENT InStreal of spins, plaqs, verts
 }
 
 void toricFTSPMembrane::print_copyright(std::ostream & out)
