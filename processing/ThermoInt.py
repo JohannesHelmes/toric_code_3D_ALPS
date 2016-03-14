@@ -1,6 +1,7 @@
 import matplotlib.pylab as plt
 import pyalps,argparse
 import os
+import fnmatch
 import numpy as np
 from scipy.integrate import simps, romb
 
@@ -22,16 +23,59 @@ parser.add_argument('--outfile','-o',help='Filename of the result file. If not g
 
 args=parser.parse_args()
 
+def ReadResults(path, prefix, X, Y):
+    """
+    Input
+    ------------------
+    path:  path to result files
+    prefix: prefix filenames (ending out.h5), if ending with a dot (.), only one simulation is assumed
+                            else the separate simulation are identified and merged.
+    X : string, name of parameter
+    Y : string, name of observable
+
+    returns
+    -----------------
+    pyalps X-Y-props list
+    """
+
+    if prefix[-1]=='.':
+        dataset= pyalps.loadMeasurements(pyalps.getResultFiles(dirname=path,prefix=filename),args.Y)
+
+        return pyalps.collectXY(dataset, x=X, y=Y, foreach=['IncNo'])
+    else:
+        all_prefixes=[]
+        for f in os.listdir(path):
+            if fnmatch.fnmatch(f, prefix+'*.out.h5'):
+                before_first_dot=f.split('.')[0]+'.'
+                if before_first_dot not in all_prefixes:
+                    all_prefixes.append(before_first_dot)
+        datasetsXY = []
+        for pre in all_prefixes:
+            tmp_dset= pyalps.loadMeasurements(pyalps.getResultFiles(dirname=path,prefix=pre),args.Y)
+            datasetsXY.append( pyalps.collectXY(tmp_dset, x=X, y=Y, foreach=['IncNo']) )
+
+        for i,dxy in enumerate(datasetsXY[0]):   #Take the 1st dataset as reference
+            rIncNo = dxy.props['IncNo']
+            for dslist in datasetsXY[1:]:
+                for dxy2nd in dslist:
+                    if rIncNo == dxy2nd.props['IncNo']:
+                        datasetsXY[0][i] = pyalps.mergeDataSets([datasetsXY[0][i], dxy2nd])   
+
+        return datasetsXY[0]
+
+        
+
+
 path=os.path.dirname(args.infile)
 filename=os.path.basename(args.infile)
-print path, filename
-dataset= pyalps.loadMeasurements(pyalps.getResultFiles(dirname=path,prefix=filename),args.Y)
+if args.verbose:
+    print path, filename
 
 if args.verbose:
     print pyalps.getResultFiles(prefix=args.infile)
     #print dataset
 
-renyi_dataG = pyalps.collectXY(dataset, x=args.X, y=args.Y, foreach=['IncNo'])
+renyi_dataG = ReadResults(path, filename, args.X, args.Y)
 n=args.N
 
 
@@ -116,7 +160,7 @@ for schemes in renyi_dataG:
 for k in range(3,NValues+1,args.Step):
     for schemes in renyi_dataG:
         scheme=int(schemes.props['IncNo'])
-        S[scheme]=thermodynamic_integration(x[scheme,:k],y[scheme,:k],y_err[scheme,:k],N)
+        S[scheme]=thermodynamic_integration(x[scheme,:k],y[scheme,:k],y_err[scheme,:k]+1e-15,N)
 
     if args.alternate:
         gamma=np.array([args.Const-(2*factor[args.System]* L ** args.Dim) * (S[0,l]-S[1,l]-S[2,l]+S[3,l]) for l in range(N)])
