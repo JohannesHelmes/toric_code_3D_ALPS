@@ -9,6 +9,7 @@
 using namespace boost;
 
 
+/************* MEMBERS ********************************/
 toricFTSPMembrane::toricFTSPMembrane(const alps::ProcessList& where,const alps::Parameters& p,int node) : alps::scheduler::LatticeMCRun<graph_type>(where,p,node), 
     L(static_cast<alps::uint32_t>(p["L"])),      // Linear lattice size
     Nb_Steps(static_cast<alps::uint64_t>(p["SWEEPS"])),    // # of simulation steps
@@ -108,14 +109,18 @@ toricFTSPMembrane::toricFTSPMembrane(const alps::ProcessList& where,const alps::
 
 }
 
+
+using ::operator<<;
+using ::operator>>;
+
 void toricFTSPMembrane::save(alps::ODump& dump) const
 {
-    dump << Total_Steps; //IMPLEMENT OutStream of spins, plaqs, verts
+    dump << Total_Steps <<spins<< plaqs<< verts ; //IMPLEMENT OutStream of spins, plaqs, verts
 }
 
 void toricFTSPMembrane::load(alps::IDump& dump)
 {
-    dump >> Total_Steps; //IMPLEMENT InStreal of spins, plaqs, verts
+    dump >> Total_Steps >>spins>> plaqs >>verts; //IMPLEMENT InStreal of spins, plaqs, verts
 }
 
 void toricFTSPMembrane::print_copyright(std::ostream & out)

@@ -17,6 +17,7 @@ typedef alps::scheduler::LatticeMCRun<>::graph_type graph_type;
 
 using namespace std;
 
+
 class toricFTSPMembrane : public alps::scheduler::LatticeMCRun<graph_type>{
 
 public :
@@ -49,6 +50,7 @@ protected :
     void heal_loop(int replica, std::deque<int> chain);
     int get_random_neighbor(int vertex);
     void flip_defect(int replica, int plaquette);
+
 
     double beta,weight;
     std::vector<double> expmB;

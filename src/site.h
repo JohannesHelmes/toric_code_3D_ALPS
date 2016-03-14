@@ -1,5 +1,6 @@
 #include<vector>
 #include<memory>
+#include<alps/osiris/dump.h>
 
 class spin;
 class plaquette;
@@ -10,21 +11,40 @@ class vertexx; //vertex is somehow used by ALPS
 
 typedef std::shared_ptr<spin> spin_ptr;
 typedef std::vector<spin_ptr>::iterator spit_t;
+typedef std::vector<spin_ptr>::const_iterator const_spit_t;
 typedef std::shared_ptr<plaquette> plaq_ptr;
 typedef std::vector<plaq_ptr>::iterator plit_t;
+typedef std::vector<plaq_ptr>::const_iterator const_plit_t;
 typedef std::shared_ptr<vertexx> vert_ptr;
 typedef std::vector<vert_ptr>::iterator vit_t;
+typedef std::vector<vert_ptr>::const_iterator const_vit_t;
+
+/** must be declared as non-members **/
+alps::ODump& operator<<(alps::ODump& dump, const std::vector<spin_ptr>& sp);
+alps::ODump& operator<<(alps::ODump& dump, const std::vector<plaq_ptr>& sp);
+alps::ODump& operator<<(alps::ODump& dump, const std::vector<vert_ptr>& sp);
+alps::IDump& operator>>(alps::IDump& dump, std::vector<spin_ptr>& sp);
+alps::IDump& operator>>(alps::IDump& dump, std::vector<plaq_ptr>& sp);
+alps::IDump& operator>>(alps::IDump& dump, std::vector<vert_ptr>& sp);
+
+
 
 class site {
 protected:
     bool value;
+    void set_value(bool newvalue){ value = newvalue; }
+    friend alps::IDump& operator>>(alps::IDump& dump, std::vector<spin_ptr>& sp);
+    friend alps::IDump& operator>>(alps::IDump& dump, std::vector<plaq_ptr>& sp);
+    friend alps::IDump& operator>>(alps::IDump& dump, std::vector<vert_ptr>& sp);
+
 public:
+    int get_value() const { return value? 1 : -1 ; }
     site();
     //IMPLEMENT Operator>> and Operator<< HERE!!!
 };
 
 
-class spin : site {
+class spin : public site {
     
 private:
     int energy;
@@ -32,6 +52,7 @@ private:
     std::vector<vert_ptr> v_neighbors;
     plit_t plit;
     vit_t vit;
+
 public:
     spin();
     void add_neighbor(plaq_ptr nb);
@@ -43,11 +64,10 @@ public:
 
 };
 
-class interaction : site { // plaquette or vertex
+class interaction : public site { // plaquette or vertex
 public:
     interaction();
     void add_neighbor(spin_ptr nb);
-    int get_value(){ return value? 1 : -1 ; }
 protected:
     std::vector<spin_ptr> neighbors;
     spit_t spit;
