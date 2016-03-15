@@ -101,10 +101,8 @@ toricFTSPMembrane::toricFTSPMembrane(const alps::ProcessList& where,const alps::
     if (exc==1)
         update_object = std::make_shared<single_spin_plaq>(n, beta, spins, plaqs, NofD); //spins, plaqs and NofD are referenced
     else if (exc==2)
-        //update_object = std::make_shared<single_spin_vert>(n, beta, spins, verts, &NofD);
+        update_object = std::make_shared<single_spin_vert>(n, beta, spins, verts, NofD);
 
-    //Depending on the parameters initialize the updater object here!!
-   
     numspins=spins.size();
     std::cout << "# L: " << L << " Steps: " << Nb_Steps  << " Spins: " <<numspins<<" Sites: "<<numsites<< std::endl;
 

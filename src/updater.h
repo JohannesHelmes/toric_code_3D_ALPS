@@ -11,16 +11,16 @@ public:
     updater(int reps, double beta, std::vector<spin_ptr>& s);
     virtual void update()=0;
 protected:
-    //include boost rng here!
-
-    mt_rng mtwister;
-    boost::uniform_int<> int_dist;
-    boost::uniform_01<> real_dist;
-    boost::variate_generator<mt_rng, boost::uniform_int<> > random_int;
-    boost::variate_generator<mt_rng&, boost::uniform_01<> > random_01;
+    
+    //The order of these declaration is crucial because of dependencies in the initialization list!
     std::vector<spin_ptr> spins;
+    const int N;
+    mt_rng mtwister;
+    boost::random::uniform_int_distribution<> int_dist;
+    boost::uniform_01<> real_dist;
+    boost::variate_generator<mt_rng, boost::random::uniform_int_distribution<> > random_int;
+    boost::variate_generator<mt_rng&, boost::uniform_01<> > random_01;
     std::vector<double> expmB;
-    int N;
 };
 
 class single_spin_plaq : public updater {
@@ -31,7 +31,7 @@ private:
     int cand_weight;
     std::vector<plaq_ptr> plaqs;
     spin_ptr candidate;
-    int NofExc;
+    int &NofExc;
 };
        
 class single_spin_vert : public updater {
@@ -42,5 +42,5 @@ private:
     int cand_weight;
     std::vector<vert_ptr> verts;
     spin_ptr candidate;
-    int NofExc;
+    int &NofExc;
 };
