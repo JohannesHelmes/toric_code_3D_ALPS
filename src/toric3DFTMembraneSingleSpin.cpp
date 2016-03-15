@@ -143,7 +143,7 @@ void toricFTSPMembrane::dostep() {
     //insert or remove electric defects
     //this code is for zero-field only!!
 
-    for (int j=0; j<numspins/7; ++j) {
+    for (int j=0; j<numspins/L; ++j) {
 
         candidate=spins[random_int(spins.size())];
         int cand_weight = (exc==1)? candidate->get_weight_from_plaqs() : candidate->get_weight_from_verts();
