@@ -3,7 +3,6 @@
 #include <alps/scheduler.h>
 #include <alps/lattice/graph_helper.h>
 #include <alps/alea.h>
-#include <alps/scheduler/montecarlo.h>
 #include <string>
 #include <memory>
 #include "updater.h" //includes site.h
@@ -14,6 +13,7 @@
 typedef alps::scheduler::LatticeMCRun<>::graph_type graph_type;
 
 using namespace std;
+
 
 class toricFTSPMembrane : public alps::scheduler::LatticeMCRun<graph_type>{
 
@@ -48,6 +48,7 @@ protected :
     void heal_loop(int replica, std::deque<int> chain);
     int get_random_neighbor(int vertex);
     void flip_defect(int replica, int plaquette);
+
 
     double beta,weight;
     std::vector<double> expmB;

@@ -1,5 +1,54 @@
 #include "site.h"
 
+/************* NON Members ********************************/
+alps::ODump& operator<<(alps::ODump& dump, const std::vector<spin_ptr>& sp) {
+    for (const_spit_t spit=sp.begin(); spit!=sp.end(); ++spit) {
+        dump<<(*spit)->get_value();
+    }
+    return dump;
+}
+
+alps::IDump& operator>>(alps::IDump& dump, std::vector<spin_ptr>& sp) {
+    int tmp;
+    for (spit_t spit=sp.begin(); spit!=sp.end(); ++spit)  {
+        dump>>tmp;
+        (*spit)->set_value( (tmp==1)? true: false);
+    }
+    return dump;
+}
+
+alps::ODump& operator<<(alps::ODump& dump, const std::vector<plaq_ptr>& pl) {
+    for (const_plit_t pit=pl.begin(); pit!=pl.end(); ++pit) 
+        dump<<(*pit)->get_value();
+    return dump;
+}
+
+alps::IDump& operator>>(alps::IDump& dump, std::vector<plaq_ptr>& pl) {
+    bool tmp;
+    for (plit_t pit=pl.begin(); pit!=pl.end(); ++pit)  {
+        dump>>tmp;
+        (*pit)->set_value(tmp);
+    }
+    return dump;
+}
+
+alps::ODump& operator<<(alps::ODump& dump, const std::vector<vert_ptr>& vt) {
+    for (const_vit_t vit=vt.begin(); vit!=vt.end(); ++vit) 
+        dump<<(*vit)->get_value();
+    return dump;
+}
+
+alps::IDump& operator>>(alps::IDump& dump, std::vector<vert_ptr>& vt) {
+    bool tmp;
+    for (vit_t vit=vt.begin(); vit!=vt.end(); ++vit)  {
+        dump>>tmp;
+        (*vit)->set_value(tmp);
+    }
+    return dump;
+}
+
+
+
 /*******  base class site  ***********/
 site::site() : value(false) { }
 
