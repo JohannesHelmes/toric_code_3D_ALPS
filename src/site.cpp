@@ -2,16 +2,17 @@
 
 /************* NON Members ********************************/
 alps::ODump& operator<<(alps::ODump& dump, const std::vector<spin_ptr>& sp) {
-    for (const_spit_t spit=sp.begin(); spit!=sp.end(); ++spit) 
+    for (const_spit_t spit=sp.begin(); spit!=sp.end(); ++spit) {
         dump<<(*spit)->get_value();
+    }
     return dump;
 }
 
 alps::IDump& operator>>(alps::IDump& dump, std::vector<spin_ptr>& sp) {
-    bool tmp;
+    int tmp;
     for (spit_t spit=sp.begin(); spit!=sp.end(); ++spit)  {
         dump>>tmp;
-        (*spit)->set_value(tmp);
+        (*spit)->set_value( (tmp==1)? true: false);
     }
     return dump;
 }
