@@ -14,7 +14,6 @@ updater::updater(int reps, double beta, std::vector<spin_ptr>& s) :
     expmB[0]=1.0;
     for (int i=1; i<=8*reps; ++i) 
         expmB[i]=std::exp(-1.*i*beta);
-    std::cout<<"Base updater created, initital N "<<N<<", initial beta "<<beta<<", some random numbers"<<std::endl;
 }
     
 /********** class single_spin **************/
@@ -28,7 +27,7 @@ single_spin_plaq::single_spin_plaq(int reps, double beta, std::vector<spin_ptr>&
 
 void single_spin_plaq::update() {
 
-    for (int j=0; j<N/2; ++j) {
+    for (int j=0; j<N; ++j) {
         candidate=spins[random_int()];
         cand_weight = candidate->get_weight_from_plaqs(); 
 
@@ -44,12 +43,11 @@ single_spin_vert::single_spin_vert(int reps, double beta, std::vector<spin_ptr>&
         verts(v),
         NofExc(nofe)
 {
-    std::cout<<"vertex updater created, initial defects "<<nofe<<std::endl;
 }
 
 void single_spin_vert::update() {
 
-    for (int j=0; j<N/10; ++j) { //generalize this !!!
+    for (int j=0; j<N; ++j) { //generalize this !!!
 
         candidate=spins[random_int()];
         cand_weight = candidate->get_weight_from_verts();
@@ -58,6 +56,35 @@ void single_spin_vert::update() {
             NofExc -= 2*cand_weight; //is the old weight
             candidate->flip_and_flip_verts();
         }
+    }
+}
+
+
+mix_spin_plaq_for_vert::mix_spin_plaq_for_vert(int reps, double beta, std::vector<spin_ptr>& s, std::vector<plaq_ptr>& p, std::vector<vert_ptr>& v, int& nofe, double ratio) : 
+        updater(reps, beta, s),
+        Nspinflips((int)(ratio*N)),
+        plaqs(p),
+        verts(v),
+        NofExc(nofe)
+{
+    std::cout<<"vertex MIX updater created, do "<<Nspinflips<<" single spin flips and "<<N-Nspinflips<<" plaquette flips"<<std::endl;
+}
+
+void mix_spin_plaq_for_vert::update() {
+
+    for (int j=0; j<Nspinflips; ++j) { //generalize this !!!
+
+        candidate=spins[random_int()];
+        cand_weight = candidate->get_weight_from_verts();
+
+        if ((cand_weight>=0)||(random_01()<expmB[-2*cand_weight])) {
+            NofExc -= 2*cand_weight; //is the old weight
+            candidate->flip_and_flip_verts();
+        }
+    }
+
+    for (int j=Nspinflips; j<N; ++j) { //generalize this !!!
+        plaqs[random_int()]->flip_neighbors();
     }
 }
 

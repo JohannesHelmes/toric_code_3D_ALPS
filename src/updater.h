@@ -44,3 +44,16 @@ private:
     spin_ptr candidate;
     int &NofExc;
 };
+
+class mix_spin_plaq_for_vert : public updater {
+public:
+    mix_spin_plaq_for_vert(int reps, double beta, std::vector<spin_ptr>& s, std::vector<plaq_ptr>& p, std::vector<vert_ptr>& v, int& nofe, double ratio);  //single spin update for vertex Hamiltonian
+    void update();
+private:
+    int Nspinflips;
+    int cand_weight;
+    std::vector<vert_ptr> verts;
+    std::vector<plaq_ptr> plaqs;
+    spin_ptr candidate;
+    int &NofExc;
+};

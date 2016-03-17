@@ -15,9 +15,8 @@ toricFTSPMembrane::toricFTSPMembrane(const alps::ProcessList& where,const alps::
     Nb_Steps(static_cast<alps::uint64_t>(p["SWEEPS"])),    // # of simulation steps
     Nb_Therm_Steps(static_cast<alps::uint64_t>(p["THERMALIZATION"])),
     beta(static_cast<double>(p["beta"])),
-    B(static_cast<double>(p.value_or_default("B",1.0))),
+    ratio(static_cast<double>(p.value_or_default("ratio",1.0))),
     n(static_cast<alps::uint32_t>(p.value_or_default("n",2))),      // Renyi index
-    d(static_cast<alps::uint32_t>(p.value_or_default("d",3))),      // dimension 
     exc(static_cast<alps::uint32_t>(p.value_or_default("ExcType",2))),      // Type of excitation: 1(plaquettes) 2(vertices) 
     Total_Steps(0),
     IncStep(static_cast<string>(p["IncStep"]))
@@ -27,17 +26,18 @@ toricFTSPMembrane::toricFTSPMembrane(const alps::ProcessList& where,const alps::
 
     geom.resize(numsites,false);
     sit=sites().first;
-    for (int i=0; i<IncStep.length(); ++i,++sit) {
-        if (sit==sites().second)
-            break;
-        while (site_type(*sit)!=0)
-            ++sit;
-        if (sit==sites().second)
-            break;
-        if (IncStep[i]!='0') {
-            geom[*sit]=true;
+    if (n > 1) {  //replica trick only senseful for n>=2 
+        for (int i=0; i<IncStep.length(); ++i,++sit) {
+            if (sit==sites().second)
+                break;
+            while (site_type(*sit)!=0)
+                ++sit;
+            if (sit==sites().second)
+                break;
+            if (IncStep[i]!='0') {
+                geom[*sit]=true;
+            }
         }
-         
     }
 
     map_lat_to_spin.resize(n*numsites);
@@ -100,8 +100,12 @@ toricFTSPMembrane::toricFTSPMembrane(const alps::ProcessList& where,const alps::
     NofD=(exc==1)? -plaqs.size() : -verts.size();
     if (exc==1)
         update_object = std::make_shared<single_spin_plaq>(n, beta, spins, plaqs, NofD); //spins, plaqs and NofD are referenced
-    else if (exc==2)
-        update_object = std::make_shared<single_spin_vert>(n, beta, spins, verts, NofD);
+    else if (exc==2) {
+        if (ratio==1.0)
+            update_object = std::make_shared<single_spin_vert>(n, beta, spins, verts, NofD);
+        else 
+            update_object = std::make_shared<mix_spin_plaq_for_vert>(n, beta, spins, plaqs, verts, NofD, ratio);
+    }
 
     numspins=spins.size();
     std::cout << "# L: " << L << " Steps: " << Nb_Steps  << " Spins: " <<numspins<<" Sites: "<<numsites<< std::endl;

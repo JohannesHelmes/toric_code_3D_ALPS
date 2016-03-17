@@ -52,6 +52,9 @@ alps::IDump& operator>>(alps::IDump& dump, std::vector<vert_ptr>& vt) {
 /*******  base class site  ***********/
 site::site() : value(false) { }
 
+void site::flip() {
+    value=!value;
+}
 
 
 /********  class spin  **************/
@@ -103,7 +106,9 @@ void interaction::add_neighbor(spin_ptr nb) {
     neighbors.push_back(new_nb);
 }
 
-void interaction::flip() {
-    value=!value;
+void interaction::flip_neighbors() {
+    for (spit = neighbors.begin(); spit!=neighbors.end(); ++spit)
+        (*spit)->flip();
 }
+
 

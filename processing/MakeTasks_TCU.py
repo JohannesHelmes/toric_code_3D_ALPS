@@ -23,6 +23,7 @@ paramgroup.add_argument('--n','-n', type=int,default=2,help='Order of Renyi entr
 paramgroup.add_argument('--length','-l', type=int,help='Lattice length')
 paramgroup.add_argument('--lattice','-a', type=int,help='Lattice type, (0 = toric code, 1 = toric code fcr, 2 = toric code 3D), default = 2',default=2)
 paramgroup.add_argument('--ExcType','-e', type=int,help='Type of Excitation, (1 = plaquette, 2 = vertex), default = 2',default=2)
+paramgroup.add_argument('--ratio','-r', type=float,help='Ration (0.0 .. 1.0) between single spin flips and dual many-body flips, default =1.0 (only single spin)',default=1.0)
 
 paramgroup.add_argument('--beta','-b', nargs='+',type=float,help='beta-1/T, range possible default=2*l')
 paramgroup.add_argument('--magnetization','-m', nargs='+',type=float,default=[0.0],help='Magnetization (h), range possible, default=0.0')
@@ -140,12 +141,11 @@ for i,IncEl in enumerate(Geometry):
                 'THERMALIZATION': args.therm,
                 'SWEEPS'	: args.sweeps,
                 'L'		: args.length,
-                'n'		    : args.n,
+                'n'		: args.n,
                 'ExcType'	: args.ExcType,
-                'd'		: dimension,
-                'M'		: 100,
-                'IncStep' : IncEl,
-                'IncNo' : i
+                'ratio'	        : args.ratio,
+                'IncStep'       : IncEl,
+                'IncNo'         : i
      
             }
         )
