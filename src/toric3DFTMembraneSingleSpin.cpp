@@ -111,10 +111,12 @@ toricFTSPMembrane::toricFTSPMembrane(const alps::ProcessList& where,const alps::
         }
     }
 
+    /*
     cout<<"Check labels and boundaries of all vertices"<<endl;
     counter=0;
     for (vit_t vit=verts.begin(); vit!=verts.end(); ++vit, ++counter)
         cout<<counter<<": has label "<<(*vit)->get_label()<<" and boundary "<<(*vit)->get_boundary()<<endl;
+        */
 
 
     NofD=(exc==1)? -plaqs.size() : -verts.size();
@@ -169,9 +171,10 @@ double toricFTSPMembrane::work_done() const {
 
 void toricFTSPMembrane::dostep() {
 
-    cout<<"Sweep "<<Total_Steps<<endl;
+    //cout<<"Sweep "<<Total_Steps<<endl;
 
     update_object->update();
+    cout<<NofD<<endl;
     
     if (is_thermalized()) 
         do_measurements();

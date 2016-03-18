@@ -106,7 +106,6 @@ using namespace std;
 
 void deconfined_vert::update() {
     replica=random_rep();
-    cout<<"Picked replica "<<replica<<endl;
     r_vert = random_vert();
     v_cand1=verts[r_vert + replica * N_verts_per_replica];
     v_cand1_cpart=verts[r_vert + replica^1 * N_verts_per_replica];
@@ -114,8 +113,10 @@ void deconfined_vert::update() {
     v_cand2=verts[r_vert + replica * N_verts_per_replica];
     v_cand2_cpart=verts[r_vert + replica^1 * N_verts_per_replica];
 
-    if (v_cand1 == v_cand2)
+    if (v_cand1 == v_cand2) {
+    //cout<<"picked the same candidate twice"<<endl;
         return;
+    }
 
     label1 = v_cand1->get_label();
     label2 = v_cand2->get_label();
@@ -123,15 +124,18 @@ void deconfined_vert::update() {
     if (label2==1) {
         swap(v_cand1, v_cand2);
         swap(v_cand1_cpart, v_cand2_cpart);
+        swap(label1, label2);
     }
     else if (label1!=1) {
         if (label1 > label2) {
             swap(v_cand1, v_cand2);
             swap(v_cand1_cpart, v_cand2_cpart);
+            swap(label1, label2);
         }
         else if ((label1 == label2)&& (v_cand2->get_boundary())) {
             swap(v_cand1, v_cand2);
             swap(v_cand1_cpart, v_cand2_cpart);
+            swap(label1, label2);
         }
     }
 
@@ -175,8 +179,8 @@ void deconfined_vert::update() {
                 try_flip(v_cand1, v_cand2, v_cand2_cpart, v_cand3, NofExc);
             }
         }
-        else 
-            std::cout<<"NO way "<<std::endl;
+        //else 
+            //std::cout<<"NO way "<<std::endl;
     }
 
     //otherwise, both are in B but disconnected -> abort
