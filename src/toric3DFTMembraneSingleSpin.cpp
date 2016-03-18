@@ -15,16 +15,18 @@ toricFTSPMembrane::toricFTSPMembrane(const alps::ProcessList& where,const alps::
     Nb_Steps(static_cast<alps::uint64_t>(p["SWEEPS"])),    // # of simulation steps
     Nb_Therm_Steps(static_cast<alps::uint64_t>(p["THERMALIZATION"])),
     beta(static_cast<double>(p["beta"])),
-    ratio(static_cast<double>(p.value_or_default("ratio",1.0))),
+    ratio(static_cast<double>(p.value_or_default("ratio",1.0))),    // not useful for thermodynamic integration
     n(static_cast<alps::uint32_t>(p.value_or_default("n",2))),      // Renyi index
     exc(static_cast<alps::uint32_t>(p.value_or_default("ExcType",2))),      // Type of excitation: 1(plaquettes) 2(vertices) 
+    seed(static_cast<alps::uint32_t>(p["SEED"])),      // Type of excitation: 1(plaquettes) 2(vertices) 
+    algo(static_cast<alps::uint32_t>(p.value_or_default("Algorithm",1))),      // local updates (1),  deconfined updates (2) 
     Total_Steps(0),
     IncStep(static_cast<string>(p["IncStep"]))
 {
 
     numsites=num_sites();
 
-    geom.resize(numsites,false);
+    geom.resize(numsites,0);
     sit=sites().first;
     if (n > 1) {  //replica trick only senseful for n>=2 
         for (int i=0; i<IncStep.length(); ++i,++sit) {
@@ -34,9 +36,7 @@ toricFTSPMembrane::toricFTSPMembrane(const alps::ProcessList& where,const alps::
                 ++sit;
             if (sit==sites().second)
                 break;
-            if (IncStep[i]!='0') {
-                geom[*sit]=true;
-            }
+            geom[*sit]=(int)(IncStep[i]-'0');
         }
     }
 
@@ -47,7 +47,7 @@ toricFTSPMembrane::toricFTSPMembrane(const alps::ProcessList& where,const alps::
     for (int i=0; i<n; ++i) {
         for (sit=sites().first; sit!=sites().second; ++sit) {
             if (site_type(*sit)==0) {
-                if ((!geom[*sit])||(i==0)) {
+                if ((geom[*sit]!=1)||(i==0)) {
                     spin_ptr nspin = std::make_shared<spin>();
                     spins.push_back(nspin);
                 }
@@ -74,11 +74,11 @@ toricFTSPMembrane::toricFTSPMembrane(const alps::ProcessList& where,const alps::
         for (sit=sites().first; sit!=sites().second; ++sit) {
             if (site_type(*sit)==0) {
                 for (nit=neighbors(*sit).first; nit!=neighbors(*sit).second; ++nit) {
-                    if (site_type(*nit)==1) { //plaqs is not a good variable name - can be vertices as well
+                    if (site_type(*nit)==1) { 
                         spins[map_lat_to_spin[*sit + i*numsites]]->add_neighbor(plaqs[map_lat_to_plaq[*nit + i*numsites]]);
                         plaqs[map_lat_to_plaq[*nit + i*numsites]]->add_neighbor(spins[map_lat_to_spin[*sit + i*numsites]]);
                     }
-                    if (site_type(*nit)==2) { //plaqs is not a good variable name - can be vertices as well
+                    if (site_type(*nit)==2) { 
                         spins[map_lat_to_spin[*sit + i*numsites]]->add_neighbor(verts[map_lat_to_vert[*nit + i*numsites]]);
                         verts[map_lat_to_vert[*nit + i*numsites]]->add_neighbor(spins[map_lat_to_spin[*sit + i*numsites]]);
                     }
@@ -87,28 +87,54 @@ toricFTSPMembrane::toricFTSPMembrane(const alps::ProcessList& where,const alps::
         }
     }
 
-    /*
-    for (sit=sites().first; sit!=sites().second; ++sit) {
-        if (site_type(*sit)==0) { 
-            cout<<*sit<<" has spin index "<<map_lat_to_spin[*sit]<<endl;
-            cout<<"IN A = "<<geom[*sit]<<" and the weight is "<<spins[map_lat_to_spin[*sit]]->get_weight()<<" and has num neighbors"<<spins[map_lat_to_spin[*sit]]->num_neighbors()<<endl;
+    //label all connected regions and boundaries of vertices/plaquettes
+    int counter;
+    for (int i=0; i<n; ++i) {
+        for (sit=sites().first; sit!=sites().second; ++sit) {
+            if (site_type(*sit)==2) {
+                counter=0;
+                for (nit=neighbors(*sit).first; nit!=neighbors(*sit).second; ++nit) {
+                    if (geom[*nit]!=1) {
+                        verts[map_lat_to_vert[*sit + i*numsites]]->add_label(geom[*nit]);
+                        verts[map_lat_to_vert[*sit + i*numsites]]->set_boundary(true);
+                        ++counter;
+                    }
+                }
+                if (counter==0) {
+                        verts[map_lat_to_vert[*sit + i*numsites]]->add_label(1); //means completely in subsystem A
+                        verts[map_lat_to_vert[*sit + i*numsites]]->set_boundary(false); 
+                }
+                else if (counter==6) {
+                        verts[map_lat_to_vert[*sit + i*numsites]]->set_boundary(false); //means completely in subsystem B
+                }
+            }
         }
     }
-    */
+
+    cout<<"Check labels and boundaries of all vertices"<<endl;
+    counter=0;
+    for (vit_t vit=verts.begin(); vit!=verts.end(); ++vit, ++counter)
+        cout<<counter<<": has label "<<(*vit)->get_label()<<" and boundary "<<(*vit)->get_boundary()<<endl;
 
 
     NofD=(exc==1)? -plaqs.size() : -verts.size();
-    if (exc==1)
-        update_object = std::make_shared<single_spin_plaq>(n, beta, spins, plaqs, NofD); //spins, plaqs and NofD are referenced
-    else if (exc==2) {
-        if (ratio==1.0)
-            update_object = std::make_shared<single_spin_vert>(n, beta, spins, verts, NofD);
-        else 
-            update_object = std::make_shared<mix_spin_plaq_for_vert>(n, beta, spins, plaqs, verts, NofD, ratio);
+
+    if (algo==1) {
+        if (exc==1)
+            update_object = std::make_shared<single_spin_plaq>(seed, n, beta, spins, plaqs, NofD); //spins, plaqs and NofD are referenced
+        else if (exc==2) {
+            if (ratio==1.0)
+                update_object = std::make_shared<single_spin_vert>(seed, n, beta, spins, verts, NofD);
+            else  //not useful for thermodynamic int
+                update_object = std::make_shared<mix_spin_plaq_for_vert>(seed, n, beta, spins, plaqs, verts, NofD, ratio);
+        }
+    }
+    else if (algo==2) {
+        update_object = std::make_shared<deconfined_vert>(seed, n, beta, spins, verts, NofD); 
     }
 
-    numspins=spins.size();
-    std::cout << "# L: " << L << " Steps: " << Nb_Steps  << " Spins: " <<numspins<<" Sites: "<<numsites<< std::endl;
+    numspins=spins.size(); //get rid of this later
+    std::cout << "# L: " << L << " Steps: " << Nb_Steps  << " Spins: " <<spins.size()<<" Sites: "<<numsites<< std::endl;
 
 }
 
@@ -142,6 +168,8 @@ double toricFTSPMembrane::work_done() const {
 
 
 void toricFTSPMembrane::dostep() {
+
+    cout<<"Sweep "<<Total_Steps<<endl;
 
     update_object->update();
     

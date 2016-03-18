@@ -23,13 +23,10 @@ protected :
     alps::uint64_t Nb_Steps;
     alps::uint64_t Nb_Therm_Steps;
     alps::uint64_t Total_Steps;
-    int L,W,N,numspins,numsites,start,n,NofD,exc;
+    int L,W,N,numsites,start,n,NofD,exc,numspins,algo,seed;
     double beta,ratio;
     string IncStep;
-    std::vector<bool> geom,edge;
-    std::set<site_descriptor> edge_sites;
-    std::vector<bool> spins_;
-    std::vector<std::vector<bool> > plaquette_defects;
+    std::vector<int> geom;
     std::vector<int> map_lat_to_spin, map_lat_to_plaq, map_lat_to_vert;
     std::vector<spin_ptr> spins;
     std::vector<plaq_ptr> plaqs;
@@ -43,12 +40,8 @@ protected :
     int get_random_neighbor(int vertex);
     void flip_defect(int replica, int plaquette);
 
-
     site_iterator sit;
     neighbor_iterator nit;
-    std::deque<int>::iterator dit;
-    std::vector<int>::iterator vit;
-    std::vector<bool>::iterator vbit;
 
     virtual void do_measurements()=0;
     bool IsInA(site_descriptor);
