@@ -174,7 +174,7 @@ void toricFTSPMembrane::dostep() {
     //cout<<"Sweep "<<Total_Steps<<endl;
 
     update_object->update();
-    cout<<NofD<<endl;
+    //cout<<NofD<<endl;
     
     if (is_thermalized()) 
         do_measurements();

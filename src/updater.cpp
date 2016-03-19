@@ -113,10 +113,8 @@ void deconfined_vert::update() {
     v_cand2=verts[r_vert + replica * N_verts_per_replica];
     v_cand2_cpart=verts[r_vert + replica^1 * N_verts_per_replica];
 
-    if (v_cand1 == v_cand2) {
-    //cout<<"picked the same candidate twice"<<endl;
+    if (v_cand1 == v_cand2) 
         return;
-    }
 
     label1 = v_cand1->get_label();
     label2 = v_cand2->get_label();
@@ -170,7 +168,7 @@ void deconfined_vert::update() {
         if ((v_cand1->get_boundary())&& (v_cand2->get_boundary())) {
             try_flip(v_cand1, v_cand2, v_cand1_cpart, v_cand2_cpart, NofExc);
         }
-        else if ((v_cand1->get_boundary())^(v_cand2->get_boundary())) {
+        else if ((v_cand1->get_boundary()) != (v_cand2->get_boundary())) {
             v_cand3=verts[random_vert() + replica^1 * N_verts_per_replica]; 
             if ((v_cand1->get_boundary()) && (v_cand3->get_label() == label2)) {
                 try_flip(v_cand1, v_cand1_cpart, v_cand2, v_cand3, NofExc);
@@ -191,6 +189,12 @@ void deconfined_vert::swap(vert_ptr& v1, vert_ptr& v2) {
     tmp = v1;
     v1 = v2;
     v2 = tmp;
+}
+
+void deconfined_vert::swap(int& i1, int& i2) {
+    itmp = i1;
+    i1 = i2;
+    i2 = itmp;
 }
 
 void deconfined_vert::try_flip(vert_ptr& v1, vert_ptr& v2, int& NofD) {
