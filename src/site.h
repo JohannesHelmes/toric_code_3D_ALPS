@@ -39,6 +39,7 @@ protected:
 
 public:
     int get_value() const { return value? 1 : -1 ; }
+    void flip();
     site();
     //IMPLEMENT Operator>> and Operator<< HERE!!!
 };
@@ -68,10 +69,16 @@ class interaction : public site { // plaquette or vertex
 public:
     interaction();
     void add_neighbor(spin_ptr nb);
+    void flip_neighbors();
+    void add_label(int nlabel) {label = nlabel; }
+    int get_label() { return label; }
+    void set_boundary(bool nbound) {boundary = nbound; }
+    bool get_boundary() { return boundary; }
 protected:
     std::vector<spin_ptr> neighbors;
     spit_t spit;
-    void flip();
+    int label;
+    bool boundary;
 
     friend void spin::flip_and_flip_plaqs();
     friend void spin::flip_and_flip_verts();

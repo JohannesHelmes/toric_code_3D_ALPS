@@ -14,6 +14,7 @@ class MeinDialog(QtGui.QDialog, Dlg):
     MaxIncStep=0
     CurrPlane=0
     framesize=760
+    mycolors=[QtGui.QColor(255,255,255),QtGui.QColor(0,0,255),QtGui.QColor(255,0,0),QtGui.QColor(0,255,0),QtGui.QColor(0,0,0)]
     diam=7
     RecentlyTouched=[]
     changed=False
@@ -136,10 +137,9 @@ class MeinDialog(QtGui.QDialog, Dlg):
         for j in range(self.L):
             for i in range(self.L):
                 for l in range(3):
-                    if self.Geometry[incstep][k][j][i][l]==0:
-                        self.Geometry[incstep][k][j][i][l]=1
-                    elif self.Geometry[incstep][k][j][i][l]==1:
-                        self.Geometry[incstep][k][j][i][l]=0
+                    if self.Geometry[incstep][k][j][i][l]!=0:
+                        self.Geometry[incstep][k][j][i][l]+=1
+                        self.Geometry[incstep][k][j][i][l]%=5
         self.changed=True
         self.update()
 
@@ -203,12 +203,7 @@ class MeinDialog(QtGui.QDialog, Dlg):
                     for l in range(3):
                         state=self.Geometry[incstep][k][j][i][l]
                         coords=self.Coords[j][i][l]
-                        if state==1:
-                            self.brush = QtGui.QBrush(QtGui.QColor(0,0,255))
-                        elif state==2:
-                            self.brush = QtGui.QBrush(QtGui.QColor(255,0,0))
-                        else:
-                            self.brush = QtGui.QBrush(QtGui.QColor(255,255,255))
+                        self.brush=self.mycolors[state]
                         painter.setBrush(self.brush)
                         painter.drawEllipse(coords,self.diam,self.diam)
 
@@ -237,7 +232,7 @@ class MeinDialog(QtGui.QDialog, Dlg):
         for j in range(Bj,Ej+1):
             for i in range(Bi,Ei+1):
                 for l in range(3):
-                    self.Geometry[incstep][k][j][i][l]=2
+                    self.Geometry[incstep][k][j][i][l]=1
         self.changed=True
         self.update()
 
@@ -255,8 +250,8 @@ class MeinDialog(QtGui.QDialog, Dlg):
                             if (self.RecentlyTouched[j][i][l]!=0):
                                 return
                             else:
-                                self.Geometry[incstep][k][j][i][l]+=2
-                                self.Geometry[incstep][k][j][i][l]%=3
+                                self.Geometry[incstep][k][j][i][l]+=1
+                                self.Geometry[incstep][k][j][i][l]%=5
                                 self.RecentlyTouched[j][i][l]=1
                                 self.changed=True
                                 self.update()

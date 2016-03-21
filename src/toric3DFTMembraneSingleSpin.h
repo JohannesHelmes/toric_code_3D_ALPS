@@ -1,19 +1,13 @@
 #ifndef MYBASEMC_HPP
 #define MYBASEMC_HPP
 #include <alps/scheduler.h>
-#include <alps/lattice/graph_helper.h>
-#include <alps/alea.h>
 #include <string>
-#include <memory>
-#include "site.h"
+#include "updater.h" //includes site.h
 
 
-
-// typedef boost::adjacency_list<boost::vecS,boost::vecS,boost::undirectedS, boost::property<alps::vertex_type_t,unsigned int>, boost::property<alps::edge_type_t,unsigned int, boost::property<alps::edge_index_t, unsigned int> > > graph_type; //doesn't work !!!
 typedef alps::scheduler::LatticeMCRun<>::graph_type graph_type;
 
 using namespace std;
-
 
 class toricFTSPMembrane : public alps::scheduler::LatticeMCRun<graph_type>{
 
@@ -29,18 +23,16 @@ protected :
     alps::uint64_t Nb_Steps;
     alps::uint64_t Nb_Therm_Steps;
     alps::uint64_t Total_Steps;
-    int L,W,N,numspins,numsites,start,B,n,d,replica,NofD,exc;
-    bool WasInA, InA, found;
+    int L,W,N,numsites,start,n,NofD,exc,numspins,algo,seed;
+    double beta,ratio;
     string IncStep;
-    std::vector<bool> geom,edge;
-    std::set<site_descriptor> edge_sites;
-    std::vector<bool> spins_;
-    std::vector<std::vector<bool> > plaquette_defects;
+    std::vector<int> geom;
     std::vector<int> map_lat_to_spin, map_lat_to_plaq, map_lat_to_vert;
     std::vector<spin_ptr> spins;
     std::vector<plaq_ptr> plaqs;
     std::vector<vert_ptr> verts;
     spin_ptr candidate;
+    std::shared_ptr<updater> update_object;
 
     void heal_chain(int replica, std::deque<int> chain, std::deque<int> back_chain);
     void heal_chain_open(int replica, std::deque<int> chain, std::deque<int> back_chain);
@@ -48,16 +40,8 @@ protected :
     int get_random_neighbor(int vertex);
     void flip_defect(int replica, int plaquette);
 
-
-    double beta,weight;
-    std::vector<double> expmB;
     site_iterator sit;
     neighbor_iterator nit;
-    std::deque<int>::iterator dit;
-    std::vector<int>::iterator vit;
-    std::vector<bool>::iterator vbit;
-
-    void flip(int replica, int spin);
 
     virtual void do_measurements()=0;
     bool IsInA(site_descriptor);
