@@ -102,6 +102,15 @@ deconfined_vert::deconfined_vert(int seed, int reps, double beta, std::vector<sp
         random_rep(mtwister, int_dist_reps),
         random_vert(mtwister, int_dist_verts)
 {
+    /* 
+     * Create an unordered_map< pair of vertices, int >
+     * It looks up the special setting of the boundary, inA, connected subregion of B
+     * We need a typedef of a pair of vert_ptr in order to create this map.
+     *
+     * Get rid of multiple read-outs of label, boundary
+     * Get rid of swappings
+     * Perform a switch statement for the actual operations to do (get rid of the nested if statements)
+     */
     cout<<v.size()<<" vertices, "<<N_verts_per_replica<<" per replica"<<endl;
 }
 
@@ -147,17 +156,10 @@ void deconfined_vert::update() {
             if ((label2 == 1)||(v_cand2->get_boundary())) {
                 //flip both in A
                 try_flip(v_cand1, v_cand2, v_cand1_cpart, v_cand2_cpart, NofExc);
-                /*
-                if (label2 == 1) 
-                    cout<<"Scenario 1"<<endl;
-                else
-                    cout<<"Scenario 6"<<endl;
-                    */
             }
             else {
                 v_cand3=verts[random_vert() + (replica^1) * N_verts_per_replica]; 
                 if (v_cand3->get_label() == label2) {
-                    //cout<<"Scenario 5"<<endl;
                     try_flip(v_cand1, v_cand1_cpart, v_cand2, v_cand3, NofExc);
                 }
             }
@@ -165,18 +167,11 @@ void deconfined_vert::update() {
         else if (label1 == label2) {
             if (v_cand2->get_boundary() ) { //implies v_cand1->get_boundary()==true
                 //assert(v_cand1->get_boundary()==true);
-                //cout<<"Scenario 4"<<endl;
                 try_flip(v_cand1, v_cand2, NofExc);
                 try_flip(v_cand1_cpart, v_cand2_cpart, NofExc);
                 //try both
             }
             else { //do update in B
-                /*
-                if (v_cand1->get_boundary()) 
-                    cout<<"Scenario 3"<<endl;
-                else
-                    cout<<"Scenario 2"<<endl;
-                    */
                 try_flip(v_cand1, v_cand2, NofExc);
             }
         }
@@ -184,22 +179,17 @@ void deconfined_vert::update() {
             //assert(label1==0);
             //assert(label2==2);
             if ((v_cand1->get_boundary())&& (v_cand2->get_boundary())) {
-                //cout<<"Scenario 10"<<endl;
                 try_flip(v_cand1, v_cand2, v_cand1_cpart, v_cand2_cpart, NofExc);
             }
             else if ((v_cand1->get_boundary()) != (v_cand2->get_boundary())) {
                 v_cand3=verts[random_vert() + (replica^1) * N_verts_per_replica]; 
                 if ((v_cand1->get_boundary()) && (v_cand3->get_label() == label2)) {
-                    //cout<<"Scenario 8"<<endl;
                     try_flip(v_cand1, v_cand1_cpart, v_cand2, v_cand3, NofExc);
                 }
                 if ((v_cand2->get_boundary()) && (v_cand3->get_label() == label1)) {
-                    //cout<<"Scenario 9"<<endl;
                     try_flip(v_cand1, v_cand2, v_cand2_cpart, v_cand3, NofExc);
                 }
             }
-            //else 
-                //std::cout<<"NO way, Scenario 7 "<<std::endl;
         }
 
         //otherwise, both are in B but disconnected -> abort
