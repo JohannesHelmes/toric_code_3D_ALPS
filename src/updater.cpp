@@ -90,6 +90,8 @@ void mix_spin_plaq_for_vert::update() {
     }
 }
 
+using namespace std;
+
 deconfined_vert::deconfined_vert(int seed, int reps, double beta, std::vector<spin_ptr>& s, std::vector<vert_ptr>& v, int& nofe) :
         updater(seed, reps, beta, s),
         verts(v),
@@ -100,88 +102,108 @@ deconfined_vert::deconfined_vert(int seed, int reps, double beta, std::vector<sp
         random_rep(mtwister, int_dist_reps),
         random_vert(mtwister, int_dist_verts)
 {
+    cout<<v.size()<<" vertices, "<<N_verts_per_replica<<" per replica"<<endl;
 }
 
-using namespace std;
 
 void deconfined_vert::update() {
-    replica=random_rep();
-    r_vert = random_vert();
-    v_cand1=verts[r_vert + replica * N_verts_per_replica];
-    v_cand1_cpart=verts[r_vert + replica^1 * N_verts_per_replica];
-    r_vert = random_vert();
-    v_cand2=verts[r_vert + replica * N_verts_per_replica];
-    v_cand2_cpart=verts[r_vert + replica^1 * N_verts_per_replica];
+    for (int j=0; j<=N_verts_per_replica; ++j) {
+        replica=random_rep();
+        r_vert = random_vert();
+        v_cand1=verts[r_vert + replica * N_verts_per_replica];
+        v_cand1_cpart=verts[r_vert + (replica^1) * N_verts_per_replica];
+        //cout <<(r_vert+ replica * N_verts_per_replica)<<" and its counterpart "<<(r_vert + (replica^1) * N_verts_per_replica)<<endl;
+        r_vert = random_vert();
+        v_cand2=verts[r_vert + replica * N_verts_per_replica];
+        v_cand2_cpart=verts[r_vert + (replica^1) * N_verts_per_replica];
 
-    if (v_cand1 == v_cand2) 
-        return;
+        if (v_cand1 == v_cand2) 
+            return;
 
-    label1 = v_cand1->get_label();
-    label2 = v_cand2->get_label();
+        label1 = v_cand1->get_label();
+        label2 = v_cand2->get_label();
 
-    if (label2==1) {
-        swap(v_cand1, v_cand2);
-        swap(v_cand1_cpart, v_cand2_cpart);
-        swap(label1, label2);
-    }
-    else if (label1!=1) {
-        if (label1 > label2) {
+        if (label2==1) {
             swap(v_cand1, v_cand2);
             swap(v_cand1_cpart, v_cand2_cpart);
             swap(label1, label2);
         }
-        else if ((label1 == label2)&& (v_cand2->get_boundary())) {
-            swap(v_cand1, v_cand2);
-            swap(v_cand1_cpart, v_cand2_cpart);
-            swap(label1, label2);
+        else if (label1!=1) {
+            if (label1 > label2) {
+                swap(v_cand1, v_cand2);
+                swap(v_cand1_cpart, v_cand2_cpart);
+                swap(label1, label2);
+            }
+            else if ((label1 == label2)&& (v_cand2->get_boundary())) {
+                swap(v_cand1, v_cand2);
+                swap(v_cand1_cpart, v_cand2_cpart);
+                swap(label1, label2);
+            }
         }
-    }
 
 
 
-    if (label1 == 1) {
-        if ((label2 == 1)||(v_cand2->get_boundary())) {
-            //flip both in A
-            try_flip(v_cand1, v_cand2, v_cand1_cpart, v_cand2_cpart, NofExc);
+        if (label1 == 1) {
+            if ((label2 == 1)||(v_cand2->get_boundary())) {
+                //flip both in A
+                try_flip(v_cand1, v_cand2, v_cand1_cpart, v_cand2_cpart, NofExc);
+                /*
+                if (label2 == 1) 
+                    cout<<"Scenario 1"<<endl;
+                else
+                    cout<<"Scenario 6"<<endl;
+                    */
+            }
+            else {
+                v_cand3=verts[random_vert() + (replica^1) * N_verts_per_replica]; 
+                if (v_cand3->get_label() == label2) {
+                    //cout<<"Scenario 5"<<endl;
+                    try_flip(v_cand1, v_cand1_cpart, v_cand2, v_cand3, NofExc);
+                }
+            }
+        }
+        else if (label1 == label2) {
+            if (v_cand2->get_boundary() ) { //implies v_cand1->get_boundary()==true
+                //assert(v_cand1->get_boundary()==true);
+                //cout<<"Scenario 4"<<endl;
+                try_flip(v_cand1, v_cand2, NofExc);
+                try_flip(v_cand1_cpart, v_cand2_cpart, NofExc);
+                //try both
+            }
+            else { //do update in B
+                /*
+                if (v_cand1->get_boundary()) 
+                    cout<<"Scenario 3"<<endl;
+                else
+                    cout<<"Scenario 2"<<endl;
+                    */
+                try_flip(v_cand1, v_cand2, NofExc);
+            }
         }
         else {
-            v_cand3=verts[random_vert() + replica^1 * N_verts_per_replica]; 
-            if (v_cand3->get_label() == label2) {
-                try_flip(v_cand1, v_cand1_cpart, v_cand2, v_cand3, NofExc);
+            //assert(label1==0);
+            //assert(label2==2);
+            if ((v_cand1->get_boundary())&& (v_cand2->get_boundary())) {
+                //cout<<"Scenario 10"<<endl;
+                try_flip(v_cand1, v_cand2, v_cand1_cpart, v_cand2_cpart, NofExc);
             }
-        }
-    }
-    else if (label1 == label2) {
-        if (v_cand2->get_boundary() ) { //implies v_cand1->get_boundary()==true
-            assert(v_cand1->get_boundary()==true);
-            try_flip(v_cand1, v_cand2, NofExc);
-            try_flip(v_cand1_cpart, v_cand2_cpart, NofExc);
-            //try both
-        }
-        else { //do update in B
-            try_flip(v_cand1, v_cand2, NofExc);
-        }
-    }
-    else {
-        assert(label1==0);
-        assert(label2==2);
-        if ((v_cand1->get_boundary())&& (v_cand2->get_boundary())) {
-            try_flip(v_cand1, v_cand2, v_cand1_cpart, v_cand2_cpart, NofExc);
-        }
-        else if ((v_cand1->get_boundary()) != (v_cand2->get_boundary())) {
-            v_cand3=verts[random_vert() + replica^1 * N_verts_per_replica]; 
-            if ((v_cand1->get_boundary()) && (v_cand3->get_label() == label2)) {
-                try_flip(v_cand1, v_cand1_cpart, v_cand2, v_cand3, NofExc);
+            else if ((v_cand1->get_boundary()) != (v_cand2->get_boundary())) {
+                v_cand3=verts[random_vert() + (replica^1) * N_verts_per_replica]; 
+                if ((v_cand1->get_boundary()) && (v_cand3->get_label() == label2)) {
+                    //cout<<"Scenario 8"<<endl;
+                    try_flip(v_cand1, v_cand1_cpart, v_cand2, v_cand3, NofExc);
+                }
+                if ((v_cand2->get_boundary()) && (v_cand3->get_label() == label1)) {
+                    //cout<<"Scenario 9"<<endl;
+                    try_flip(v_cand1, v_cand2, v_cand2_cpart, v_cand3, NofExc);
+                }
             }
-            if ((v_cand2->get_boundary()) && (v_cand3->get_label() == label1)) {
-                try_flip(v_cand1, v_cand2, v_cand2_cpart, v_cand3, NofExc);
-            }
+            //else 
+                //std::cout<<"NO way, Scenario 7 "<<std::endl;
         }
-        //else 
-            //std::cout<<"NO way "<<std::endl;
-    }
 
-    //otherwise, both are in B but disconnected -> abort
+        //otherwise, both are in B but disconnected -> abort
+    }
     
 }
 
