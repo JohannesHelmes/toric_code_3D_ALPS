@@ -19,6 +19,7 @@ protected:
     boost::uniform_01<> real_dist;
     boost::variate_generator<mt_rng&, boost::uniform_01<> > random_01;
     std::vector<double> expmB;
+    //std::unordered_map<vertex_pair_t, int> 
 
     boost::random::uniform_int_distribution<> int_dist;
     boost::variate_generator<mt_rng&, boost::random::uniform_int_distribution<> > random_int;
