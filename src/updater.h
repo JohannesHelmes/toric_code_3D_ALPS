@@ -1,4 +1,5 @@
 #include "site.h"
+#include <boost/multi_array.hpp>
 #include <boost/random/mersenne_twister.hpp> // for random_int, random_01
 #include <boost/random/uniform_01.hpp>
 #include <boost/random/uniform_int.hpp>
@@ -19,7 +20,7 @@ protected:
     boost::uniform_01<> real_dist;
     boost::variate_generator<mt_rng&, boost::uniform_01<> > random_01;
     std::vector<double> expmB;
-    //std::unordered_map<vertex_pair_t, int> 
+    boost::multi_array<short, 4> option_dict{boost::extents[3][2][3][2]};
 
     boost::random::uniform_int_distribution<> int_dist;
     boost::variate_generator<mt_rng&, boost::random::uniform_int_distribution<> > random_int;

@@ -103,14 +103,47 @@ deconfined_vert::deconfined_vert(int seed, int reps, double beta, std::vector<sp
         random_vert(mtwister, int_dist_verts)
 {
     /* 
-     * Create an unordered_map< pair of vertices, int >
-     * It looks up the special setting of the boundary, inA, connected subregion of B
-     * We need a typedef of a pair of vert_ptr in order to create this map.
      *
      * Get rid of multiple read-outs of label, boundary
      * Get rid of swappings
      * Perform a switch statement for the actual operations to do (get rid of the nested if statements)
      */
+    //pattern : option_dict[label1][isboundary1][label2][isboundary2]
+    option_dict[1][0][1][0]=1;
+
+    option_dict[0][0][0][0]=2;
+    option_dict[2][0][2][0]=2;
+
+    option_dict[0][1][0][0]=3;
+    option_dict[0][0][0][1]=3;
+    option_dict[2][1][2][0]=3;
+    option_dict[2][0][2][1]=3;
+
+    option_dict[0][1][0][1]=4;
+    option_dict[2][1][2][1]=4;
+
+    option_dict[1][0][0][0]=5;
+    option_dict[1][0][2][0]=5;
+
+    option_dict[0][0][1][0]=15;
+    option_dict[2][0][1][0]=15;
+
+    option_dict[1][0][0][1]=6;
+    option_dict[1][0][2][1]=6;
+    option_dict[0][1][1][0]=6;
+    option_dict[2][1][1][0]=6;
+
+    option_dict[0][0][2][0]=7;
+    option_dict[2][0][0][0]=7;
+
+    option_dict[0][1][2][0]=8;
+    option_dict[2][0][0][1]=8;
+
+    option_dict[2][1][0][0]=9;
+    option_dict[0][0][2][1]=9;
+
+    option_dict[0][1][2][1]=10;
+    option_dict[2][1][0][1]=10;
     cout<<v.size()<<" vertices, "<<N_verts_per_replica<<" per replica"<<endl;
 }
 
@@ -129,9 +162,32 @@ void deconfined_vert::update() {
         if (v_cand1 == v_cand2) 
             return;
 
-        label1 = v_cand1->get_label();
-        label2 = v_cand2->get_label();
+        label1=v_cand1->get_label();
+        label2=v_cand2->get_label();
 
+        switch (option_dict[label1][v_cand1->get_boundary()][label2][v_cand2->get_boundary()]) {
+            case  1:
+            case  6: try_flip(v_cand1, v_cand2, v_cand1_cpart, v_cand2_cpart, NofExc); break;
+            case  2: 
+            case  3: try_flip(v_cand1, v_cand2, NofExc); break;
+            case  4: try_flip(v_cand1, v_cand2, NofExc);
+                     try_flip(v_cand1_cpart, v_cand2_cpart, NofExc); break;
+            case  5:
+            case  8: v_cand3=verts[random_vert() + (replica^1) * N_verts_per_replica]; 
+                     if (v_cand3->get_label() == label2) {
+                         try_flip(v_cand1, v_cand1_cpart, v_cand2, v_cand3, NofExc);
+                     }
+                     break;
+            case  7: break;
+            case  9:
+            case 15: v_cand3=verts[random_vert() + (replica^1) * N_verts_per_replica]; 
+                     if (v_cand3->get_label() == label1) {
+                         try_flip(v_cand1, v_cand2_cpart, v_cand2, v_cand3, NofExc);
+                     }
+                     break;
+        }
+        
+        /*
         if (label2==1) {
             swap(v_cand1, v_cand2);
             swap(v_cand1_cpart, v_cand2_cpart);
@@ -167,8 +223,6 @@ void deconfined_vert::update() {
         else if (label1 == label2) {
             if (v_cand2->get_boundary() ) { //implies v_cand1->get_boundary()==true
                 //assert(v_cand1->get_boundary()==true);
-                try_flip(v_cand1, v_cand2, NofExc);
-                try_flip(v_cand1_cpart, v_cand2_cpart, NofExc);
                 //try both
             }
             else { //do update in B
@@ -193,6 +247,7 @@ void deconfined_vert::update() {
         }
 
         //otherwise, both are in B but disconnected -> abort
+        */
     }
     
 }
