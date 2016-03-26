@@ -187,81 +187,8 @@ void deconfined_vert::update() {
                      break;
         }
         
-        /*
-        if (label2==1) {
-            swap(v_cand1, v_cand2);
-            swap(v_cand1_cpart, v_cand2_cpart);
-            swap(label1, label2);
-        }
-        else if (label1!=1) {
-            if (label1 > label2) {
-                swap(v_cand1, v_cand2);
-                swap(v_cand1_cpart, v_cand2_cpart);
-                swap(label1, label2);
-            }
-            else if ((label1 == label2)&& (v_cand2->get_boundary())) {
-                swap(v_cand1, v_cand2);
-                swap(v_cand1_cpart, v_cand2_cpart);
-                swap(label1, label2);
-            }
-        }
-
-
-
-        if (label1 == 1) {
-            if ((label2 == 1)||(v_cand2->get_boundary())) {
-                //flip both in A
-                try_flip(v_cand1, v_cand2, v_cand1_cpart, v_cand2_cpart, NofExc);
-            }
-            else {
-                v_cand3=verts[random_vert() + (replica^1) * N_verts_per_replica]; 
-                if (v_cand3->get_label() == label2) {
-                    try_flip(v_cand1, v_cand1_cpart, v_cand2, v_cand3, NofExc);
-                }
-            }
-        }
-        else if (label1 == label2) {
-            if (v_cand2->get_boundary() ) { //implies v_cand1->get_boundary()==true
-                //assert(v_cand1->get_boundary()==true);
-                //try both
-            }
-            else { //do update in B
-                try_flip(v_cand1, v_cand2, NofExc);
-            }
-        }
-        else {
-            //assert(label1==0);
-            //assert(label2==2);
-            if ((v_cand1->get_boundary())&& (v_cand2->get_boundary())) {
-                try_flip(v_cand1, v_cand2, v_cand1_cpart, v_cand2_cpart, NofExc);
-            }
-            else if ((v_cand1->get_boundary()) != (v_cand2->get_boundary())) {
-                v_cand3=verts[random_vert() + (replica^1) * N_verts_per_replica]; 
-                if ((v_cand1->get_boundary()) && (v_cand3->get_label() == label2)) {
-                    try_flip(v_cand1, v_cand1_cpart, v_cand2, v_cand3, NofExc);
-                }
-                if ((v_cand2->get_boundary()) && (v_cand3->get_label() == label1)) {
-                    try_flip(v_cand1, v_cand2, v_cand2_cpart, v_cand3, NofExc);
-                }
-            }
-        }
-
-        //otherwise, both are in B but disconnected -> abort
-        */
     }
     
-}
-
-void deconfined_vert::swap(vert_ptr& v1, vert_ptr& v2) {
-    tmp = v1;
-    v1 = v2;
-    v2 = tmp;
-}
-
-void deconfined_vert::swap(int& i1, int& i2) {
-    itmp = i1;
-    i1 = i2;
-    i2 = itmp;
 }
 
 void deconfined_vert::try_flip(vert_ptr& v1, vert_ptr& v2, int& NofD) {

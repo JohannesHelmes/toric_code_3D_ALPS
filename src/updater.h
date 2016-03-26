@@ -76,13 +76,11 @@ private:
     boost::variate_generator<mt_rng&, boost::random::uniform_int_distribution<> > random_vert;
     int &NofExc;
 
-    vert_ptr v_cand1, v_cand2, v_cand1_cpart, v_cand2_cpart, v_cand3,tmp;
-    int r_vert, itmp;
+    vert_ptr v_cand1, v_cand2, v_cand1_cpart, v_cand2_cpart, v_cand3;
+    int r_vert;
     int label1,label2,label3;
     int cand_weight;
 
-    void swap(vert_ptr& v1, vert_ptr& v2);
-    void swap(int& i1, int& i2);
     void try_flip(vert_ptr& v1, vert_ptr& v2, int& NofD);
     void try_flip(vert_ptr& v1, vert_ptr& v2, vert_ptr& v3, vert_ptr& v4, int& NofD);
 };
