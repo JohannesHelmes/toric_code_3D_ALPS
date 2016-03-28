@@ -146,13 +146,13 @@ using ::operator>>;
 
 void toricFTSPMembrane::save(alps::ODump& dump) const
 {
-    dump << Total_Steps <<spins<< plaqs<< verts ; //IMPLEMENT OutStream of spins, plaqs, verts
+    dump << Total_Steps <<NofD <<spins<< plaqs<< verts ; //IMPLEMENT OutStream of spins, plaqs, verts
 
 }
 
 void toricFTSPMembrane::load(alps::IDump& dump)
 {
-    dump >> Total_Steps >>spins>> plaqs >>verts; //IMPLEMENT InStreal of spins, plaqs, verts
+    dump >> Total_Steps >> NofD >>spins>> plaqs >>verts; //IMPLEMENT InStreal of spins, plaqs, verts
 }
 
 void toricFTSPMembrane::print_copyright(std::ostream & out)
