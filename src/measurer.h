@@ -10,7 +10,7 @@ protected:
 
 };
 
-class thermo_int : measurer {
+class thermo_int : public measurer {
  
 public:
     thermo_int(alps::ObservableSet& msmt,int& nofd,const int nspns);
@@ -20,7 +20,7 @@ private:
     int const numspins;
 };
 
-class switching : measurer {
+class switching : public measurer {
 
 public:
     switching(alps::ObservableSet& msmt,bool& cnnctd);

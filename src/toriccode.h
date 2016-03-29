@@ -1,29 +1,14 @@
 #ifndef MYBASEMC_HPP
 #define MYBASEMC_HPP
-#include <boost/random.hpp>
 #include <alps/scheduler.h>
-#include <alps/lattice/graph_helper.h>
-#include <alps/alea.h>
-#include <alps/alea/histogram.h>
-#include <alps/scheduler/montecarlo.h>
-#include <tuple>
 #include <string>
-#include "measurer.h"
+#include "updater.h" //includes site.h
+#include "measurer.h" 
 
 
-
-// typedef boost::adjacency_list<boost::vecS,boost::vecS,boost::undirectedS, boost::property<alps::vertex_type_t,unsigned int>, boost::property<alps::edge_type_t,unsigned int, boost::property<alps::edge_index_t, unsigned int> > > graph_type; //doesn't work !!!
 typedef alps::scheduler::LatticeMCRun<>::graph_type graph_type;
 
 using namespace std;
-
-struct defect {
-    int vertex;
-    int spin;
-
-    defect() {vertex=-5; spin=-5;}
-    defect(int a, int b) {vertex=a; spin=b;}
-};
 
 class toriccode : public alps::scheduler::LatticeMCRun<graph_type>{
 
@@ -35,20 +20,21 @@ public :
     void dostep();
     bool is_thermalized() const;
     double work_done() const;
-    void do_measurements();
 protected :
-    measurer mes const;
     alps::uint64_t Nb_Steps;
     alps::uint64_t Nb_Therm_Steps;
     alps::uint64_t Total_Steps;
-    int L,W,N,numspins,numsites,start,B,n,d,replica,NofD;
-    bool WasInA, InA, found, connected;
+    int L,W,N,numsites,start,n,NofD,exc,numspins,algo,seed,measure;
+    double beta,ratio;
     string IncStep;
-    std::vector<bool> geom,edge;
-    std::set<site_descriptor> edge_sites;
-    std::vector<bool> spins_;
-    std::vector<std::vector<bool> > plaquette_defects;
-    std::vector<int> pneighs;
+    std::vector<int> geom;
+    std::vector<int> map_lat_to_spin, map_lat_to_plaq, map_lat_to_vert;
+    std::vector<spin_ptr> spins;
+    std::vector<plaq_ptr> plaqs;
+    std::vector<vert_ptr> verts;
+    spin_ptr candidate;
+    std::shared_ptr<updater> update_object;
+    std::shared_ptr<measurer> measurement_object;
 
     void heal_chain(int replica, std::deque<int> chain, std::deque<int> back_chain);
     void heal_chain_open(int replica, std::deque<int> chain, std::deque<int> back_chain);
@@ -56,15 +42,8 @@ protected :
     int get_random_neighbor(int vertex);
     void flip_defect(int replica, int plaquette);
 
-    double beta,weight;
-    std::vector<double> expmB;
     site_iterator sit;
     neighbor_iterator nit;
-    std::deque<int>::iterator dit;
-    std::vector<int>::iterator vit;
-    std::vector<bool>::iterator vbit;
-
-    void flip(int replica, int spin);
 
     bool IsInA(site_descriptor);
     template<class T> typename deque<T>::reverse_iterator back_find(std::deque<T> *d,T item) {
@@ -78,4 +57,7 @@ protected :
 
 
 };
+
+typedef alps::scheduler::SimpleMCFactory<toriccode> ToricFactory;
+    
 #endif
