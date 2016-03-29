@@ -18,8 +18,29 @@ void thermo_int::measure() {
 
 /* class switching */
 /* INCOMPLETE!!!! */
-switching::switching(alps::ObservableSet& msmt, bool& cnncted) : measurer(msmt), connected(cnncted) {
+switching::switching(alps::ObservableSet& msmt, std::vector<spin_ptr>& p_spins) : measurer(msmt), spins(p_spins) {
+    measurements << alps::RealObservable("EG"); //Ensemble glued at edge
+}
+
+bool switching::isboth() {
+    /*
+    for (set<site_descriptor>::iterator it=edge_sites.begin();it!=edge_sites.end();++it) {
+        for (int i=1; i<n; ++i) {
+            if (spins_[*it]!=spins_[numsites*i+*it]) {
+                return false;
+            }
+        }
+    }
+    */
+    return true;
 }
 
 void switching::measure() {
+    if (isboth()) { //IMPLEMENT THIS!
+        measurements["EG"] << 1.0;
+        measurements["EG"] << 0.0;
+    }
+    else {
+        measurements["EG"] << 0.0;
+    }
 }

@@ -50,7 +50,7 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
         for (sit=sites().first; sit!=sites().second; ++sit) {
             if (site_type(*sit)==0) {
                 if ((geom[*sit]!=1)||(i==0)) {
-                    spin_ptr nspin = std::make_shared<spin>();
+                    spin_ptr nspin = std::make_shared<spin>(geom[*sit]);
                     spins.push_back(nspin);
                 }
                 else 
@@ -90,6 +90,7 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
     }
 
     //label all connected regions and boundaries of vertices/plaquettes
+    //DO THIS IN THE UPDATER CONSTRUCTOR, THE GEOMETRY INFORMATION IS PROVIDED NOW
     int counter;
     for (int i=0; i<n; ++i) {
         for (sit=sites().first; sit!=sites().second; ++sit) {
@@ -113,17 +114,13 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
         }
     }
 
-    /*
-    cout<<"Check labels and boundaries of all vertices"<<endl;
-    counter=0;
-    for (vit_t vit=verts.begin(); vit!=verts.end(); ++vit, ++counter)
-        cout<<counter<<": has label "<<(*vit)->get_label()<<" and boundary "<<(*vit)->get_boundary()<<endl;
-        */
 
-
-    NofD=(exc==1)? -plaqs.size() : -verts.size();
+    NofD=(exc==1)? -plaqs.size() : -verts.size(); //SHOULD BE DONE IN THE UPDATER CONSTRUCTOR
     if (measure == 1) {
         measurement_object = std::make_shared<thermo_int>(measurements, NofD, spins.size() );
+    }
+    else if (measure == 2) {
+        measurement_object = std::make_shared<switching>(measurements, spins );
     }
 
     if (algo==1) {

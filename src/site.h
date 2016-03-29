@@ -49,19 +49,21 @@ class spin : public site {
     
 private:
     int energy;
+    const int geometry;
     std::vector<plaq_ptr> p_neighbors;
     std::vector<vert_ptr> v_neighbors;
     plit_t plit;
     vit_t vit;
 
 public:
-    spin();
+    spin(int geo);
     void add_neighbor(plaq_ptr nb);
     void add_neighbor(vert_ptr nb);
     void flip_and_flip_plaqs();
     void flip_and_flip_verts();
     int get_weight_from_plaqs(); 
     int get_weight_from_verts(); 
+    int get_geometry() { return geometry; }
 
 };
 
