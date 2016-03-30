@@ -76,6 +76,8 @@ public:
     int get_label() { return label; }
     void set_boundary(bool nbound) {boundary = nbound; }
     bool get_boundary() { return boundary; }
+    const_spit_t get_neighbors_begin() {return neighbors.begin(); }
+    const_spit_t get_neighbors_end() {return neighbors.end(); }
 protected:
     std::vector<spin_ptr> neighbors;
     spit_t spit;

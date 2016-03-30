@@ -24,6 +24,7 @@ single_spin_plaq::single_spin_plaq(int seed, int reps, double beta, std::vector<
         plaqs(p),
         NofExc(nofe)
 {
+    NofExc = -plaqs.size();
 }
 
 void single_spin_plaq::update() {
@@ -44,6 +45,7 @@ single_spin_vert::single_spin_vert(int seed, int reps, double beta, std::vector<
         verts(v),
         NofExc(nofe)
 {
+    NofExc = -verts.size();
 }
 
 void single_spin_vert::update() {
@@ -102,12 +104,51 @@ deconfined_vert::deconfined_vert(int seed, int reps, double beta, std::vector<sp
         random_rep(mtwister, int_dist_reps),
         random_vert(mtwister, int_dist_verts)
 {
-    /* 
-     *
-     * Get rid of multiple read-outs of label, boundary
-     * Get rid of swappings
-     * Perform a switch statement for the actual operations to do (get rid of the nested if statements)
-     */
+    NofExc = -verts.size();
+
+    int counter;
+    for (vit_t vit = verts.begin(); vit!=verts.end(); ++vit) {
+        counter=0;
+        for (const_spit_t spit = (*vit)->get_neighbors_begin(); spit != (*vit)->get_neighbors_end(); ++spit) {
+            if ( (*spit)->get_geometry() != 1) {
+                (*vit)->add_label( (*spit)->get_geometry() );
+                (*vit)->set_boundary ( true );
+                ++counter;
+            }
+            if (counter == 0) {
+                (*vit)->add_label( 1 );
+                (*vit)->set_boundary ( false );
+            }
+            else if (counter == 6)
+                (*vit)->set_boundary ( false );
+        }
+    }
+
+
+    /*
+    for (int i=0; i<n; ++i) {
+        for (sit=sites().first; sit!=sites().second; ++sit) {
+            if (site_type(*sit)==2) {
+                counter=0;
+                for (nit=neighbors(*sit).first; nit!=neighbors(*sit).second; ++nit) {
+                    if (geom[*nit]!=1) {
+                        verts[map_lat_to_vert[*sit + i*numsites]]->add_label(geom[*nit]);
+                        verts[map_lat_to_vert[*sit + i*numsites]]->set_boundary(true);
+                        ++counter;
+                    }
+                }
+                if (counter==0) {
+                        verts[map_lat_to_vert[*sit + i*numsites]]->add_label(1); //means completely in subsystem A
+                        verts[map_lat_to_vert[*sit + i*numsites]]->set_boundary(false); 
+                }
+                else if (counter==6) {
+                        verts[map_lat_to_vert[*sit + i*numsites]]->set_boundary(false); //means completely in subsystem B
+                }
+            }
+        }
+    }
+    */
+
     //pattern : option_dict[label1][isboundary1][label2][isboundary2]
     option_dict[1][0][1][0]=1;
 

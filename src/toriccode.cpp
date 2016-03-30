@@ -91,6 +91,7 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
 
     //label all connected regions and boundaries of vertices/plaquettes
     //DO THIS IN THE UPDATER CONSTRUCTOR, THE GEOMETRY INFORMATION IS PROVIDED NOW
+    /*
     int counter;
     for (int i=0; i<n; ++i) {
         for (sit=sites().first; sit!=sites().second; ++sit) {
@@ -113,9 +114,10 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
             }
         }
     }
+    */
 
 
-    NofD=(exc==1)? -plaqs.size() : -verts.size(); //SHOULD BE DONE IN THE UPDATER CONSTRUCTOR
+    //NofD=(exc==1)? -plaqs.size() : -verts.size(); //SHOULD BE DONE IN THE UPDATER CONSTRUCTOR
     if (measure == 1) {
         measurement_object = std::make_shared<thermo_int>(measurements, NofD, spins.size() );
     }
