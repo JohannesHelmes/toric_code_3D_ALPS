@@ -117,7 +117,6 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
     */
 
 
-    //NofD=(exc==1)? -plaqs.size() : -verts.size(); //SHOULD BE DONE IN THE UPDATER CONSTRUCTOR
     if (measure == 1) {
         measurement_object = std::make_shared<thermo_int>(measurements, NofD, spins.size() );
     }

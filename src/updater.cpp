@@ -124,31 +124,6 @@ deconfined_vert::deconfined_vert(int seed, int reps, double beta, std::vector<sp
         }
     }
 
-
-    /*
-    for (int i=0; i<n; ++i) {
-        for (sit=sites().first; sit!=sites().second; ++sit) {
-            if (site_type(*sit)==2) {
-                counter=0;
-                for (nit=neighbors(*sit).first; nit!=neighbors(*sit).second; ++nit) {
-                    if (geom[*nit]!=1) {
-                        verts[map_lat_to_vert[*sit + i*numsites]]->add_label(geom[*nit]);
-                        verts[map_lat_to_vert[*sit + i*numsites]]->set_boundary(true);
-                        ++counter;
-                    }
-                }
-                if (counter==0) {
-                        verts[map_lat_to_vert[*sit + i*numsites]]->add_label(1); //means completely in subsystem A
-                        verts[map_lat_to_vert[*sit + i*numsites]]->set_boundary(false); 
-                }
-                else if (counter==6) {
-                        verts[map_lat_to_vert[*sit + i*numsites]]->set_boundary(false); //means completely in subsystem B
-                }
-            }
-        }
-    }
-    */
-
     //pattern : option_dict[label1][isboundary1][label2][isboundary2]
     option_dict[1][0][1][0]=1;
 
