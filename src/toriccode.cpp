@@ -75,6 +75,8 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
     for (int i=0; i<n; ++i) {
         for (sit=sites().first; sit!=sites().second; ++sit) {
             if (site_type(*sit)==0) {
+                spins[map_lat_to_spin[*sit + i*numsites]]->set_ninr(spins[map_lat_to_spin[*sit + ((i+1)%n)*numsites]] );
+
                 for (nit=neighbors(*sit).first; nit!=neighbors(*sit).second; ++nit) {
                     if (site_type(*nit)==1) { 
                         spins[map_lat_to_spin[*sit + i*numsites]]->add_neighbor(plaqs[map_lat_to_plaq[*nit + i*numsites]]);
@@ -89,39 +91,12 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
         }
     }
 
-    //label all connected regions and boundaries of vertices/plaquettes
-    //DO THIS IN THE UPDATER CONSTRUCTOR, THE GEOMETRY INFORMATION IS PROVIDED NOW
-    /*
-    int counter;
-    for (int i=0; i<n; ++i) {
-        for (sit=sites().first; sit!=sites().second; ++sit) {
-            if (site_type(*sit)==2) {
-                counter=0;
-                for (nit=neighbors(*sit).first; nit!=neighbors(*sit).second; ++nit) {
-                    if (geom[*nit]!=1) {
-                        verts[map_lat_to_vert[*sit + i*numsites]]->add_label(geom[*nit]);
-                        verts[map_lat_to_vert[*sit + i*numsites]]->set_boundary(true);
-                        ++counter;
-                    }
-                }
-                if (counter==0) {
-                        verts[map_lat_to_vert[*sit + i*numsites]]->add_label(1); //means completely in subsystem A
-                        verts[map_lat_to_vert[*sit + i*numsites]]->set_boundary(false); 
-                }
-                else if (counter==6) {
-                        verts[map_lat_to_vert[*sit + i*numsites]]->set_boundary(false); //means completely in subsystem B
-                }
-            }
-        }
-    }
-    */
-
 
     if (measure == 1) {
         measurement_object = std::make_shared<thermo_int>(measurements, NofD, spins.size() );
     }
     else if (measure == 2) {
-        measurement_object = std::make_shared<switching>(measurements, spins );
+        measurement_object = std::make_shared<switching>(measurements, spins, spins.size()/n );
     }
 
     if (algo==1) {

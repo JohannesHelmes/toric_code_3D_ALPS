@@ -1,3 +1,6 @@
+#ifndef SITE_H
+#define SITE_H
+
 #include<vector>
 #include<memory>
 #include<alps/osiris/dump.h>
@@ -52,6 +55,7 @@ private:
     const int geometry;
     std::vector<plaq_ptr> p_neighbors;
     std::vector<vert_ptr> v_neighbors;
+    spin_ptr neighbor_in_next_replica;
     plit_t plit;
     vit_t vit;
 
@@ -59,11 +63,13 @@ public:
     spin(int geo);
     void add_neighbor(plaq_ptr nb);
     void add_neighbor(vert_ptr nb);
+    void set_ninr(spin_ptr ns) {neighbor_in_next_replica = ns; }
     void flip_and_flip_plaqs();
     void flip_and_flip_verts();
     int get_weight_from_plaqs(); 
     int get_weight_from_verts(); 
-    int get_geometry() { return geometry; }
+    int get_geometry() const { return geometry; }
+    spin_ptr get_next() {return neighbor_in_next_replica; }
 
 };
 
@@ -91,4 +97,4 @@ protected:
 class plaquette : public interaction { using interaction::interaction; }; //inherit constructor
 class vertexx : public interaction { using interaction::interaction; };
 
-
+#endif  /* SITE_H */

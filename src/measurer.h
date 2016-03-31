@@ -1,7 +1,6 @@
 #include <alps/alea/observableset.h>
+#include "site.h"
 
-class spin;
-typedef std::shared_ptr<spin> spin_ptr;
 
 
 class measurer {
@@ -27,9 +26,11 @@ private:
 class switching : public measurer {
 
 public:
-    switching(alps::ObservableSet& msmt, std::vector<spin_ptr>& spins);
+    switching(alps::ObservableSet& msmt, std::vector<spin_ptr>& spins, int N_spins_per_rep);
     void measure();
 private:
-    std::vector<spin_ptr> spins;
+    std::vector<spin_ptr> switcher;
     bool isboth();
+    spin_ptr runner;
+    int reference;
 };

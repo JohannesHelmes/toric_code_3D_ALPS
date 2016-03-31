@@ -1,7 +1,9 @@
+#!/usr/bin/env python
+
 import sys
 import numpy as np
 from PyQt4 import QtGui, QtCore
-from IncMakerGui import Ui_Dialog as Dlg
+from IncMakerGuiTC2D import Ui_Dialog as Dlg
 
 class MeinDialog(QtGui.QDialog, Dlg): 
     L=0

@@ -18,20 +18,30 @@ void thermo_int::measure() {
 
 /* class switching */
 /* INCOMPLETE!!!! */
-switching::switching(alps::ObservableSet& msmt, std::vector<spin_ptr>& p_spins) : measurer(msmt), spins(p_spins) {
+switching::switching(alps::ObservableSet& msmt, std::vector<spin_ptr>& spins, int N_spins_per_rep) : measurer(msmt)  {
     measurements << alps::RealObservable("EG"); //Ensemble glued at edge
+
+    int ct =0;
+    for (const_spit_t spit=spins.begin(); spit!=spins.end(); ++spit) {
+        if ( (*spit)->get_geometry() == 2)
+            switcher.push_back(*spit);
+        if (ct > N_spins_per_rep) 
+            break;
+    }
 }
 
+
 bool switching::isboth() {
-    /*
-    for (set<site_descriptor>::iterator it=edge_sites.begin();it!=edge_sites.end();++it) {
-        for (int i=1; i<n; ++i) {
-            if (spins_[*it]!=spins_[numsites*i+*it]) {
+    for (const_spit_t spit=switcher.begin(); spit!=switcher.end(); ++spit) {
+        reference = (*spit)->get_value();
+        runner = (*spit);
+        runner->get_next();
+        while (runner != *spit) {
+            if ( runner->get_value () != reference)
                 return false;
-            }
+            runner->get_next();
         }
     }
-    */
     return true;
 }
 

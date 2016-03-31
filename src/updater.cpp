@@ -106,6 +106,7 @@ deconfined_vert::deconfined_vert(int seed, int reps, double beta, std::vector<sp
 {
     NofExc = -verts.size();
 
+    //label all connected regions and boundaries of vertices/plaquettes
     int counter;
     for (vit_t vit = verts.begin(); vit!=verts.end(); ++vit) {
         counter=0;
