@@ -60,9 +60,13 @@ ext = os.path.splitext(paramfilename)[1]
 if ext=='':
     paramfilename = paramfilename+".conf"
 
+if args.geofile==None:
+    geo="0"
+else:
+    geo=os.path.abspath(args.geofile.name)
 
 config['DEFAULT'] = { 'sweeps': args.sweeps, 'therm': args.therm, 'n': args.n, 'length': args.length, 'lattice': args.lattice, 'ExcType':args.ExcType, 'beta': args.beta,
-        'magnetization': args.magnetization, 'infile': args.infile, 'geofile':args.geofile.name, 'partsize':args.partsize, 'temper':args.temper, 'directory':dirpath} 
+        'magnetization': args.magnetization, 'infile': args.infile, 'geofile':geo, 'partsize':args.partsize, 'temper':args.temper, 'directory':dirpath} 
 
 with open(paramfilename,'w') as configfile:
     timestring=time.strftime("%Y-%m-%d %H:%M:%S \n\n", time.localtime())
@@ -107,21 +111,15 @@ print betalist
 latticename=["toric code","toric code fcr","toric code 3D"]
 dimension=3 if args.lattice==2 else 2
 
-if args.geofile==None:
-    geo="0"
-else:
-    geo=os.path.abspath(args.geofile.name)
 
 if geo=="0":
     Geometry=[""]
 else:
     Geometry=np.genfromtxt(geo,dtype=str,skip_header=0)
-
-if Geometry.size==1:
-    Geometry=[str(Geometry)]
-
-if len(Geometry[0])!=dimension*args.length**dimension: #first factor is the number of spins of the unit cell
-    print "Warning: given length does not fit to geometry file ",len(Geometry[0])," != ",args.length,"^", dimension
+    if Geometry.size==1:
+        Geometry=[str(Geometry)]
+    if len(Geometry[0])!=dimension*args.length**dimension: #first factor is the number of spins of the unit cell
+        print "Warning: given length does not fit to geometry file ",len(Geometry[0])," != ",args.length,"^", dimension
 
 if args.verbose:
     print Geometry

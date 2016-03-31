@@ -23,7 +23,7 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
     algo(static_cast<alps::uint32_t>(p.value_or_default("Algorithm",1))),      // local updates (1),  deconfined updates (2) 
     measure(static_cast<alps::uint32_t>(p.value_or_default("Measurement",1))),      // thermodynamic int (1),  ensemble switching (2), specific heat (3)
     Total_Steps(0),
-    IncStep(static_cast<string>(p["IncStep"]))
+    IncStep(static_cast<string>(p.value_or_default("IncStep","")))
 {
 
     numsites=num_sites();
@@ -115,7 +115,6 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
         update_object = std::make_shared<deconfined_vert>(seed, n, beta, spins, verts, NofD); 
     }
 
-    numspins=spins.size(); //get rid of this later
     std::cout << "# L: " << L << " Steps: " << Nb_Steps  << " Spins: " <<spins.size()<<" Sites: "<<numsites<< std::endl;
 
 }

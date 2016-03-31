@@ -19,7 +19,6 @@ void thermo_int::measure() {
 
 
 /* class switching */
-/* INCOMPLETE!!!! */
 switching::switching(alps::ObservableSet& msmt, std::vector<spin_ptr>& spins, int N_spins_per_rep) : measurer(msmt)  {
     measurements << alps::RealObservable("EG"); //Ensemble glued at edge
     cout<<"Initializing switching measurement"<<endl;
