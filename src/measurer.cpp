@@ -1,5 +1,7 @@
 #include "measurer.h"
 
+using namespace std;
+
 /* basic class measurer */
 measurer::measurer(alps::ObservableSet& msmt) : measurements(msmt) {
 }
@@ -20,27 +22,35 @@ void thermo_int::measure() {
 /* INCOMPLETE!!!! */
 switching::switching(alps::ObservableSet& msmt, std::vector<spin_ptr>& spins, int N_spins_per_rep) : measurer(msmt)  {
     measurements << alps::RealObservable("EG"); //Ensemble glued at edge
+    cout<<"Initializing switching measurement"<<endl;
 
     int ct =0;
-    for (const_spit_t spit=spins.begin(); spit!=spins.end(); ++spit) {
-        if ( (*spit)->get_geometry() == 2)
+    for (const_spit_t spit=spins.begin(); spit!=spins.end(); ++spit,++ct) {
+        if ( (*spit)->get_geometry() == 2) {
             switcher.push_back(*spit);
-        if (ct > N_spins_per_rep) 
+        }
+        if (ct >= N_spins_per_rep) 
             break;
     }
 }
 
 
 bool switching::isboth() {
+    //int iterations ; int spin_no=0;
     for (const_spit_t spit=switcher.begin(); spit!=switcher.end(); ++spit) {
         reference = (*spit)->get_value();
+        //cout<<"spin no "<<spin_no<<" has value "<<reference<<endl;
         runner = (*spit);
-        runner->get_next();
+        runner = runner->get_next();
+        //iterations=0;
         while (runner != *spit) {
-            if ( runner->get_value () != reference)
+            if ( runner->get_value () != reference) {
                 return false;
-            runner->get_next();
+            }
+            runner = runner->get_next();
+            //++iterations;
         }
+        //cout<<"done "<<iterations<<" Its "<<endl;
     }
     return true;
 }

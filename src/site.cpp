@@ -58,7 +58,7 @@ void site::flip() {
 
 
 /********  class spin  **************/
-spin::spin(int geo): site(), geometry(geo), neighbor_in_next_replica(this)  { }
+spin::spin(int geo): site(), geometry(geo)  { }
 
 void spin::add_neighbor(plaq_ptr nb) {
     plaq_ptr new_nb(nb);

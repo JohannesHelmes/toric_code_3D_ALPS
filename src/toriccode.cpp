@@ -45,7 +45,6 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
     map_lat_to_spin.resize(n*numsites);
     map_lat_to_plaq.resize(n*numsites);
     map_lat_to_vert.resize(n*numsites);
-    cout<<"numsites "<<numsites<<" total "<<n*numsites<<endl;
     for (int i=0; i<n; ++i) {
         for (sit=sites().first; sit!=sites().second; ++sit) {
             if (site_type(*sit)==0) {
@@ -70,12 +69,14 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
             }
         }
     }
+    cout<<"numsites "<<numsites<<" total "<<n*numsites<<endl;
 
     //create all neighbor pairs
     for (int i=0; i<n; ++i) {
         for (sit=sites().first; sit!=sites().second; ++sit) {
             if (site_type(*sit)==0) {
                 spins[map_lat_to_spin[*sit + i*numsites]]->set_ninr(spins[map_lat_to_spin[*sit + ((i+1)%n)*numsites]] );
+                //cout<<"Geom "<<geom[*sit]<<", will be a pointer to itself "<< ( spins[map_lat_to_spin[*sit + i*numsites]] == spins[map_lat_to_spin[*sit + ((i+1)%n)*numsites]] ) <<endl;
 
                 for (nit=neighbors(*sit).first; nit!=neighbors(*sit).second; ++nit) {
                     if (site_type(*nit)==1) { 
@@ -90,6 +91,7 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
             }
         }
     }
+    cout<<"created all neighbors "<<n*numsites<<endl;
 
 
     if (measure == 1) {
