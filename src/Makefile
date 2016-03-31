@@ -14,6 +14,7 @@ ifeq ($(host), l29)
 	include $(ALPS_ROOT)/share/alps/include.mk
 	SRC = /home/helmes/Work/toric_code_3D_ALPS/src
 	BIN = /home/helmes/Work/toric_code_3D_ALPS/bin
+	CXXFLAGS = -O2 -DNDEBUG -march=corei7 -std=c++0x 
 endif
 ifeq ($(host), johannes-thinkpad)
 	ALPS_ROOT = /opt/alps
@@ -21,25 +22,17 @@ ifeq ($(host), johannes-thinkpad)
 	SRC = /home/johannes/Work/toric_code_3D_ALPS/src
 	BIN = /home/johannes/Work/toric_code_3D_ALPS/bin
 	CXX = /usr/bin/c++
+	CXXFLAGS = -O2 -DNDEBUG -std=c++11
 endif
 ifeq ($(host), cheops0)
 	ALPS_ROOT = /projects/ag-trebst/alps/alps-svn-intel-intelmpi
 	include $(ALPS_ROOT)/share/alps/include.mk
 	SRC = /home/jhelmes/Work/toric_code_3D_ALPS/src
 	BIN = /home/jhelmes/Work/toric_code_3D_ALPS/bin
-endif
-
-
-
-ifeq ($(host), l29)
-	CXXFLAGS = -O2 -DNDEBUG -march=corei7 -std=c++0x 
-endif
-ifeq ($(host), johannes-thinkpad)
-	CXXFLAGS = -O2 -DNDEBUG -std=c++11
-endif
-ifeq ($(host), cheops0)
 	CXXFLAGS = -O2 -DNDEBUG -march=native -std=c++0x 
 endif
+
+
 
 all: toriccode
 	@echo $(host)
