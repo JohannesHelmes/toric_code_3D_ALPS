@@ -84,3 +84,20 @@ private:
     void try_flip(vert_ptr& v1, vert_ptr& v2, int& NofD);
     void try_flip(vert_ptr& v1, vert_ptr& v2, vert_ptr& v3, vert_ptr& v4, int& NofD);
 };
+
+
+class vertex_metropolis : public updater {
+public:
+    vertex_metropolis(int seed, int reps, double h, std::vector<spin_ptr>& s, std::vector<vert_ptr>& v, int& total_magn);  //single vertex update for plaquette Hamiltonian
+    void update();
+private:
+    std::vector<vert_ptr> verts;
+    int const N_verts;
+    boost::random::uniform_int_distribution<> int_dist_verts;
+    boost::variate_generator<mt_rng&, boost::random::uniform_int_distribution<> > random_vert;
+    int &TMagn;
+
+    int cand_weight;
+    vert_ptr cand, runner;
+    spit_t nb_spin_it;
+};

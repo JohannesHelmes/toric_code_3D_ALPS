@@ -63,3 +63,15 @@ void switching::measure() {
         measurements["EG"] << 0.0;
     }
 }
+
+
+/* class h_int */
+h_int::h_int(alps::ObservableSet& msmt,int& nofd,const int nspns) : measurer(msmt), NofD(nofd), numspins(nspns) {
+    std::cout<<"Magnetization measurer initialized"<<std::endl;
+    measurements << alps::RealObservable("Magnetization");
+}
+
+void h_int::measure() {
+    measurements["Magnetization"] << double(NofD)/(numspins);
+}
+

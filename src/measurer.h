@@ -34,3 +34,13 @@ private:
     spin_ptr runner;
     int reference;
 };
+
+class h_int : public measurer {
+ 
+public:
+    h_int(alps::ObservableSet& msmt,int& nofd,const int nspns);
+    void measure();
+private:
+    int& NofD;
+    int const numspins;
+};

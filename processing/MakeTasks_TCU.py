@@ -24,10 +24,10 @@ paramgroup.add_argument('--length','-l', type=int,help='Lattice length')
 paramgroup.add_argument('--lattice','-a', type=int,help='Lattice type, (0 = toric code, 1 = toric code fcr, 2 = toric code 3D), default = 2',default=2)
 paramgroup.add_argument('--ExcType','-e', type=int,help='Type of Excitation, (1 = plaquette, 2 = vertex), default = 2',default=2)
 #paramgroup.add_argument('--ratio','-r', type=float,help='Ration (0.0 .. 1.0) between single spin flips and dual many-body flips, default =1.0 (only single spin)',default=1.0)
-paramgroup.add_argument('--Algorithm','-A', type=int,help='Type of algorithm: local updates (1) [default], deconfined updates (2)',default=1)
-paramgroup.add_argument('--Measurement','-M', type=int,help='Type of measurement: thermodynamic integration (energy) (1) [default], ensemble switching(2)',default=1)
+paramgroup.add_argument('--Algorithm','-A', type=int,help='Type of algorithm: local updates (1) [default], deconfined updates (2), vertex metropolis (3)',default=1)
+paramgroup.add_argument('--Measurement','-M', type=int,help='Type of measurement: thermodynamic integration (energy) (1) [default], ensemble switching(2), thermodynamic integration (magnetization) (3)',default=1)
 
-paramgroup.add_argument('--beta','-b', nargs='+',type=float,help='beta-1/T, range possible default=2*l')
+paramgroup.add_argument('--beta','-b', nargs='+',type=float,default=[0.0],help='beta-1/T, range possible default=2*l')
 paramgroup.add_argument('--magnetization','-m', nargs='+',type=float,default=[0.0],help='Magnetization (h), range possible, default=0.0')
 paramgroup.add_argument('--infile','-i', help='Prefix of .in.xml')
 paramgroup.add_argument('--geofile','-g', type=file, help='File containing the geometry of the increments')
@@ -92,21 +92,24 @@ if len(beta)>1:
         betalist+=(np.linspace(beta[i],beta[i+2],beta[i+1]).tolist())
     hlist=args.magnetization*len(betalist)
     betalist = sorted(list(set(betalist))) # remove duplicates
+    print betalist
+
     
 magn=args.magnetization
 if len(magn)>1:
+    print magn
     if len(magn)%2==0:
          raise ValueError('magn grid needs odd number of arguments.')
     for i in range(0,len(magn)-1,2):
-        hlist.append(np.linspace(magn[i],magn[i+2],magn[i+1]).tolist())
+        hlist+=(np.linspace(magn[i],magn[i+2],magn[i+1]).tolist())
     betalist=beta*len(hlist)
     hlist = sorted(list(set(hlist)))
+    print hlist
 
 if (len(magn)==1)and(len(beta)==1):
     hlist=magn
     betalist=beta
 
-print betalist
 
 latticename=["toric code","toric code fcr","toric code 3D"]
 dimension=3 if args.lattice==2 else 2

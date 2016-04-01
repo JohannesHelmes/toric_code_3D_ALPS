@@ -1,4 +1,6 @@
 import pyalps,argparse
+import uncertainties as unc
+
 
 parser = argparse.ArgumentParser(description='Evaluate simple observables from ALPS simulations', epilog='(C) Johannes Helmes 2016')
 
@@ -18,6 +20,11 @@ def convert_alps_dataset(dset):
     Yerr = map(lambda x: float(str(x).split(" ")[2]), dset.y)
     return X,Y,Yerr
 
+def convert_alps_dataset_unc(dset):
+    X=dset.x
+    Y = map(lambda x: unc.ufloat_fromstr(str(x)), dset.y)
+    return X,Y
+
 data = pyalps.loadMeasurements(pyalps.getResultFiles(prefix=args.infile),[args.quantity,args.quantity+'2'])
 
 if args.verbose:
@@ -27,12 +34,14 @@ dataG = pyalps.collectXY(data, x=args.X, y=args.quantity)
 if args.specheat:
     y2=str(str(args.quantity)+'2')
     dataG2 = pyalps.collectXY(data, x=args.X, y=y2)
-    b,e,yerr=convert_alps_dataset(dataG[0])
-    b2,e2,yerr=convert_alps_dataset(dataG2[0])
+    #b,e,yerr=convert_alps_dataset(dataG[0])
+    #b2,e2,yerr=convert_alps_dataset(dataG2[0])
+    b, e = convert_alps_dataset_unc(dataG[0])
+    b, e2 = convert_alps_dataset_unc(dataG2[0])
 
     for beta,en,en2 in zip(b,e,e2):
         sp=(en2-(en**2))*beta**2
-        print beta, sp
+        print beta, sp.nominal_value, sp.std_dev
 
 else:
     for thing in dataG:

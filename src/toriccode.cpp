@@ -4,6 +4,7 @@
 #include <fstream>
 #include <cmath>
 #include <alps/osiris/comm.h>
+#include <cassert>
 
 
 
@@ -17,10 +18,11 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
     Nb_Steps(static_cast<alps::uint64_t>(p["SWEEPS"])),    // # of simulation steps
     Nb_Therm_Steps(static_cast<alps::uint64_t>(p["THERMALIZATION"])),
     beta(static_cast<double>(p["beta"])),
+    h(static_cast<double>(p.value_or_default("h",0.0))),
     ratio(static_cast<double>(p.value_or_default("ratio",1.0))),    // not useful for thermodynamic integration
     n(static_cast<alps::uint32_t>(p.value_or_default("n",2))),      // Renyi index
     exc(static_cast<alps::uint32_t>(p.value_or_default("ExcType",2))),      // Type of excitation: 1(plaquettes) 2(vertices) 
-    algo(static_cast<alps::uint32_t>(p.value_or_default("Algorithm",1))),      // local updates (1),  deconfined updates (2) 
+    algo(static_cast<alps::uint32_t>(p.value_or_default("Algorithm",1))),      // local updates (1),  deconfined updates (2), single-vertex-flips (3) 
     measure(static_cast<alps::uint32_t>(p.value_or_default("Measurement",1))),      // thermodynamic int (1),  ensemble switching (2), specific heat (3)
     Total_Steps(0),
     IncStep(static_cast<string>(p.value_or_default("IncStep","")))
@@ -86,6 +88,8 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
                     if (site_type(*nit)==2) { 
                         spins[map_lat_to_spin[*sit + i*numsites]]->add_neighbor(verts[map_lat_to_vert[*nit + i*numsites]]);
                         verts[map_lat_to_vert[*nit + i*numsites]]->add_neighbor(spins[map_lat_to_spin[*sit + i*numsites]]);
+                        verts[map_lat_to_vert[*nit + i*numsites]]->set_ninr(verts[map_lat_to_vert[*nit + ((i+1)%n)*numsites]] );
+
                     }
                 }
             }
@@ -100,6 +104,9 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
     else if (measure == 2) {
         measurement_object = std::make_shared<switching>(measurements, spins, spins.size()/n );
     }
+    else if (measure == 3) {
+        measurement_object = std::make_shared<h_int>(measurements, NofD, spins.size() );
+    }
 
     if (algo==1) {
         if (exc==1)
@@ -113,6 +120,10 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
     }
     else if (algo==2) {
         update_object = std::make_shared<deconfined_vert>(seed, n, beta, spins, verts, NofD); 
+    }
+    else if (algo == 3) {
+        assert (measure == 3);
+        update_object = std::make_shared<vertex_metropolis>(seed, n, h, spins, verts, NofD); 
     }
 
     std::cout << "# L: " << L << " Steps: " << Nb_Steps  << " Spins: " <<spins.size()<<" Sites: "<<numsites<< std::endl;

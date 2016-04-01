@@ -11,13 +11,13 @@ updater::updater(int seed, int reps, double beta, std::vector<spin_ptr>& s) :
         random_int(mtwister, int_dist),
         random_01(mtwister, real_dist)
 {
-    expmB.resize(8*reps+1);
+    expmB.resize(24*reps+1);
     expmB[0]=1.0;
-    for (int i=1; i<=8*reps; ++i) 
+    for (int i=1; i<=24*reps; ++i) 
         expmB[i]=std::exp(-1.*i*beta);
 }
     
-/********** class single_spin **************/
+/********** class single_spin_plaq **************/
 
 single_spin_plaq::single_spin_plaq(int seed, int reps, double beta, std::vector<spin_ptr>& s, std::vector<plaq_ptr>& p, int& nofe) : 
         updater(seed, reps, beta, s),
@@ -39,6 +39,8 @@ void single_spin_plaq::update() {
         }
     }
 }
+
+/********** class single_spin_vert **************/
 
 single_spin_vert::single_spin_vert(int seed, int reps, double beta, std::vector<spin_ptr>& s, std::vector<vert_ptr>& v, int& nofe) : 
         updater(seed, reps, beta, s),
@@ -62,6 +64,7 @@ void single_spin_vert::update() {
     }
 }
 
+/********** class mix_spin_plaq_for_vert --- NO APPLICATION SO FAR   **************/
 
 mix_spin_plaq_for_vert::mix_spin_plaq_for_vert(int seed, int reps, double beta, std::vector<spin_ptr>& s, std::vector<plaq_ptr>& p, std::vector<vert_ptr>& v, int& nofe, double ratio) : 
         updater(seed, reps, beta, s),
@@ -93,6 +96,8 @@ void mix_spin_plaq_for_vert::update() {
 }
 
 using namespace std;
+
+/********** class deconfined_vert  **************/
 
 deconfined_vert::deconfined_vert(int seed, int reps, double beta, std::vector<spin_ptr>& s, std::vector<vert_ptr>& v, int& nofe) :
         updater(seed, reps, beta, s),
@@ -227,3 +232,84 @@ void deconfined_vert::try_flip(vert_ptr& v1, vert_ptr& v2, vert_ptr& v3, vert_pt
         v4->flip();
     }
 }
+
+
+/********** class vertex_metropolis  **************/
+
+vertex_metropolis::vertex_metropolis(int seed, int reps, double h, std::vector<spin_ptr>& s, std::vector<vert_ptr>& v, int& total_magn) :
+        updater(seed, reps, h, s),
+        verts(v),
+        N_verts(v.size()),
+        TMagn(total_magn),
+        int_dist_verts(0,N_verts-1),
+        random_vert(mtwister, int_dist_verts)
+{
+    TMagn = -spins.size();
+
+    //label all connected regions and boundaries of vertices/plaquettes
+    int counter;
+    for (vit_t vit = verts.begin(); vit!=verts.end(); ++vit) {
+        counter=0;
+        for (const_spit_t spit = (*vit)->get_neighbors_begin(); spit != (*vit)->get_neighbors_end(); ++spit) {
+            if ( (*spit)->get_geometry() != 1) {
+                (*vit)->add_label( (*spit)->get_geometry() );
+                (*vit)->set_boundary ( true );
+                ++counter;
+            }
+            if (counter == 0) {
+                (*vit)->add_label( 1 );
+                (*vit)->set_boundary ( false );
+            }
+            else if (counter == 6)
+                (*vit)->set_boundary ( false );
+        }
+    }
+    cout<<"Vertex metropolis initialized, vertices "<<N_verts<<", magnetization "<<h<<endl;
+
+}
+
+void vertex_metropolis::update() {
+    for (int j=0; j<N_verts; ++j) {
+        cand = verts[random_vert()];
+        nb_spin_it= cand->get_neighbors_begin();
+        cand_weight = 0;
+        if ((cand->get_boundary()== true)||((*nb_spin_it)->get_geometry()==1)) { //the second option is for the case, that cand is completely in A
+            //in other replicas, too
+            runner = cand;
+            do {
+                for (nb_spin_it = runner->get_neighbors_begin(); nb_spin_it!=runner->get_neighbors_end(); ++nb_spin_it) {
+                    //cout<<"Visit spin - has value "<<(*nb_spin_it)->get_value()<<endl;
+                    cand_weight += (*nb_spin_it)->get_value();
+                }
+                runner = runner->get_next();
+            } while (runner != cand);
+            
+            if ((cand_weight>=0)||(random_01()<expmB[-2*cand_weight])) {
+                cand->flip_neighbors();
+                runner = cand->get_next();
+                while (runner != cand) { 
+                    for (nb_spin_it = runner->get_neighbors_begin(); nb_spin_it!=runner->get_neighbors_end(); ++nb_spin_it) {
+                        if ((*nb_spin_it)->get_geometry() != 1) {
+                            (*nb_spin_it)->flip();
+                        }
+                    }
+                    //cout<<j<<" flip "<<endl;
+                    runner = runner->get_next();
+                }
+                TMagn -= 2*cand_weight; 
+            }
+
+        }
+        else {
+            for (nb_spin_it; nb_spin_it!=cand->get_neighbors_end(); ++nb_spin_it) {
+                cand_weight += (*nb_spin_it)->get_value();
+            }
+
+            if ((cand_weight>=0)||(random_01()<expmB[-2*cand_weight])) {
+                cand->flip_neighbors();
+                TMagn -= 2*cand_weight; 
+            }
+        }
+    }
+}
+

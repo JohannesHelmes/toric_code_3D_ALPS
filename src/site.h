@@ -82,8 +82,11 @@ public:
     int get_label() { return label; }
     void set_boundary(bool nbound) {boundary = nbound; }
     bool get_boundary() { return boundary; }
-    const_spit_t get_neighbors_begin() {return neighbors.begin(); }
-    const_spit_t get_neighbors_end() {return neighbors.end(); }
+
+    const_spit_t get_neighbors_begin() const {return neighbors.begin(); }
+    const_spit_t get_neighbors_end() const {return neighbors.end(); }
+    spit_t get_neighbors_begin() {return neighbors.begin(); }
+    spit_t get_neighbors_end() {return neighbors.end(); }
 protected:
     std::vector<spin_ptr> neighbors;
     spit_t spit;
@@ -95,6 +98,14 @@ protected:
 };
 
 class plaquette : public interaction { using interaction::interaction; }; //inherit constructor
-class vertexx : public interaction { using interaction::interaction; };
+class vertexx : public interaction { 
+    using interaction::interaction; 
+private:
+    vert_ptr neighbor_in_next_replica;
+public:
+    void set_ninr(vert_ptr nv) {neighbor_in_next_replica = nv; }
+    vert_ptr get_next() {return neighbor_in_next_replica; }
+
+};
 
 #endif  /* SITE_H */
