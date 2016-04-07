@@ -44,3 +44,13 @@ private:
     int& NofD;
     int const numspins;
 };
+
+class full_energy : public measurer {
+ 
+public:
+    full_energy(alps::ObservableSet& msmt,int& nofd);
+    void measure();
+private:
+    int& NofD;
+};
+

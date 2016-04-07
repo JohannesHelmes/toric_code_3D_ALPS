@@ -75,3 +75,13 @@ void h_int::measure() {
     measurements["Magnetization"] << double(NofD)/(numspins);
 }
 
+/* class full_energy */
+full_energy::full_energy(alps::ObservableSet& msmt,int& nofd) : measurer(msmt), NofD(nofd) {
+    measurements << alps::RealObservable("FullEnergy");
+    measurements << alps::RealObservable("FullEnergy2");
+}
+
+void full_energy::measure() {
+    measurements["FullEnergy"] << double(NofD);
+    measurements["FullEnergy2"] << double(NofD)*double(NofD);
+}

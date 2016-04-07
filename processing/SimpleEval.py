@@ -38,6 +38,7 @@ if args.specheat:
     #b2,e2,yerr=convert_alps_dataset(dataG2[0])
     b, e = convert_alps_dataset_unc(dataG[0])
     b, e2 = convert_alps_dataset_unc(dataG2[0])
+    L = dataG[0].props['L']
 
     for beta,en,en2 in zip(b,e,e2):
         sp=(en2-(en**2))*beta**2

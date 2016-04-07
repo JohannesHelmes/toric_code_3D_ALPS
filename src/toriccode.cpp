@@ -23,7 +23,8 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
     n(static_cast<alps::uint32_t>(p.value_or_default("n",2))),      // Renyi index
     exc(static_cast<alps::uint32_t>(p.value_or_default("ExcType",2))),      // Type of excitation: 1(plaquettes) 2(vertices) 
     algo(static_cast<alps::uint32_t>(p.value_or_default("Algorithm",1))),      // local updates (1),  deconfined updates (2), single-vertex-flips (3) 
-    measure(static_cast<alps::uint32_t>(p.value_or_default("Measurement",1))),      // thermodynamic int (1),  ensemble switching (2), specific heat (3)
+    measure(static_cast<alps::uint32_t>(p.value_or_default("Measurement",1))),      
+        // thermodynamic int (1),  ensemble switching (2), thermodynamic int with h (3), full_energy for specific heat (4)
     Total_Steps(0),
     IncStep(static_cast<string>(p.value_or_default("IncStep","")))
 {
@@ -106,6 +107,9 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
     }
     else if (measure == 3) {
         measurement_object = std::make_shared<h_int>(measurements, NofD, spins.size() );
+    }
+    else if (measure == 4) {
+        measurement_object = std::make_shared<full_energy>(measurements, NofD );
     }
 
     if (algo==1) {
