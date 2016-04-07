@@ -4,6 +4,7 @@ import os
 import fnmatch
 import numpy as np
 from scipy.integrate import simps, romb
+import Evaluate_helper as eh
 
 parser = argparse.ArgumentParser(description='Perform thermodynamic integration to get O(1) contribution from Renyi entropies', epilog='(C) Johannes Helmes 2016')
 
@@ -124,7 +125,7 @@ def thermodynamic_integration(x,y,yerr,N=1000):
     """
     Q=np.zeros(N)
 
-    y_bstrap=bootstrap(y,yerr,N)
+    y_bstrap=eh.bootstrap(y,yerr,N)
     for i in xrange(N):
         Q[i]=simps(y_bstrap[:,i],x,even='avg')
 
@@ -154,7 +155,7 @@ y_err=np.zeros((NIncSteps,NValues))
 
 for schemes in renyi_dataG:
     scheme=int(schemes.props['IncNo'])
-    x[scheme],y[scheme],y_err[scheme] = read_alps_data(schemes)
+    x[scheme],y[scheme],y_err[scheme] = eh.convert_alps_dataset(schemes)
 
 
 for k in range(3,NValues+1,args.Step):

@@ -7,7 +7,7 @@ parser = argparse.ArgumentParser(description='Evaluate simple observables from A
 parser.add_argument('--infile','-i', help='Prefix of result files',required=True)
 #parser.add_argument('--foreach','-f',default='h',help='Parameter name, (default h)')
 parser.add_argument('--X','-x',default='beta',help='Parameter name, (default beta)')
-parser.add_argument('--quantity','-q',default='Energy',help='Parameter name, (default Energy)')
+parser.add_argument('--quantity','-q',default='FullEnergy',help='Parameter name, (default FullEnergy)')
 parser.add_argument('--plot','-p',action='store_true')
 parser.add_argument('--reciprocal','-r',action='store_true')
 parser.add_argument('--specheat','-s',action='store_true')
@@ -37,10 +37,12 @@ if args.specheat:
     #b,e,yerr=convert_alps_dataset(dataG[0])
     #b2,e2,yerr=convert_alps_dataset(dataG2[0])
     b, e = convert_alps_dataset_unc(dataG[0])
-    b, e2 = convert_alps_dataset_unc(dataG2[0])
+    b, e2, dump = convert_alps_dataset(dataG2[0])
     L = dataG[0].props['L']
 
     for beta,en,en2 in zip(b,e,e2):
+        nquant= (en**2)
+        print nquant.nominal_value, nquant.std_dev
         sp=(en2-(en**2))*beta**2
         print beta, sp.nominal_value, sp.std_dev
 
