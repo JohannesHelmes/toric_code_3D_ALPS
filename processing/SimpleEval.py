@@ -1,5 +1,8 @@
 import pyalps,argparse
 import uncertainties as unc
+import Evaluate_helper as eh
+import numpy as np
+import os
 
 
 parser = argparse.ArgumentParser(description='Evaluate simple observables from ALPS simulations', epilog='(C) Johannes Helmes 2016')
@@ -14,37 +17,35 @@ parser.add_argument('--specheat','-s',action='store_true')
 parser.add_argument('--verbose','-v',action='store_true')
 args=parser.parse_args()
 
-def convert_alps_dataset(dset):
-    X=dset.x
-    Y = map(lambda x: float(str(x).split(" ")[0]), dset.y)
-    Yerr = map(lambda x: float(str(x).split(" ")[2]), dset.y)
-    return X,Y,Yerr
+def energy_flucs(e, e2, beta):
+    return (e2 - e**2 ) * beta**2 
 
-def convert_alps_dataset_unc(dset):
-    X=dset.x
-    Y = map(lambda x: unc.ufloat_fromstr(str(x)), dset.y)
-    return X,Y
 
-data = pyalps.loadMeasurements(pyalps.getResultFiles(prefix=args.infile),[args.quantity,args.quantity+'2'])
+path=os.path.dirname(args.infile)
+prefix=os.path.basename(args.infile)
 
+
+dataG = eh.read_results_from_file(path, prefix, args.X, args.quantity)
 if args.verbose:
     print data
+    print dataG
 
-dataG = pyalps.collectXY(data, x=args.X, y=args.quantity)
 if args.specheat:
-    y2=str(str(args.quantity)+'2')
-    dataG2 = pyalps.collectXY(data, x=args.X, y=y2)
+    dataG2 = eh.read_results_from_file(path, prefix, args.X, args.quantity+'2')
     #b,e,yerr=convert_alps_dataset(dataG[0])
     #b2,e2,yerr=convert_alps_dataset(dataG2[0])
-    b, e = convert_alps_dataset_unc(dataG[0])
-    b, e2, dump = convert_alps_dataset(dataG2[0])
+    b, e, eerr = eh.convert_alps_dataset(dataG[0])
+    b, e2, e2err= eh.convert_alps_dataset(dataG2[0])
+    
+    #print eh.bootstrap(energy_flucs, [9.0, 81.40] , [1.0, 1.0], N=10)
     L = dataG[0].props['L']
+    N = 10000
 
-    for beta,en,en2 in zip(b,e,e2):
-        nquant= (en**2)
-        print nquant.nominal_value, nquant.std_dev
-        sp=(en2-(en**2))*beta**2
-        print beta, sp.nominal_value, sp.std_dev
+    for beta,en,enerr,en2,en2err in zip(b,e,eerr,e2,e2err):
+        #sp=(en2-(en**2))*beta**2
+        cv, cverr = eh.bootstrap(energy_flucs, [en, en2, beta] , [enerr, en2err, 0.0], N=N)
+        print beta, cv, cverr
+        #print beta, sp.nominal_value, sp.std_dev
 
 else:
     for thing in dataG:

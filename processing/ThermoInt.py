@@ -125,7 +125,7 @@ def thermodynamic_integration(x,y,yerr,N=1000):
     """
     Q=np.zeros(N)
 
-    y_bstrap=eh.bootstrap(y,yerr,N)
+    y_bstrap=eh.resampling(y,yerr,N)
     for i in xrange(N):
         Q[i]=simps(y_bstrap[:,i],x,even='avg')
 
