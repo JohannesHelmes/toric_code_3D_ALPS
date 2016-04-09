@@ -19,10 +19,12 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
     Nb_Therm_Steps(static_cast<alps::uint64_t>(p["THERMALIZATION"])),
     beta(static_cast<double>(p["beta"])),
     h(static_cast<double>(p.value_or_default("h",0.0))),
+    hz(static_cast<double>(p.value_or_default("hz",h))),
     ratio(static_cast<double>(p.value_or_default("ratio",1.0))),    // not useful for thermodynamic integration
     n(static_cast<alps::uint32_t>(p.value_or_default("n",2))),      // Renyi index
     exc(static_cast<alps::uint32_t>(p.value_or_default("ExcType",2))),      // Type of excitation: 1(plaquettes) 2(vertices) 
-    algo(static_cast<alps::uint32_t>(p.value_or_default("Algorithm",1))),      // local updates (1),  deconfined updates (2), single-vertex-flips (3) 
+    algo(static_cast<alps::uint32_t>(p.value_or_default("Algorithm",1))),      
+        // local updates (1),  deconfined updates (2), single-vertex-flips (3), non-isotropic single vertex flips (4)
     measure(static_cast<alps::uint32_t>(p.value_or_default("Measurement",1))),      
         // thermodynamic int (1),  ensemble switching (2), thermodynamic int with h (3), full_energy for specific heat (4)
     Total_Steps(0),
@@ -99,17 +101,11 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
     cout<<"created all neighbors "<<n*numsites<<endl;
 
 
-    if (measure == 1) {
-        measurement_object = std::make_shared<thermo_int>(measurements, NofD, spins.size() );
-    }
-    else if (measure == 2) {
-        measurement_object = std::make_shared<switching>(measurements, spins, spins.size()/n );
-    }
-    else if (measure == 3) {
-        measurement_object = std::make_shared<h_int>(measurements, NofD, spins.size() );
-    }
-    else if (measure == 4) {
-        measurement_object = std::make_shared<full_energy>(measurements, NofD );
+    switch (measure) {
+        case 1: measurement_object = std::make_shared<thermo_int>(measurements, NofD, spins.size() ); break;
+        case 2: measurement_object = std::make_shared<switching>(measurements, spins, spins.size()/n ); break;
+        case 3: measurement_object = std::make_shared<h_int>(measurements, NofD, spins.size() ); break;
+        case 4: measurement_object = std::make_shared<full_energy>(measurements, NofD ); break;
     }
 
     if (algo==1) {

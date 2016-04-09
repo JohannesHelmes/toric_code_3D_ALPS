@@ -32,6 +32,7 @@ alps::IDump& operator>>(alps::IDump& dump, std::vector<vert_ptr>& sp);
 
 
 
+/**********************  BASE CLASS ****************************/
 class site {
 protected:
     bool value;
@@ -48,6 +49,7 @@ public:
 };
 
 
+/***********************  SITE  ********************************/
 class spin : public site {
     
 private:
@@ -73,6 +75,7 @@ public:
 
 };
 
+/*************************  INTERACTIONS (many body terms)   *******************/
 class interaction : public site { // plaquette or vertex
 public:
     interaction();
@@ -97,6 +100,7 @@ protected:
     friend void spin::flip_and_flip_verts();
 };
 
+/*******************  PLAQUETTE and VERTEX childs  **************************/
 class plaquette : public interaction { using interaction::interaction; }; //inherit constructor
 class vertexx : public interaction { 
     using interaction::interaction; 
@@ -108,4 +112,27 @@ public:
 
 };
 
+
+/****************   NON ISOTROPIC VARIANTS  ************************/
+class interaction_xxz : public site { // plaquette or vertex
+public:
+    interaction_xxz();
+    void add_neighbor(spin_ptr nb, bool z_neighbor);
+    void flip_neighbors();
+    void add_label(int nlabel) {label = nlabel; }
+    int get_label() { return label; }
+    void set_boundary(bool nbound) {boundary = nbound; }
+    bool get_boundary() { return boundary; }
+
+    spit_t get_neighbors_xy_begin() {return neighbors_xy.begin(); }
+    spit_t get_neighbors_xy_end() {return neighbors_xy.end(); }
+protected:
+    std::vector<spin_ptr> neighbors_xy, neighbors_z;
+    spit_t spit;
+    int label;
+    bool boundary;
+
+    friend void spin::flip_and_flip_plaqs();
+    friend void spin::flip_and_flip_verts();
+};
 #endif  /* SITE_H */
