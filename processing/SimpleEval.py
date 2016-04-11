@@ -39,7 +39,7 @@ if args.specheat:
     
     #print eh.bootstrap(energy_flucs, [9.0, 81.40] , [1.0, 1.0], N=10)
     L = dataG[0].props['L']
-    N = 10000
+    N = 400000
 
     for beta,en,enerr,en2,en2err in zip(b,e,eerr,e2,e2err):
         #sp=(en2-(en**2))*beta**2
@@ -49,7 +49,7 @@ if args.specheat:
 
 else:
     for thing in dataG:
-        X,Y,Yerr=convert_alps_dataset(thing)
+        X,Y,Yerr=eh.convert_alps_dataset(thing)
         for (x,y,yerr) in zip(X,Y,Yerr):
             print x,y,yerr
 

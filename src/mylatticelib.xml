@@ -304,24 +304,24 @@
   <VERTEX type="0"/>
   <VERTEX type="0"/>
 
-  <EDGE><SOURCE vertex="1"/><TARGET vertex="5"/></EDGE>
-  <EDGE><SOURCE vertex="1"/><TARGET vertex="6"/></EDGE>
-  <EDGE><SOURCE vertex="1"/><TARGET vertex="7"/></EDGE>
-  <EDGE><SOURCE vertex="1"/><TARGET vertex="5" offset="0 0 -1"/></EDGE>
-  <EDGE><SOURCE vertex="1"/><TARGET vertex="6" offset="0 -1 0"/></EDGE>
-  <EDGE><SOURCE vertex="1"/><TARGET vertex="7" offset="-1 0 0"/></EDGE>
-  <EDGE><SOURCE vertex="2"/><TARGET vertex="5"/></EDGE>
-  <EDGE><SOURCE vertex="2"/><TARGET vertex="6"/></EDGE>
-  <EDGE><SOURCE vertex="2"/><TARGET vertex="5" offset="0 1 0"/></EDGE>
-  <EDGE><SOURCE vertex="2"/><TARGET vertex="6" offset="0 0 1"/></EDGE>
-  <EDGE><SOURCE vertex="3"/><TARGET vertex="5"/></EDGE>
-  <EDGE><SOURCE vertex="3"/><TARGET vertex="7"/></EDGE>
-  <EDGE><SOURCE vertex="3"/><TARGET vertex="5" offset="1 0 0"/></EDGE>
-  <EDGE><SOURCE vertex="3"/><TARGET vertex="7" offset="0 0 1"/></EDGE>
-  <EDGE><SOURCE vertex="4"/><TARGET vertex="6"/></EDGE>
-  <EDGE><SOURCE vertex="4"/><TARGET vertex="7"/></EDGE>
-  <EDGE><SOURCE vertex="4"/><TARGET vertex="6" offset="1 0 0"/></EDGE>
-  <EDGE><SOURCE vertex="4"/><TARGET vertex="7" offset="0 1 0"/></EDGE>
+  <EDGE type="1"><SOURCE vertex="1"/><TARGET vertex="5"/></EDGE>
+  <EDGE type="0"><SOURCE vertex="1"/><TARGET vertex="6"/></EDGE>
+  <EDGE type="0"><SOURCE vertex="1"/><TARGET vertex="7"/></EDGE>
+  <EDGE type="1"><SOURCE vertex="1"/><TARGET vertex="5" offset="0 0 -1"/></EDGE>
+  <EDGE type="0"><SOURCE vertex="1"/><TARGET vertex="6" offset="0 -1 0"/></EDGE>
+  <EDGE type="0"><SOURCE vertex="1"/><TARGET vertex="7" offset="-1 0 0"/></EDGE>
+  <EDGE type="0"><SOURCE vertex="2"/><TARGET vertex="5"/></EDGE>
+  <EDGE type="0"><SOURCE vertex="2"/><TARGET vertex="6"/></EDGE>
+  <EDGE type="0"><SOURCE vertex="2"/><TARGET vertex="5" offset="0 1 0"/></EDGE>
+  <EDGE type="0"><SOURCE vertex="2"/><TARGET vertex="6" offset="0 0 1"/></EDGE>
+  <EDGE type="0"><SOURCE vertex="3"/><TARGET vertex="5"/></EDGE>
+  <EDGE type="0"><SOURCE vertex="3"/><TARGET vertex="7"/></EDGE>
+  <EDGE type="0"><SOURCE vertex="3"/><TARGET vertex="5" offset="1 0 0"/></EDGE>
+  <EDGE type="0"><SOURCE vertex="3"/><TARGET vertex="7" offset="0 0 1"/></EDGE>
+  <EDGE type="0"><SOURCE vertex="4"/><TARGET vertex="6"/></EDGE>
+  <EDGE type="0"><SOURCE vertex="4"/><TARGET vertex="7"/></EDGE>
+  <EDGE type="0"><SOURCE vertex="4"/><TARGET vertex="6" offset="1 0 0"/></EDGE>
+  <EDGE type="0"><SOURCE vertex="4"/><TARGET vertex="7" offset="0 1 0"/></EDGE>
 </UNITCELL>
 
 
@@ -424,9 +424,10 @@
 <LATTICEGRAPH name = "toric code 3D" >
   <FINITELATTICE>
     <LATTICE ref="simple cubic lattice"/>
+    <PARAMETER name="W" default="L"/>
     <EXTENT dimension="1" size="L"/>
     <EXTENT dimension="2" size="L"/>
-    <EXTENT dimension="3" size="L"/>
+    <EXTENT dimension="3" size="W"/>
     <BOUNDARY type="periodic"/>
   </FINITELATTICE>
   <UNITCELL ref="toric code 3D"/>
