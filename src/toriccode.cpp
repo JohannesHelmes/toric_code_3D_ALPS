@@ -22,7 +22,7 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
     hz(static_cast<double>(p.value_or_default("hz",h))),
     ratio(static_cast<double>(p.value_or_default("ratio",1.0))),    // not useful for thermodynamic integration
     n(static_cast<alps::uint32_t>(p.value_or_default("n",2))),      // Renyi index
-    exc(static_cast<alps::uint32_t>(p.value_or_default("ExcType",2))),      // Type of excitation: 1(plaquettes) 2(vertices) 
+    exc(static_cast<alps::uint32_t>(p.value_or_default("ExcType",4))),      // Type of excitation: 3(plaquettes) 4(vertices) 
     algo(static_cast<alps::uint32_t>(p.value_or_default("Algorithm",1))),      
         // local updates (1),  deconfined updates (2), single-vertex-flips (3), non-isotropic single vertex flips (4)
     measure(static_cast<alps::uint32_t>(p.value_or_default("Measurement",1))),      
@@ -39,7 +39,7 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
         for (int i=0; i<IncStep.length(); ++i,++sit) {
             if (sit==sites().second)
                 break;
-            while (site_type(*sit)!=0)
+            while (site_type(*sit)>2)
                 ++sit;
             if (sit==sites().second)
                 break;
@@ -52,7 +52,7 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
     map_lat_to_vert.resize(n*numsites);
     for (int i=0; i<n; ++i) {
         for (sit=sites().first; sit!=sites().second; ++sit) {
-            if (site_type(*sit)==0) {
+            if (site_type(*sit)<=2) {
                 if ((geom[*sit]!=1)||(i==0)) {
                     spin_ptr nspin = std::make_shared<spin>(geom[*sit]);
                     spins.push_back(nspin);
@@ -62,12 +62,12 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
 
                 map_lat_to_spin[*sit + i*numsites]=spins.size()-1;
             }
-            else if (site_type(*sit)==1) {
+            else if (site_type(*sit)==3) {
                 plaq_ptr nplaq = std::make_shared<plaquette>();
                 plaqs.push_back(nplaq);
                 map_lat_to_plaq[*sit + i*numsites]=plaqs.size()-1;
             }
-            else if (site_type(*sit)==2) {
+            else if (site_type(*sit)==4) {
                 vert_ptr nver = std::make_shared<vertexx>();
                 verts.push_back(nver);
                 map_lat_to_vert[*sit + i*numsites]=verts.size()-1;
@@ -79,7 +79,7 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
     //create all neighbor pairs
     for (int i=0; i<n; ++i) {
         for (sit=sites().first; sit!=sites().second; ++sit) {
-            if (site_type(*sit)==0) {
+            if (site_type(*sit)<=2) {
                 spins[map_lat_to_spin[*sit + i*numsites]]->set_ninr(spins[map_lat_to_spin[*sit + ((i+1)%n)*numsites]] );
                 //cout<<"Geom "<<geom[*sit]<<", will be a pointer to itself "<< ( spins[map_lat_to_spin[*sit + i*numsites]] == spins[map_lat_to_spin[*sit + ((i+1)%n)*numsites]] ) <<endl;
 
@@ -109,9 +109,9 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
     }
 
     if (algo==1) {
-        if (exc==1)
+        if (exc==3)
             update_object = std::make_shared<single_spin_plaq>(seed, n, beta, spins, plaqs, NofD); //spins, plaqs and NofD are referenced
-        else if (exc==2) {
+        else if (exc==4) {
             if (ratio==1.0)
                 update_object = std::make_shared<single_spin_vert>(seed, n, beta, spins, verts, NofD);
             else  //not useful for thermodynamic int

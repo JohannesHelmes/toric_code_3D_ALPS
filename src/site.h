@@ -114,9 +114,21 @@ public:
 
 
 /****************   NON ISOTROPIC VARIANTS  ************************/
-class interaction_xxz : public site { // plaquette or vertex
+class spin_z : public spin {
+private:
+    const double J;
 public:
-    interaction_xxz();
+    spin_z(int geo, double nJ);
+    int get_value() const  { return value? J : -J; }   //overwrites get_value() of site class
+};
+/*
+class vertex_xxz;
+typedef std::shared_ptr<vertex_xxz> vertxxz_ptr;
+typedef std::vector<vertxxz_ptr>::iterator vxxzit_t;
+
+class vertex_xxz : public site { 
+public:
+    vertex_xxz();
     void add_neighbor(spin_ptr nb, bool z_neighbor);
     void flip_neighbors();
     void add_label(int nlabel) {label = nlabel; }
@@ -135,4 +147,5 @@ protected:
     friend void spin::flip_and_flip_plaqs();
     friend void spin::flip_and_flip_verts();
 };
+*/
 #endif  /* SITE_H */

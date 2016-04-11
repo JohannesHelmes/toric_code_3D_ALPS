@@ -112,3 +112,7 @@ void interaction::flip_neighbors() {
 }
 
 
+/******** Anisotropic interactions in vertices **********/
+spin_z::spin_z(int geo, double nJ): spin(geo), J(nJ)  { }
+
+

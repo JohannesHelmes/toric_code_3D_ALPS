@@ -296,32 +296,32 @@
 </UNITCELL>
 
 <UNITCELL name="toric code 3D" dimension="3">
+  <VERTEX type="4"/>
+  <VERTEX type="3"/>
+  <VERTEX type="3"/>
+  <VERTEX type="3"/>
+  <VERTEX type="0"/>
+  <VERTEX type="1"/>
   <VERTEX type="2"/>
-  <VERTEX type="1"/>
-  <VERTEX type="1"/>
-  <VERTEX type="1"/>
-  <VERTEX type="0"/>
-  <VERTEX type="0"/>
-  <VERTEX type="0"/>
 
-  <EDGE type="1"><SOURCE vertex="1"/><TARGET vertex="5"/></EDGE>
-  <EDGE type="0"><SOURCE vertex="1"/><TARGET vertex="6"/></EDGE>
-  <EDGE type="0"><SOURCE vertex="1"/><TARGET vertex="7"/></EDGE>
-  <EDGE type="1"><SOURCE vertex="1"/><TARGET vertex="5" offset="0 0 -1"/></EDGE>
-  <EDGE type="0"><SOURCE vertex="1"/><TARGET vertex="6" offset="0 -1 0"/></EDGE>
-  <EDGE type="0"><SOURCE vertex="1"/><TARGET vertex="7" offset="-1 0 0"/></EDGE>
-  <EDGE type="0"><SOURCE vertex="2"/><TARGET vertex="5"/></EDGE>
-  <EDGE type="0"><SOURCE vertex="2"/><TARGET vertex="6"/></EDGE>
-  <EDGE type="0"><SOURCE vertex="2"/><TARGET vertex="5" offset="0 1 0"/></EDGE>
-  <EDGE type="0"><SOURCE vertex="2"/><TARGET vertex="6" offset="0 0 1"/></EDGE>
-  <EDGE type="0"><SOURCE vertex="3"/><TARGET vertex="5"/></EDGE>
-  <EDGE type="0"><SOURCE vertex="3"/><TARGET vertex="7"/></EDGE>
-  <EDGE type="0"><SOURCE vertex="3"/><TARGET vertex="5" offset="1 0 0"/></EDGE>
-  <EDGE type="0"><SOURCE vertex="3"/><TARGET vertex="7" offset="0 0 1"/></EDGE>
-  <EDGE type="0"><SOURCE vertex="4"/><TARGET vertex="6"/></EDGE>
-  <EDGE type="0"><SOURCE vertex="4"/><TARGET vertex="7"/></EDGE>
-  <EDGE type="0"><SOURCE vertex="4"/><TARGET vertex="6" offset="1 0 0"/></EDGE>
-  <EDGE type="0"><SOURCE vertex="4"/><TARGET vertex="7" offset="0 1 0"/></EDGE>
+  <EDGE><SOURCE vertex="1"/><TARGET vertex="5"/></EDGE>
+  <EDGE><SOURCE vertex="1"/><TARGET vertex="6"/></EDGE>
+  <EDGE><SOURCE vertex="1"/><TARGET vertex="7"/></EDGE>
+  <EDGE><SOURCE vertex="1"/><TARGET vertex="5" offset="0 0 -1"/></EDGE>
+  <EDGE><SOURCE vertex="1"/><TARGET vertex="6" offset="0 -1 0"/></EDGE>
+  <EDGE><SOURCE vertex="1"/><TARGET vertex="7" offset="-1 0 0"/></EDGE>
+  <EDGE><SOURCE vertex="2"/><TARGET vertex="5"/></EDGE>
+  <EDGE><SOURCE vertex="2"/><TARGET vertex="6"/></EDGE>
+  <EDGE><SOURCE vertex="2"/><TARGET vertex="5" offset="0 1 0"/></EDGE>
+  <EDGE><SOURCE vertex="2"/><TARGET vertex="6" offset="0 0 1"/></EDGE>
+  <EDGE><SOURCE vertex="3"/><TARGET vertex="5"/></EDGE>
+  <EDGE><SOURCE vertex="3"/><TARGET vertex="7"/></EDGE>
+  <EDGE><SOURCE vertex="3"/><TARGET vertex="5" offset="1 0 0"/></EDGE>
+  <EDGE><SOURCE vertex="3"/><TARGET vertex="7" offset="0 0 1"/></EDGE>
+  <EDGE><SOURCE vertex="4"/><TARGET vertex="6"/></EDGE>
+  <EDGE><SOURCE vertex="4"/><TARGET vertex="7"/></EDGE>
+  <EDGE><SOURCE vertex="4"/><TARGET vertex="6" offset="1 0 0"/></EDGE>
+  <EDGE><SOURCE vertex="4"/><TARGET vertex="7" offset="0 1 0"/></EDGE>
 </UNITCELL>
 
 
