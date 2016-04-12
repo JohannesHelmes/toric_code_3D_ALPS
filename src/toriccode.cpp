@@ -54,7 +54,13 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
         for (sit=sites().first; sit!=sites().second; ++sit) {
             if (site_type(*sit)<=2) {
                 if ((geom[*sit]!=1)||(i==0)) {
-                    spin_ptr nspin = std::make_shared<spin>(geom[*sit]);
+                    spin_ptr nspin;
+                    if ((algo==4)&&(site_type(*sit)==2)) {
+                        nspin = std::make_shared<spin_z>(geom[*sit],hz); //spin_z is child of spin
+                        cout<<" created z spin"<<endl;
+                    }
+                    else
+                        nspin = std::make_shared<spin>(geom[*sit]);
                     spins.push_back(nspin);
                 }
                 else 
@@ -84,11 +90,11 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
                 //cout<<"Geom "<<geom[*sit]<<", will be a pointer to itself "<< ( spins[map_lat_to_spin[*sit + i*numsites]] == spins[map_lat_to_spin[*sit + ((i+1)%n)*numsites]] ) <<endl;
 
                 for (nit=neighbors(*sit).first; nit!=neighbors(*sit).second; ++nit) {
-                    if (site_type(*nit)==1) { 
+                    if (site_type(*nit)==3) { 
                         spins[map_lat_to_spin[*sit + i*numsites]]->add_neighbor(plaqs[map_lat_to_plaq[*nit + i*numsites]]);
                         plaqs[map_lat_to_plaq[*nit + i*numsites]]->add_neighbor(spins[map_lat_to_spin[*sit + i*numsites]]);
                     }
-                    if (site_type(*nit)==2) { 
+                    if (site_type(*nit)==4) { 
                         spins[map_lat_to_spin[*sit + i*numsites]]->add_neighbor(verts[map_lat_to_vert[*nit + i*numsites]]);
                         verts[map_lat_to_vert[*nit + i*numsites]]->add_neighbor(spins[map_lat_to_spin[*sit + i*numsites]]);
                         verts[map_lat_to_vert[*nit + i*numsites]]->set_ninr(verts[map_lat_to_vert[*nit + ((i+1)%n)*numsites]] );
@@ -165,10 +171,24 @@ void toriccode::dostep() {
 
     update_object->update();
     //cout<<NofD<<endl;
+
+    //TEST for VERTEX METROPOLIS
+    /*
+    int count;
+    for (plit_t plit = plaqs.begin(); plit != plaqs.end(); ++plit) {
+        count=0;
+        for (spit_t nbit = (*plit)->get_neighbors_begin(); nbit != (*plit)->get_neighbors_end(); ++nbit) {
+            count += (*nbit)->get_value();
+        }
+        if (count %4 == 2)
+            cout<<Total_Steps<<": Error at a plaquette "<<endl;
+    }
+    */
     
     if (is_thermalized()) 
         measurement_object->measure();
     ++Total_Steps;
+
 }
 
 

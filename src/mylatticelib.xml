@@ -300,9 +300,9 @@
   <VERTEX type="3"/>
   <VERTEX type="3"/>
   <VERTEX type="3"/>
-  <VERTEX type="0"/>
-  <VERTEX type="1"/>
   <VERTEX type="2"/>
+  <VERTEX type="1"/>
+  <VERTEX type="0"/>
 
   <EDGE><SOURCE vertex="1"/><TARGET vertex="5"/></EDGE>
   <EDGE><SOURCE vertex="1"/><TARGET vertex="6"/></EDGE>

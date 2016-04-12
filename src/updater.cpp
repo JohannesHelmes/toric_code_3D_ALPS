@@ -290,6 +290,7 @@ void vertex_metropolis::update() {
                 while (runner != cand) { 
                     for (nb_spin_it = runner->get_neighbors_begin(); nb_spin_it!=runner->get_neighbors_end(); ++nb_spin_it) {
                         if ((*nb_spin_it)->get_geometry() != 1) {
+                            assert(cand->get_boundary() == true);
                             (*nb_spin_it)->flip();
                         }
                     }

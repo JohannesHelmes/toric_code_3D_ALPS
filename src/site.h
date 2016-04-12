@@ -45,7 +45,6 @@ public:
     int get_value() const { return value? 1 : -1 ; }
     void flip();
     site();
-    //IMPLEMENT Operator>> and Operator<< HERE!!!
 };
 
 

@@ -22,7 +22,7 @@ paramgroup.add_argument('--therm','-t', type=int,default=1000,help='Number of th
 paramgroup.add_argument('--n','-n', type=int,default=2,help='Order of Renyi entropy, default=2')
 paramgroup.add_argument('--length','-l', type=int,help='Lattice length')
 paramgroup.add_argument('--lattice','-a', type=int,help='Lattice type, (0 = toric code, 1 = toric code fcr, 2 = toric code 3D), default = 2',default=2)
-paramgroup.add_argument('--ExcType','-e', type=int,help='Type of Excitation, (3 = plaquette, 4 = vertex), default = 4',default=4)
+paramgroup.add_argument('--ExcType','-e', type=int,help='Type of Excitation, (3 = plaquette, 4 = vertex), default = 4',default=4,choices={3,4})
 #paramgroup.add_argument('--ratio','-r', type=float,help='Ration (0.0 .. 1.0) between single spin flips and dual many-body flips, default =1.0 (only single spin)',default=1.0)
 paramgroup.add_argument('--Algorithm','-A', type=int,help='Type of algorithm: local updates (1) [default], deconfined updates (2), vertex metropolis (3)',default=1)
 paramgroup.add_argument('--Measurement','-M', type=int,help='Type of measurement: thermodynamic integration (energy) (1) [default], ensemble switching(2), thermodynamic integration (magnetization) (3)',default=1)

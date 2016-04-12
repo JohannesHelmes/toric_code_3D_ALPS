@@ -23,7 +23,7 @@ ifeq ($(host), johannes-thinkpad)
 	SRC = /home/johannes/Work/toric_code_3D_ALPS/src
 	BIN = /home/johannes/Work/toric_code_3D_ALPS/bin
 	CXX = /usr/bin/c++
-	CXXFLAGS = -O2 -DNDEBUG -std=c++11
+	CXXFLAGS = -O2 -std=c++11
 endif
 ifeq ($(host), cheops0)
 	ALPS_ROOT = /projects/ag-trebst/alps/alps-svn-intel-intelmpi
