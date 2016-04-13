@@ -69,10 +69,12 @@ void switching::measure() {
 h_int::h_int(alps::ObservableSet& msmt,int& nofd,const int nspns) : measurer(msmt), NofD(nofd), numspins(nspns) {
     std::cout<<"Magnetization measurer initialized"<<std::endl;
     measurements << alps::RealObservable("Magnetization");
+    measurements << alps::RealObservable("Magnetization2");
 }
 
 void h_int::measure() {
     measurements["Magnetization"] << double(NofD)/(numspins);
+    measurements["Magnetization2"] << double(NofD)*double(NofD)/(numspins*numspins);
 }
 
 /* class full_energy */

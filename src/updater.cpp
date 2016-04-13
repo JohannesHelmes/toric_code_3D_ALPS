@@ -278,7 +278,6 @@ void vertex_metropolis::update() {
             runner = cand;
             do {
                 for (nb_spin_it = runner->get_neighbors_begin(); nb_spin_it!=runner->get_neighbors_end(); ++nb_spin_it) {
-                    //cout<<"Visit spin - has value "<<(*nb_spin_it)->get_value()<<endl;
                     cand_weight += (*nb_spin_it)->get_value();
                 }
                 runner = runner->get_next();
@@ -294,7 +293,6 @@ void vertex_metropolis::update() {
                             (*nb_spin_it)->flip();
                         }
                     }
-                    //cout<<j<<" flip "<<endl;
                     runner = runner->get_next();
                 }
                 TMagn -= 2*cand_weight; 
