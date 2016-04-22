@@ -28,35 +28,22 @@ protected:
 
 class single_spin_plaq : public updater {
 public:
-    single_spin_plaq(int seed, int reps, double beta, std::vector<spin_ptr>& s, std::vector<plaq_ptr>& p, int& nofe);  //single spin update for plaquette Hamiltonian
+    single_spin_plaq(int seed, int reps, double beta, std::vector<spin_ptr>& s, std::vector<inter_ptr>& p, int& nofe);  //single spin update for plaquette Hamiltonian
     void update();
 private:
     int cand_weight;
-    std::vector<plaq_ptr> plaqs;
+    std::vector<inter_ptr> plaqs;
     spin_ptr candidate;
     int &NofExc;
 };
        
 class single_spin_vert : public updater {
 public:
-    single_spin_vert(int seed, int reps, double beta, std::vector<spin_ptr>& s, std::vector<vert_ptr>& v, int& nofe);  //single spin update for vertex Hamiltonian
+    single_spin_vert(int seed, int reps, double beta, std::vector<spin_ptr>& s, std::vector<inter_ptr>& v, int& nofe);  //single spin update for vertex Hamiltonian
     void update();
 private:
     int cand_weight;
-    std::vector<vert_ptr> verts;
-    spin_ptr candidate;
-    int &NofExc;
-};
-
-class mix_spin_plaq_for_vert : public updater {
-public:
-    mix_spin_plaq_for_vert(int seed, int reps, double beta, std::vector<spin_ptr>& s, std::vector<plaq_ptr>& p, std::vector<vert_ptr>& v, int& nofe, double ratio);  //single spin update for vertex Hamiltonian
-    void update();
-private:
-    int Nspinflips;
-    int cand_weight;
-    std::vector<vert_ptr> verts;
-    std::vector<plaq_ptr> plaqs;
+    std::vector<inter_ptr> verts;
     spin_ptr candidate;
     int &NofExc;
 };
@@ -64,10 +51,10 @@ private:
 
 class deconfined_vert : public updater {
 public:
-    deconfined_vert(int seed, int reps, double beta, std::vector<spin_ptr>& s, std::vector<vert_ptr>& v, int& nofe);  //single spin update for vertex Hamiltonian
+    deconfined_vert(int seed, int reps, double beta, std::vector<spin_ptr>& s, std::vector<inter_ptr>& v, int& nofe);  //single spin update for vertex Hamiltonian
     void update();
 private:
-    std::vector<vert_ptr> verts;
+    std::vector<inter_ptr> verts;
     const int N_verts_per_replica;
     int replica;
     boost::random::uniform_int_distribution<> int_dist_reps;
@@ -76,28 +63,28 @@ private:
     boost::variate_generator<mt_rng&, boost::random::uniform_int_distribution<> > random_vert;
     int &NofExc;
 
-    vert_ptr v_cand1, v_cand2, v_cand1_cpart, v_cand2_cpart, v_cand3;
+    inter_ptr v_cand1, v_cand2, v_cand1_cpart, v_cand2_cpart, v_cand3;
     int r_vert;
     int label1,label2,label3;
     int cand_weight;
 
-    void try_flip(vert_ptr& v1, vert_ptr& v2, int& NofD);
-    void try_flip(vert_ptr& v1, vert_ptr& v2, vert_ptr& v3, vert_ptr& v4, int& NofD);
+    void try_flip(inter_ptr& v1, inter_ptr& v2, int& NofD);
+    void try_flip(inter_ptr& v1, inter_ptr& v2, inter_ptr& v3, inter_ptr& v4, int& NofD);
 };
 
 
-class vertex_metropolis : public updater {
+class interaction_metropolis : public updater {
 public:
-    vertex_metropolis(int seed, int reps, double h, std::vector<spin_ptr>& s, std::vector<vert_ptr>& v, int& total_magn);  //single vertex update for plaquette Hamiltonian
+    interaction_metropolis(int seed, int reps, double h, std::vector<spin_ptr>& s, std::vector<inter_ptr>& v, int& total_magn);  //single vertex update for plaquette Hamiltonian
     void update();
 private:
-    std::vector<vert_ptr> verts;
+    std::vector<inter_ptr> verts;
     int const N_verts;
     boost::random::uniform_int_distribution<> int_dist_verts;
     boost::variate_generator<mt_rng&, boost::random::uniform_int_distribution<> > random_vert;
     int &TMagn;
 
     int cand_weight;
-    vert_ptr cand, runner;
+    inter_ptr cand, runner;
     spit_t nb_spin_it;
 };

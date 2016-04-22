@@ -44,7 +44,7 @@ if args.specheat:
         cv, cverr = eh.bootstrap(energy_flucs, [en, en2, beta] , [enerr, en2err, 0.0], N=N)
         print beta, cv, cverr
 
-if args.magnsusc:
+elif args.magnsusc:
     dataG2 = eh.read_results_from_file(path, prefix, args.X, args.quantity+'2')
     b, e, eerr = eh.convert_alps_dataset(dataG[0])
     b, e2, e2err= eh.convert_alps_dataset(dataG2[0])

@@ -5,6 +5,7 @@
 #include<memory>
 #include<alps/osiris/dump.h>
 
+class interaction;
 class spin;
 class plaquette;
 class vertexx; //vertex is somehow used by ALPS
@@ -12,6 +13,9 @@ class vertexx; //vertex is somehow used by ALPS
 //typedef std::shared_ptr<site> site_ptr;
 //typedef std::vector<site_ptr>::iterator site_t;
 
+typedef std::shared_ptr<interaction> inter_ptr;
+typedef std::vector<inter_ptr>::iterator iit_t;
+typedef std::vector<inter_ptr>::const_iterator const_iit_t;
 typedef std::shared_ptr<spin> spin_ptr;
 typedef std::vector<spin_ptr>::iterator spit_t;
 typedef std::vector<spin_ptr>::const_iterator const_spit_t;
@@ -26,9 +30,11 @@ typedef std::vector<vert_ptr>::const_iterator const_vit_t;
 alps::ODump& operator<<(alps::ODump& dump, const std::vector<spin_ptr>& sp);
 alps::ODump& operator<<(alps::ODump& dump, const std::vector<plaq_ptr>& sp);
 alps::ODump& operator<<(alps::ODump& dump, const std::vector<vert_ptr>& sp);
+alps::ODump& operator<<(alps::ODump& dump, const std::vector<inter_ptr>& sp);
 alps::IDump& operator>>(alps::IDump& dump, std::vector<spin_ptr>& sp);
 alps::IDump& operator>>(alps::IDump& dump, std::vector<plaq_ptr>& sp);
 alps::IDump& operator>>(alps::IDump& dump, std::vector<vert_ptr>& sp);
+alps::IDump& operator>>(alps::IDump& dump, std::vector<inter_ptr>& sp);
 
 
 
@@ -40,6 +46,7 @@ protected:
     friend alps::IDump& operator>>(alps::IDump& dump, std::vector<spin_ptr>& sp);
     friend alps::IDump& operator>>(alps::IDump& dump, std::vector<plaq_ptr>& sp);
     friend alps::IDump& operator>>(alps::IDump& dump, std::vector<vert_ptr>& sp);
+    friend alps::IDump& operator>>(alps::IDump& dump, std::vector<inter_ptr>& sp);
 
 public:
     int get_value() const { return value? 1 : -1 ; }
@@ -84,6 +91,8 @@ public:
     int get_label() { return label; }
     void set_boundary(bool nbound) {boundary = nbound; }
     bool get_boundary() { return boundary; }
+    void set_ninr(inter_ptr nv) {neighbor_in_next_replica = nv; }
+    inter_ptr get_next() {return neighbor_in_next_replica; }
 
     const_spit_t get_neighbors_begin() const {return neighbors.begin(); }
     const_spit_t get_neighbors_end() const {return neighbors.end(); }
@@ -94,6 +103,7 @@ protected:
     spit_t spit;
     int label;
     bool boundary;
+    inter_ptr neighbor_in_next_replica;
 
     friend void spin::flip_and_flip_plaqs();
     friend void spin::flip_and_flip_verts();
@@ -101,15 +111,7 @@ protected:
 
 /*******************  PLAQUETTE and VERTEX childs  **************************/
 class plaquette : public interaction { using interaction::interaction; }; //inherit constructor
-class vertexx : public interaction { 
-    using interaction::interaction; 
-private:
-    vert_ptr neighbor_in_next_replica;
-public:
-    void set_ninr(vert_ptr nv) {neighbor_in_next_replica = nv; }
-    vert_ptr get_next() {return neighbor_in_next_replica; }
-
-};
+class vertexx : public interaction { using interaction::interaction; };
 
 
 /****************   NON ISOTROPIC VARIANTS  ************************/

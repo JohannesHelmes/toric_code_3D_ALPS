@@ -14,8 +14,7 @@ parser.add_argument('--Y','-y',default='Magnetization',help='Parameter name, (de
 parser.add_argument('--Const','-c',default=np.log(2),type=float,help='Value of the constant for the integration, default=ln(2)')
 parser.add_argument('--B','-b',default=1000,type=int,help='Number of Bootstrap samples, default=1000')
 parser.add_argument('--N','-n',default=2,type=int,help='Renyi order, default=2')
-parser.add_argument('--Dim','-d',default=2,type=int,help='Dimension of the system, default=2')
-parser.add_argument('--System','-S',default='toriccode',choices=['toriccode','toriccode3D','ising','toriccodeupright'])
+parser.add_argument('--System','-S',default='toriccode',choices=['toriccode','toriccode3D','ising2D','toriccodeacross'])
 parser.add_argument('--verbose','-v',action='store_true')
 parser.add_argument('--alternate','-a',action='store_true',help="If bipartitions 2 and 3 are NOT identical")
 parser.add_argument('--simple','-s',type=int,help="With this flag, bipartition 0 is assumed to be empty, compute the entropy itself instead of gamma, provide the bipartition number > 0")
@@ -88,10 +87,16 @@ if args.outfile!=None:
 
 
 factor={}
-factor['ising']=2
-factor['toriccode']=4
-factor['toriccodeupright']=2
+factor['ising2D']=2
+factor['toriccodeacross']=4
+factor['toriccode']=2
 factor['toriccode3D']=3
+
+dim={}
+dim['ising2D']=2
+dim['toriccodeacross']=2
+dim['toriccode']=2
+dim['toriccode3D']=3
 
 N=args.B
 
@@ -164,11 +169,11 @@ for k in range(3,NValues+1,args.Step):
         S[scheme]=thermodynamic_integration(x[scheme,:k],y[scheme,:k],y_err[scheme,:k]+1e-15,N)
 
     if args.alternate:
-        gamma=np.array([args.Const-(2*factor[args.System]* L ** args.Dim) * (S[0,l]-S[1,l]-S[2,l]+S[3,l]) for l in range(N)])
+        gamma=np.array([args.Const-(2*factor[args.System]* L ** dim[args.System]) * (S[0,l]-S[1,l]-S[2,l]+S[3,l]) for l in range(N)])
     elif args.simple:
-        gamma=np.array([args.Const-(2*factor[args.System]* L ** args.Dim) * (S[args.simple,l]-S[0,l]) for l in range(N)])
+        gamma=np.array([args.Const-(2*factor[args.System]* L ** dim[args.System]) * (S[args.simple,l]-S[0,l]) for l in range(N)])
     else:
-        gamma=1./(n-1)*np.array([args.Const-(n*factor[args.System] * L ** args.Dim) * (S[0,l]-2*S[1,l]+S[2,l]) for l in range(N)])
+        gamma=1./(n-1)*np.array([args.Const-(n*factor[args.System] * L ** dim[args.System]) * (S[0,l]-2*S[1,l]+S[2,l]) for l in range(N)])
 
 
     if args.outfile:

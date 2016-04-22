@@ -30,8 +30,8 @@ protected :
     std::vector<int> geom;
     std::vector<int> map_lat_to_spin, map_lat_to_plaq, map_lat_to_vert;
     std::vector<spin_ptr> spins;
-    std::vector<plaq_ptr> plaqs;
-    std::vector<vert_ptr> verts;
+    std::vector<inter_ptr> plaqs;
+    std::vector<inter_ptr> verts;
     spin_ptr candidate;
     std::shared_ptr<updater> update_object;
     std::shared_ptr<measurer> measurement_object;

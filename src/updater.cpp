@@ -1,6 +1,8 @@
 #include "updater.h"
 #include<cassert>
 
+using namespace std;
+
 /********** base class updater **************/
 updater::updater(int seed, int reps, double beta, std::vector<spin_ptr>& s) : 
         spins(s),
@@ -19,7 +21,7 @@ updater::updater(int seed, int reps, double beta, std::vector<spin_ptr>& s) :
     
 /********** class single_spin_plaq **************/
 
-single_spin_plaq::single_spin_plaq(int seed, int reps, double beta, std::vector<spin_ptr>& s, std::vector<plaq_ptr>& p, int& nofe) : 
+single_spin_plaq::single_spin_plaq(int seed, int reps, double beta, std::vector<spin_ptr>& s, std::vector<inter_ptr>& p, int& nofe) : 
         updater(seed, reps, beta, s),
         plaqs(p),
         NofExc(nofe)
@@ -38,11 +40,12 @@ void single_spin_plaq::update() {
             candidate->flip_and_flip_plaqs();
         }
     }
+
 }
 
 /********** class single_spin_vert **************/
 
-single_spin_vert::single_spin_vert(int seed, int reps, double beta, std::vector<spin_ptr>& s, std::vector<vert_ptr>& v, int& nofe) : 
+single_spin_vert::single_spin_vert(int seed, int reps, double beta, std::vector<spin_ptr>& s, std::vector<inter_ptr>& v, int& nofe) : 
         updater(seed, reps, beta, s),
         verts(v),
         NofExc(nofe)
@@ -64,42 +67,10 @@ void single_spin_vert::update() {
     }
 }
 
-/********** class mix_spin_plaq_for_vert --- NO APPLICATION SO FAR   **************/
-
-mix_spin_plaq_for_vert::mix_spin_plaq_for_vert(int seed, int reps, double beta, std::vector<spin_ptr>& s, std::vector<plaq_ptr>& p, std::vector<vert_ptr>& v, int& nofe, double ratio) : 
-        updater(seed, reps, beta, s),
-        Nspinflips((int)(ratio*N)),
-        plaqs(p),
-        verts(v),
-        NofExc(nofe)
-{
-    std::cout<<"vertex MIX updater created, do "<<Nspinflips<<" single spin flips and "<<N-Nspinflips<<" plaquette flips"<<std::endl;
-    std::cout<<"plaqs size "<<p.size()<<" and spin size "<<s.size()<<std::endl;
-}
-
-void mix_spin_plaq_for_vert::update() {
-
-    for (int j=0; j<Nspinflips; ++j) { //generalize this !!!
-
-        candidate=spins[random_int()];
-        cand_weight = candidate->get_weight_from_verts();
-
-        if ((cand_weight>=0)||(random_01()<expmB[-2*cand_weight])) {
-            NofExc -= 2*cand_weight; //is the old weight
-            candidate->flip_and_flip_verts();
-        }
-    }
-
-    for (int j=Nspinflips; j<N; ++j) { //generalize this !!!
-        plaqs[random_int()]->flip_neighbors();
-    }
-}
-
-using namespace std;
 
 /********** class deconfined_vert  **************/
 
-deconfined_vert::deconfined_vert(int seed, int reps, double beta, std::vector<spin_ptr>& s, std::vector<vert_ptr>& v, int& nofe) :
+deconfined_vert::deconfined_vert(int seed, int reps, double beta, std::vector<spin_ptr>& s, std::vector<inter_ptr>& v, int& nofe) :
         updater(seed, reps, beta, s),
         verts(v),
         N_verts_per_replica(v.size()/reps),
@@ -113,7 +84,7 @@ deconfined_vert::deconfined_vert(int seed, int reps, double beta, std::vector<sp
 
     //label all connected regions and boundaries of vertices/plaquettes
     int counter;
-    for (vit_t vit = verts.begin(); vit!=verts.end(); ++vit) {
+    for (iit_t vit = verts.begin(); vit!=verts.end(); ++vit) {
         counter=0;
         for (const_spit_t spit = (*vit)->get_neighbors_begin(); spit != (*vit)->get_neighbors_end(); ++spit) {
             if ( (*spit)->get_geometry() != 1) {
@@ -213,7 +184,7 @@ void deconfined_vert::update() {
     
 }
 
-void deconfined_vert::try_flip(vert_ptr& v1, vert_ptr& v2, int& NofD) {
+void deconfined_vert::try_flip(inter_ptr& v1, inter_ptr& v2, int& NofD) {
     cand_weight = v1->get_value() + v2->get_value() ;
     if ((cand_weight>=0)||(random_01()<expmB[-2*cand_weight])) {
         NofD -= 2*cand_weight; 
@@ -222,7 +193,7 @@ void deconfined_vert::try_flip(vert_ptr& v1, vert_ptr& v2, int& NofD) {
     }
 }
 
-void deconfined_vert::try_flip(vert_ptr& v1, vert_ptr& v2, vert_ptr& v3, vert_ptr& v4, int& NofD) {
+void deconfined_vert::try_flip(inter_ptr& v1, inter_ptr& v2, inter_ptr& v3, inter_ptr& v4, int& NofD) {
     cand_weight = v1->get_value() + v2->get_value() + v3->get_value() + v4->get_value();
     if ((cand_weight>=0)||(random_01()<expmB[-2*cand_weight])) {
         NofD -= 2*cand_weight; 
@@ -234,9 +205,9 @@ void deconfined_vert::try_flip(vert_ptr& v1, vert_ptr& v2, vert_ptr& v3, vert_pt
 }
 
 
-/********** class vertex_metropolis  **************/
+/********** class interaction_metropolis  **************/
 
-vertex_metropolis::vertex_metropolis(int seed, int reps, double h, std::vector<spin_ptr>& s, std::vector<vert_ptr>& v, int& total_magn) :
+interaction_metropolis::interaction_metropolis(int seed, int reps, double h, std::vector<spin_ptr>& s, std::vector<inter_ptr>& v, int& total_magn) :
         updater(seed, reps, h, s),
         verts(v),
         N_verts(v.size()),
@@ -247,28 +218,31 @@ vertex_metropolis::vertex_metropolis(int seed, int reps, double h, std::vector<s
     TMagn = -spins.size();
 
     //label all connected regions and boundaries of vertices/plaquettes
-    int counter;
-    for (vit_t vit = verts.begin(); vit!=verts.end(); ++vit) {
-        counter=0;
-        for (const_spit_t spit = (*vit)->get_neighbors_begin(); spit != (*vit)->get_neighbors_end(); ++spit) {
+    int A_counter, B_counter;
+    for (iit_t iit = verts.begin(); iit!=verts.end(); ++iit) {
+        B_counter=0;
+        A_counter=0;
+        for (const_spit_t spit = (*iit)->get_neighbors_begin(); spit != (*iit)->get_neighbors_end(); ++spit) {
             if ( (*spit)->get_geometry() != 1) {
-                (*vit)->add_label( (*spit)->get_geometry() );
-                (*vit)->set_boundary ( true );
-                ++counter;
+                (*iit)->add_label( (*spit)->get_geometry() );
+                (*iit)->set_boundary ( true );
+                ++B_counter;
             }
-            if (counter == 0) {
-                (*vit)->add_label( 1 );
-                (*vit)->set_boundary ( false );
+            else
+                ++A_counter;
+            if (B_counter == 0) {
+                (*iit)->add_label( 1 );
+                (*iit)->set_boundary ( false );
             }
-            else if (counter == 6)
-                (*vit)->set_boundary ( false );
+            else if (A_counter == 0)
+                (*iit)->set_boundary ( false );
         }
     }
     cout<<"Vertex metropolis initialized, vertices "<<N_verts<<", magnetization "<<h<<endl;
 
 }
 
-void vertex_metropolis::update() {
+void interaction_metropolis::update() {
     for (int j=0; j<N_verts; ++j) {
         cand = verts[random_vert()];
         nb_spin_it= cand->get_neighbors_begin();
@@ -310,5 +284,6 @@ void vertex_metropolis::update() {
             }
         }
     }
+
 }
 

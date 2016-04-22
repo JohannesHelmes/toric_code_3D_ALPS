@@ -23,11 +23,27 @@ alps::ODump& operator<<(alps::ODump& dump, const std::vector<plaq_ptr>& pl) {
     return dump;
 }
 
+
 alps::IDump& operator>>(alps::IDump& dump, std::vector<plaq_ptr>& pl) {
     bool tmp;
     for (plit_t pit=pl.begin(); pit!=pl.end(); ++pit)  {
         dump>>tmp;
         (*pit)->set_value(tmp);
+    }
+    return dump;
+}
+
+alps::ODump& operator<<(alps::ODump& dump, const std::vector<inter_ptr>& ia) {
+    for (const_iit_t iit=ia.begin(); iit!=ia.end(); ++iit) 
+        dump<<(*iit)->get_value();
+    return dump;
+}
+
+alps::IDump& operator>>(alps::IDump& dump, std::vector<inter_ptr>& ia) {
+    bool tmp;
+    for (iit_t iit=ia.begin(); iit!=ia.end(); ++iit)  {
+        dump>>tmp;
+        (*iit)->set_value(tmp);
     }
     return dump;
 }

@@ -20,9 +20,8 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
     beta(static_cast<double>(p["beta"])),
     h(static_cast<double>(p.value_or_default("h",0.0))),
     hz(static_cast<double>(p.value_or_default("hz",h))),
-    ratio(static_cast<double>(p.value_or_default("ratio",1.0))),    // not useful for thermodynamic integration
     n(static_cast<alps::uint32_t>(p.value_or_default("n",2))),      // Renyi index
-    exc(static_cast<alps::uint32_t>(p.value_or_default("ExcType",4))),      // Type of excitation: 3(plaquettes) 4(vertices) 
+    exc(static_cast<alps::uint32_t>(p.value_or_default("ExcType",4))),      // Type of underlying groundstate: 3(plaquettes) 4(vertices) 
     algo(static_cast<alps::uint32_t>(p.value_or_default("Algorithm",1))),      
         // local updates (1),  deconfined updates (2), single-vertex-flips (3), non-isotropic single vertex flips (4)
     measure(static_cast<alps::uint32_t>(p.value_or_default("Measurement",1))),      
@@ -91,11 +90,12 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
 
                 for (nit=neighbors(*sit).first; nit!=neighbors(*sit).second; ++nit) {
                     if (site_type(*nit)==3) { 
-                        spins[map_lat_to_spin[*sit + i*numsites]]->add_neighbor(plaqs[map_lat_to_plaq[*nit + i*numsites]]);
+                        spins[map_lat_to_spin[*sit + i*numsites]]->add_neighbor(static_pointer_cast<plaquette>(plaqs[map_lat_to_plaq[*nit + i*numsites]]));
                         plaqs[map_lat_to_plaq[*nit + i*numsites]]->add_neighbor(spins[map_lat_to_spin[*sit + i*numsites]]);
+                        plaqs[map_lat_to_plaq[*nit + i*numsites]]->set_ninr(plaqs[map_lat_to_plaq[*nit + ((i+1)%n)*numsites]] );
                     }
                     if (site_type(*nit)==4) { 
-                        spins[map_lat_to_spin[*sit + i*numsites]]->add_neighbor(verts[map_lat_to_vert[*nit + i*numsites]]);
+                        spins[map_lat_to_spin[*sit + i*numsites]]->add_neighbor(static_pointer_cast<vertexx>(verts[map_lat_to_vert[*nit + i*numsites]]));
                         verts[map_lat_to_vert[*nit + i*numsites]]->add_neighbor(spins[map_lat_to_spin[*sit + i*numsites]]);
                         verts[map_lat_to_vert[*nit + i*numsites]]->set_ninr(verts[map_lat_to_vert[*nit + ((i+1)%n)*numsites]] );
 
@@ -118,10 +118,7 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
         if (exc==3)
             update_object = std::make_shared<single_spin_plaq>(seed, n, beta, spins, plaqs, NofD); //spins, plaqs and NofD are referenced
         else if (exc==4) {
-            if (ratio==1.0)
-                update_object = std::make_shared<single_spin_vert>(seed, n, beta, spins, verts, NofD);
-            else  //not useful for thermodynamic int
-                update_object = std::make_shared<mix_spin_plaq_for_vert>(seed, n, beta, spins, plaqs, verts, NofD, ratio);
+            update_object = std::make_shared<single_spin_vert>(seed, n, beta, spins, verts, NofD);
         }
     }
     else if (algo==2) {
@@ -129,7 +126,11 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
     }
     else if (algo == 3) {
         assert (measure == 3);
-        update_object = std::make_shared<vertex_metropolis>(seed, n, h, spins, verts, NofD); 
+        if (exc==3)
+            update_object = std::make_shared<interaction_metropolis>(seed, n, h, spins, verts, NofD);  //metropolis on vertices = plaquette groundstate
+        else if (exc==4) {
+            update_object = std::make_shared<interaction_metropolis>(seed, n, h, spins, plaqs, NofD);  //metropolis on plaquettes  = vertex groundstate
+        }
     }
 
     std::cout << "# L: " << L << " Steps: " << Nb_Steps  << " Spins: " <<spins.size()<<" Sites: "<<numsites<< std::endl;
