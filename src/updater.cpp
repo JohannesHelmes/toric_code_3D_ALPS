@@ -230,12 +230,13 @@ interaction_metropolis::interaction_metropolis(int seed, int reps, double h, std
             }
             else
                 ++A_counter;
-            if (B_counter == 0) {
-                (*iit)->add_label( 1 );
-                (*iit)->set_boundary ( false );
-            }
-            else if (A_counter == 0)
-                (*iit)->set_boundary ( false );
+        }
+        if (B_counter == 0) {
+            (*iit)->add_label( 1 );
+            (*iit)->set_boundary ( false );
+        }
+        else if (A_counter == 0) {
+            (*iit)->set_boundary ( false );
         }
     }
     cout<<"Vertex metropolis initialized, vertices "<<N_verts<<", magnetization "<<h<<endl;
@@ -283,6 +284,14 @@ void interaction_metropolis::update() {
                 TMagn -= 2*cand_weight; 
             }
         }
+
+        /*
+        int counted_magn=0;
+        for (spit_t spit = spins.begin(); spit!=spins.end(); ++spit)
+            counted_magn+= (*spit)->get_value();
+        if (TMagn != counted_magn)
+            cout<<"Error "<<TMagn<<" vs, "<<counted_magn<<endl;
+            */
     }
 
 }
