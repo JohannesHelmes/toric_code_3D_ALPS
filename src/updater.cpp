@@ -6,6 +6,7 @@ using namespace std;
 /********** base class updater **************/
 updater::updater(int seed, int reps, double beta, std::vector<spin_ptr>& s) : 
         spins(s),
+        beta(beta),
         N(spins.size()),
         mtwister(seed), //change this!!!
         int_dist(0,N-1),
@@ -207,19 +208,19 @@ void deconfined_vert::try_flip(inter_ptr& v1, inter_ptr& v2, inter_ptr& v3, inte
 
 /********** class interaction_metropolis  **************/
 
-interaction_metropolis::interaction_metropolis(int seed, int reps, double h, std::vector<spin_ptr>& s, std::vector<inter_ptr>& v, int& total_magn) :
+interaction_metropolis::interaction_metropolis(int seed, int reps, double h, std::vector<spin_ptr>& s, std::vector<inter_ptr>& ia, int& total_magn) :
         updater(seed, reps, h, s),
-        verts(v),
-        N_verts(v.size()),
+        interactions(ia),
+        N_interactions(ia.size()),
         TMagn(total_magn),
-        int_dist_verts(0,N_verts-1),
-        random_vert(mtwister, int_dist_verts)
+        int_dist_interactions(0,N_interactions-1),
+        random_interaction(mtwister, int_dist_interactions)
 {
     TMagn = -spins.size();
 
     //label all connected regions and boundaries of vertices/plaquettes
     int A_counter, B_counter;
-    for (iit_t iit = verts.begin(); iit!=verts.end(); ++iit) {
+    for (iit_t iit = interactions.begin(); iit!=interactions.end(); ++iit) {
         B_counter=0;
         A_counter=0;
         for (const_spit_t spit = (*iit)->get_neighbors_begin(); spit != (*iit)->get_neighbors_end(); ++spit) {
@@ -239,13 +240,13 @@ interaction_metropolis::interaction_metropolis(int seed, int reps, double h, std
             (*iit)->set_boundary ( false );
         }
     }
-    cout<<"Vertex metropolis initialized, vertices "<<N_verts<<", magnetization "<<h<<endl;
+    cout<<"Vertex metropolis initialized, vertices "<<N_interactions<<", magnetization "<<h<<endl;
 
 }
 
 void interaction_metropolis::update() {
-    for (int j=0; j<N_verts; ++j) {
-        cand = verts[random_vert()];
+    for (int j=0; j<N_interactions; ++j) {
+        cand = interactions[random_interaction()];
         nb_spin_it= cand->get_neighbors_begin();
         cand_weight = 0;
         if ((cand->get_boundary()== true)||((*nb_spin_it)->get_geometry()==1)) { //the second option is for the case, that cand is completely in A
@@ -294,5 +295,43 @@ void interaction_metropolis::update() {
             */
     }
 
+
+    // Try a single winding loop update
+    loop_weight = 0;
+    loop_set.clear();
+    first_spin = spins[random_int()];
+
+
+    fill_loop(first_spin, loop_set, loop_weight);
+    //cout<<"Loop has "<<loop_set.size()<<" elements and weight "<<loop_weight<<" and orientation "<<first_spin->get_orientation()<<endl;
+
+    if ((loop_weight>=0)||(random_01()<exp(2*beta*loop_weight))) {
+        for (auto l : loop_set)
+            l->flip();
+        TMagn -= 2*loop_weight;
+    }
+}
+
+void interaction_metropolis::fill_loop(spin_ptr spin, std::unordered_set<spin_ptr>& l_set, int& weight) {
+    //cout<<spin<<" recursion,  orientation "<<spin->get_orientation()<<endl;
+    if (l_set.find(spin) == l_set.end() ) {
+        //cout<<"     inserted "<<endl;
+        l_set.insert(spin);
+        weight += spin->get_value();
+        if (spin->get_geometry()==1)
+            weight += spin->get_value();
+
+        for (const_iit_t loop_iit = spin->get_interaction_neighbors_begin(); loop_iit != spin->get_interaction_neighbors_end(); ++loop_iit) {
+            //cout<<*loop_iit<<endl;
+            for (const_spit_t loop_sit = (*loop_iit)->get_neighbors_begin(); loop_sit != (*loop_iit)->get_neighbors_end(); ++loop_sit ) {
+                //cout<<" loop site "<<*loop_sit<<endl;
+                if ( (*loop_sit != spin)&&( (*loop_sit)->get_orientation() == spin->get_orientation() ) )  {
+                    fill_loop(*loop_sit, l_set, weight);
+                    //cout<<"quit recursion "<<endl;
+                }
+            }
+        }
+
+    }
 }
 

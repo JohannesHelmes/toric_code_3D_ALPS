@@ -55,29 +55,36 @@ public:
 };
 
 
-/***********************  SITE  ********************************/
+/***********************  SPIN  ********************************/
 class spin : public site {
     
 private:
     int energy;
-    const int geometry;
-    std::vector<plaq_ptr> p_neighbors;
+    const short geometry, orientation;
+    std::vector<plaq_ptr> p_neighbors;  //ToDo : remove these two, work only with interaction_neighbors
     std::vector<vert_ptr> v_neighbors;
+    std::vector<inter_ptr> interaction_neighbors;
+    std::vector<inter_ptr> dual_interaction_neighbors;
     spin_ptr neighbor_in_next_replica;
     plit_t plit;
     vit_t vit;
 
 public:
-    spin(int geo);
+    spin(short geo, short orientation); // orientation : x = 0, y = 1, z = 2
     void add_neighbor(plaq_ptr nb);
     void add_neighbor(vert_ptr nb);
+    void copy_neighbors_internally(short excitation); //not very elegant: copies p_neighbors to interaction_neigbors and v_neighbors to dual_... or vv
     void set_ninr(spin_ptr ns) {neighbor_in_next_replica = ns; }
     void flip_and_flip_plaqs();
     void flip_and_flip_verts();
     int get_weight_from_plaqs(); 
     int get_weight_from_verts(); 
     int get_geometry() const { return geometry; }
+    int get_orientation() const { return orientation; }
     spin_ptr get_next() {return neighbor_in_next_replica; }
+
+    const_iit_t get_interaction_neighbors_begin() const {return interaction_neighbors.begin(); }
+    const_iit_t get_interaction_neighbors_end() const {return interaction_neighbors.end(); }
 
 };
 
@@ -119,7 +126,7 @@ class spin_z : public spin {
 private:
     const double J;
 public:
-    spin_z(int geo, double nJ);
+    spin_z(short geo, double nJ);
     int get_value() const  { return value? J : -J; }   //overwrites get_value() of site class
 };
 /*

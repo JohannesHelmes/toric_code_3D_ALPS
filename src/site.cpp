@@ -74,7 +74,7 @@ void site::flip() {
 
 
 /********  class spin  **************/
-spin::spin(int geo): site(), geometry(geo)  { }
+spin::spin(short geo, short orientation): site(), geometry(geo), orientation(orientation)   { }
 
 void spin::add_neighbor(plaq_ptr nb) {
     plaq_ptr new_nb(nb);
@@ -84,6 +84,22 @@ void spin::add_neighbor(plaq_ptr nb) {
 void spin::add_neighbor(vert_ptr nb) {
     vert_ptr new_nb(nb);
     v_neighbors.push_back(new_nb);
+}
+
+void spin::copy_neighbors_internally(short excitation) {
+    if (excitation == 3) {
+        interaction_neighbors.resize(p_neighbors.size());
+        dual_interaction_neighbors.resize(v_neighbors.size());
+        copy(p_neighbors.begin(), p_neighbors.end(), interaction_neighbors.begin() );
+        copy(v_neighbors.begin(), v_neighbors.end(), dual_interaction_neighbors.begin() );
+    }
+    else if (excitation == 4) {
+        interaction_neighbors.resize(v_neighbors.size());
+        dual_interaction_neighbors.resize(p_neighbors.size());
+        copy(v_neighbors.begin(), v_neighbors.end(), interaction_neighbors.begin() );
+        copy(p_neighbors.begin(), p_neighbors.end(), dual_interaction_neighbors.begin() );
+    }
+
 }
 
 void spin::flip_and_flip_plaqs() {
@@ -129,6 +145,6 @@ void interaction::flip_neighbors() {
 
 
 /******** Anisotropic interactions in vertices **********/
-spin_z::spin_z(int geo, double nJ): spin(geo), J(nJ)  { }
+spin_z::spin_z(short geo, double nJ): spin(geo, 2), J(nJ)  { }
 
 

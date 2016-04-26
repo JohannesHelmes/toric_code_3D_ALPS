@@ -4,6 +4,7 @@
 #include <boost/random/uniform_01.hpp>
 #include <boost/random/uniform_int.hpp>
 #include <boost/random/variate_generator.hpp>
+#include <unordered_set>
 
 typedef boost::random::mt19937 mt_rng;
 
@@ -16,6 +17,7 @@ protected:
     //The order of these declaration is crucial because of dependencies in the initialization list!
     std::vector<spin_ptr> spins;
     const int N;
+    const double beta;
     mt_rng mtwister;
     boost::uniform_01<> real_dist;
     boost::variate_generator<mt_rng&, boost::uniform_01<> > random_01;
@@ -75,16 +77,21 @@ private:
 
 class interaction_metropolis : public updater {
 public:
-    interaction_metropolis(int seed, int reps, double h, std::vector<spin_ptr>& s, std::vector<inter_ptr>& v, int& total_magn);  //single vertex update for plaquette Hamiltonian
+    interaction_metropolis(int seed, int reps, double h, std::vector<spin_ptr>& s, std::vector<inter_ptr>& ia, int& total_magn);  //single vertex update for plaquette Hamiltonian
     void update();
 private:
-    std::vector<inter_ptr> verts;
-    int const N_verts;
-    boost::random::uniform_int_distribution<> int_dist_verts;
-    boost::variate_generator<mt_rng&, boost::random::uniform_int_distribution<> > random_vert;
+    std::vector<inter_ptr> interactions;
+    int const N_interactions;
+    boost::random::uniform_int_distribution<> int_dist_interactions;
+    boost::variate_generator<mt_rng&, boost::random::uniform_int_distribution<> > random_interaction;
     int &TMagn;
 
     int cand_weight;
     inter_ptr cand, runner;
     spit_t nb_spin_it;
+
+    spin_ptr first_spin;
+    int loop_weight;
+    std::unordered_set<spin_ptr> loop_set;
+    void fill_loop(spin_ptr spin, std::unordered_set<spin_ptr>& l_set, int& weight);
 };

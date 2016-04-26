@@ -59,7 +59,7 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
                         cout<<" created z spin"<<endl;
                     }
                     else
-                        nspin = std::make_shared<spin>(geom[*sit]);
+                        nspin = std::make_shared<spin>(geom[*sit], site_type(*sit));
                     spins.push_back(nspin);
                 }
                 else 
@@ -126,6 +126,8 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
     }
     else if (algo == 3) {
         assert (measure == 3);
+        for (auto s : spins)
+            s->copy_neighbors_internally(exc) ;
         if (exc==3)
             update_object = std::make_shared<interaction_metropolis>(seed, n, h, spins, verts, NofD);  //metropolis on vertices = plaquette groundstate
         else if (exc==4) {
