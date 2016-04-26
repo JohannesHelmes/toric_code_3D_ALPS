@@ -12,8 +12,7 @@ namespace std {
     struct my_hash
         { 
             size_t
-            operator()(const shared_ptr<spin>& __s) const noexcept
-                { return std::hash<spin*>()(__s.get()); }
+            operator()(const shared_ptr<spin>& __s) const { return std::hash<spin*>()(__s.get()); }
         };
 }
 
