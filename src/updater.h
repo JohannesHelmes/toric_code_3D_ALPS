@@ -8,6 +8,16 @@
 
 typedef boost::random::mt19937 mt_rng;
 
+namespace std {
+    struct my_hash
+        { 
+            size_t
+            operator()(const shared_ptr<spin>& __s) const noexcept
+                { return std::hash<spin*>()(__s.get()); }
+        };
+}
+
+
 class updater {
 public:
     updater(int seed, int reps, double beta, std::vector<spin_ptr>& s);
@@ -92,6 +102,6 @@ private:
 
     spin_ptr first_spin;
     int loop_weight;
-    std::unordered_set<spin_ptr> loop_set;
-    void fill_loop(spin_ptr spin, std::unordered_set<spin_ptr>& l_set, int& weight);
+    std::unordered_set<spin_ptr, std::my_hash> loop_set;
+    void fill_loop(spin_ptr spin, std::unordered_set<spin_ptr, std::my_hash>& l_set, int& weight);
 };

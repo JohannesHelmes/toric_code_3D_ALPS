@@ -3,16 +3,6 @@
 
 using namespace std;
 
-//#ifndef _SHARED_PTR_H
-/// std::hash specialization for shared_ptr. Copied from //usr/include/c++/5/bits/shared_ptr.h
-    struct hash<shared_ptr<spin>>
-        : public __hash_base<size_t, shared_ptr<spin>>
-        { 
-            size_t
-            operator()(const shared_ptr<spin>& __s) const noexcept
-                { return std::hash<spin*>()(__s.get()); }
-        };
-//#endif
 
 
 /********** base class updater **************/
@@ -324,7 +314,7 @@ void interaction_metropolis::update() {
     }
 }
 
-void interaction_metropolis::fill_loop(spin_ptr spin, std::unordered_set<spin_ptr>& l_set, int& weight) {
+void interaction_metropolis::fill_loop(spin_ptr spin, std::unordered_set<spin_ptr, std::my_hash>& l_set, int& weight) {
     //cout<<spin<<" recursion,  orientation "<<spin->get_orientation()<<endl;
     if (l_set.find(spin) == l_set.end() ) {
         //cout<<"     inserted "<<endl;
