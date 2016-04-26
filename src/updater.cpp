@@ -3,17 +3,16 @@
 
 using namespace std;
 
-#ifndef _SHARED_PTR_H
+//#ifndef _SHARED_PTR_H
 /// std::hash specialization for shared_ptr. Copied from //usr/include/c++/5/bits/shared_ptr.h
-    template<typename _Tp>
-    struct hash<shared_ptr<_Tp>>
-        : public __hash_base<size_t, shared_ptr<_Tp>>
+    struct hash<shared_ptr<spin>>
+        : public __hash_base<size_t, shared_ptr<spin>>
         { 
             size_t
-            operator()(const shared_ptr<_Tp>& __s) const noexcept
-                { return std::hash<_Tp*>()(__s.get()); }
+            operator()(const shared_ptr<spin>& __s) const noexcept
+                { return std::hash<spin*>()(__s.get()); }
         };
-#endif
+//#endif
 
 
 /********** base class updater **************/
