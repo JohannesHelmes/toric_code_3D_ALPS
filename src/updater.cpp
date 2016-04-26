@@ -1,8 +1,20 @@
 #include "updater.h"
 #include<cassert>
-#include <functional>
 
 using namespace std;
+
+#ifndef _SHARED_PTR_H
+/// std::hash specialization for shared_ptr. Copied from //usr/include/c++/5/bits/shared_ptr.h
+    template<typename _Tp>
+    struct hash<shared_ptr<_Tp>>
+        : public __hash_base<size_t, shared_ptr<_Tp>>
+        { 
+            size_t
+            operator()(const shared_ptr<_Tp>& __s) const noexcept
+                { return std::hash<_Tp*>()(__s.get()); }
+        };
+#endif
+
 
 /********** base class updater **************/
 updater::updater(int seed, int reps, double beta, std::vector<spin_ptr>& s) : 
