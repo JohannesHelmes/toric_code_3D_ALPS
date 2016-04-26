@@ -30,7 +30,7 @@ ifeq ($(host), cheops0)
 	include $(ALPS_ROOT)/share/alps/include.mk
 	SRC = /home/jhelmes/Work/toric_code_3D_ALPS/src
 	BIN = /home/jhelmes/Work/toric_code_3D_ALPS/bin
-	CXXFLAGS = -O2 -DNDEBUG -march=native -std=c++0x 
+	CXXFLAGS = -O2 -DNDEBUG -march=native -std=c++11 -gcc-name=/opt/rrzk/compiler/gnu/4.8.2/bin/gcc
 endif
 
 
