@@ -1,5 +1,6 @@
 #include "updater.h"
 #include<cassert>
+#include <functional>
 
 using namespace std;
 
