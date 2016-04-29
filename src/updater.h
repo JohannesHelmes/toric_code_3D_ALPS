@@ -37,11 +37,27 @@ protected:
     boost::variate_generator<mt_rng&, boost::random::uniform_int_distribution<> > random_int;
 };
 
-class single_spin_plaq : public updater {
+class winding_updater : public updater {         // abstract class which provides the global sector switching (update() is still not implemented)
+public:
+    winding_updater(int seed, int reps, double beta, std::vector<spin_ptr>& s, int& total_observable);
+protected:
+    void do_winding_update();
+    void fill_loop(spin_ptr spin, std::unordered_set<spin_ptr, std::my_hash>& l_set, int& weight);
+
+private:
+    int &TObs;
+    spin_ptr first_spin;
+    int loop_weight;
+    std::unordered_set<spin_ptr, std::my_hash> loop_set;
+};
+
+
+class single_spin_plaq : public winding_updater {
 public:
     single_spin_plaq(int seed, int reps, double beta, std::vector<spin_ptr>& s, std::vector<inter_ptr>& p, int& nofe);  //single spin update for plaquette Hamiltonian
     void update();
 private:
+    int dummy_magn=0;
     int cand_weight;
     std::vector<inter_ptr> plaqs;
     spin_ptr candidate;

@@ -25,7 +25,7 @@ updater::updater(int seed, int reps, double beta, std::vector<spin_ptr>& s) :
 /********** class single_spin_plaq **************/
 
 single_spin_plaq::single_spin_plaq(int seed, int reps, double beta, std::vector<spin_ptr>& s, std::vector<inter_ptr>& p, int& nofe) : 
-        updater(seed, reps, beta, s),
+        winding_updater(seed, reps, 0.0, s, dummy_magn),
         plaqs(p),
         NofExc(nofe)
 {
@@ -43,6 +43,8 @@ void single_spin_plaq::update() {
             candidate->flip_and_flip_plaqs();
         }
     }
+
+    do_winding_update();
 
 }
 
@@ -207,6 +209,48 @@ void deconfined_vert::try_flip(inter_ptr& v1, inter_ptr& v2, inter_ptr& v3, inte
     }
 }
 
+
+/********** abstract class winding_updater  **************/
+
+winding_updater::winding_updater(int seed, int reps, double beta, std::vector<spin_ptr>& s, int& total_observable) :
+        updater(seed, reps, beta, s),
+        TObs(total_observable)
+{
+    TObs = -spins.size();
+}
+
+void winding_updater::do_winding_update() {
+    loop_weight = 0;
+    loop_set.clear();
+    first_spin = spins[random_int()];
+
+
+    fill_loop(first_spin, loop_set, loop_weight);
+    //cout<<"Loop has "<<loop_set.size()<<" elements and weight "<<loop_weight<<" and orientation "<<first_spin->get_orientation()<<endl;
+
+    if ((loop_weight>=0)||(random_01()<exp(2*beta*loop_weight))) {
+        for (auto l : loop_set)
+            l->flip();
+        TObs -= 2*loop_weight;
+    }
+}
+
+void winding_updater::fill_loop(spin_ptr spin, std::unordered_set<spin_ptr, std::my_hash>& l_set, int& weight) {
+    if (l_set.find(spin) == l_set.end() ) {
+        l_set.insert(spin);
+        weight += spin->get_value();
+        if (spin->get_geometry()==1)
+            weight += spin->get_value();
+
+        for (const_iit_t loop_iit = spin->get_interaction_neighbors_begin(); loop_iit != spin->get_interaction_neighbors_end(); ++loop_iit) {
+            for (const_spit_t loop_sit = (*loop_iit)->get_neighbors_begin(); loop_sit != (*loop_iit)->get_neighbors_end(); ++loop_sit ) {
+                if ( (*loop_sit != spin)&&( (*loop_sit)->get_orientation() == spin->get_orientation() ) )  {
+                    fill_loop(*loop_sit, l_set, weight);
+                }
+            }
+        }
+    }
+}
 
 /********** class interaction_metropolis  **************/
 
