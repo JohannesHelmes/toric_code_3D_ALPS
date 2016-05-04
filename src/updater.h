@@ -39,13 +39,14 @@ protected:
 
 class winding_updater : public updater {         // abstract class which provides the global sector switching (update() is still not implemented)
 public:
-    winding_updater(int seed, int reps, double beta, std::vector<spin_ptr>& s, int& total_observable);
+    winding_updater(int seed, int reps, double beta, double h, std::vector<spin_ptr>& s, int& total_observable);
 protected:
     void do_winding_update();
     void fill_loop(spin_ptr spin, std::unordered_set<spin_ptr, std::my_hash>& l_set, int& weight);
 
 private:
     int &TObs;
+    double h;
     spin_ptr first_spin;
     int loop_weight;
     std::unordered_set<spin_ptr, std::my_hash> loop_set;
@@ -100,7 +101,7 @@ private:
 };
 
 
-class interaction_metropolis : public updater {
+class interaction_metropolis : public winding_updater {
 public:
     interaction_metropolis(int seed, int reps, double h, std::vector<spin_ptr>& s, std::vector<inter_ptr>& ia, int& total_magn);  //single vertex update for plaquette Hamiltonian
     void update();
@@ -114,9 +115,4 @@ private:
     int cand_weight;
     inter_ptr cand, runner;
     spit_t nb_spin_it;
-
-    spin_ptr first_spin;
-    int loop_weight;
-    std::unordered_set<spin_ptr, std::my_hash> loop_set;
-    void fill_loop(spin_ptr spin, std::unordered_set<spin_ptr, std::my_hash>& l_set, int& weight);
 };
