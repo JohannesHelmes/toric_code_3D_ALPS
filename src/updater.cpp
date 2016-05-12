@@ -218,7 +218,7 @@ winding_updater::winding_updater(int seed, int reps, double beta, double h, std:
         TObs(total_observable)
 {
     TObs = -spins.size();
-    cout<<"Winding updater initialized, TObs = "<<TObs<<endl;
+    cout<<"Winding updater initialized, h = "<<h<<endl;
 }
 
 void winding_updater::do_winding_update() {
@@ -254,7 +254,11 @@ void winding_updater::fill_loop(spin_ptr spin, std::unordered_set<spin_ptr, std:
     }
 }
 
-/********** class interaction_metropolis  **************/
+/*******************************************************/
+/*                                                     */
+/*          class interaction_metropolis               */
+/*                                                     */
+/*******************************************************/
 
 interaction_metropolis::interaction_metropolis(int seed, int reps, double h, std::vector<spin_ptr>& s, std::vector<inter_ptr>& ia, int& total_magn) :
         winding_updater(seed, reps, h, h, s, total_magn),
@@ -360,5 +364,85 @@ void interaction_metropolis::update() {
     //        l->flip();
     //    TMagn -= 2*loop_weight;
     //}
+}
+
+
+/*******************************************************/
+/*                                                     */
+/*          class interaction_wolff                    */
+/*                                                     */
+/*******************************************************/
+
+interaction_wolff::interaction_wolff(int seed, int reps, double h, std::vector<spin_ptr>& s, std::vector<inter_ptr>& ia, int& total_magn) :
+        winding_updater(seed, reps, h, h, s, total_magn),
+        interactions(ia),
+        N_interactions(ia.size()),
+        TMagn(total_magn),
+        int_dist_interactions(0,N_interactions-1),
+        random_interaction(mtwister, int_dist_interactions)
+{
+    TMagn = -spins.size();
+
+    //label all connected regions and boundaries of vertices/plaquettes
+    int A_counter, B_counter;
+    for (iit_t iit = interactions.begin(); iit!=interactions.end(); ++iit) {
+        B_counter=0;
+        A_counter=0;
+        for (const_spit_t spit = (*iit)->get_neighbors_begin(); spit != (*iit)->get_neighbors_end(); ++spit) {
+            if ( (*spit)->get_geometry() != 1) {
+                (*iit)->add_label( (*spit)->get_geometry() );
+                (*iit)->set_boundary ( true );
+                ++B_counter;
+            }
+            else
+                ++A_counter;
+        }
+        if (B_counter == 0) {
+            (*iit)->add_label( 1 );
+            (*iit)->set_boundary ( false );
+        }
+        else if (A_counter == 0) {
+            (*iit)->set_boundary ( false );
+        }
+    }
+    cout<<"Wolff metropolis initialized, magnetization "<<h<<endl;
+}
+
+
+void interaction_wolff::update() {
+    inter_ptr start_inter = interactions[random_interaction()];
+    start_inter->flip_neighbors();
+    for (nb_spin_it = start_inter->get_neighbors_begin(); nb_spin_it!=start_inter->get_neighbors_end(); ++nb_spin_it) {
+        wolff_runner(*nb_spin_it, start_inter);
+    }
+
+    // if the start vertex/plaquette is at the boundary, the Wolff update needs to be started for the other replica spins in B separately
+    if (start_inter->get_boundary()) {
+        start_inter= start_inter->get_next();
+        for (nb_spin_it = start_inter->get_neighbors_begin(); nb_spin_it!=start_inter->get_neighbors_end(); ++nb_spin_it) {
+            if ( (*nb_spin_it)->get_geometry() != 1) {
+                (*nb_spin_it)->flip();
+                wolff_runner(*nb_spin_it, start_inter);
+            }
+        }
+    }
+    
+
+    TMagn = 0;
+    for (auto s : spins) {
+        TMagn += s->get_value();
+    }
+    
+    do_winding_update();
+}
+
+void interaction_wolff::wolff_runner(spin_ptr spin, inter_ptr old_inter) {
+    if (spin->get_value() > 0) {
+        weight = spin->get_geometry() == 1 ? 2*spin->get_value() : spin->get_value() ;
+        if (random_01() < 1.-expmB[2*weight]) {
+            for (const_iit_t ia_it = spin->get_interaction_neighbors_begin(); ia_it != spin->get_interaction_neighbors_end(); ++ia_it )  {
+            }
+        }
+    }
 }
 

@@ -116,3 +116,21 @@ private:
     inter_ptr cand, runner;
     spit_t nb_spin_it;
 };
+
+
+class interaction_wolff : public winding_updater {
+public:
+    interaction_wolff(int seed, int reps, double h, std::vector<spin_ptr>& s, std::vector<inter_ptr>& ia, int& total_magn);  //single vertex update for plaquette Hamiltonian
+    void update();
+private:
+    std::vector<inter_ptr> interactions;
+    int const N_interactions;
+    boost::random::uniform_int_distribution<> int_dist_interactions;
+    boost::variate_generator<mt_rng&, boost::random::uniform_int_distribution<> > random_interaction;
+    int &TMagn;
+    double weight;
+
+    spit_t nb_spin_it;
+
+    void wolff_runner(spin_ptr spin, inter_ptr old_inter);
+};
