@@ -86,6 +86,8 @@ public:
     const_iit_t get_interaction_neighbors_begin() const {return interaction_neighbors.begin(); }
     const_iit_t get_interaction_neighbors_end() const {return interaction_neighbors.end(); }
 
+    const_iit_t get_dual_interaction_neighbors_begin() const {return dual_interaction_neighbors.begin(); }
+    const_iit_t get_dual_interaction_neighbors_end() const {return dual_interaction_neighbors.end(); }
 };
 
 /*************************  INTERACTIONS (many body terms)   *******************/

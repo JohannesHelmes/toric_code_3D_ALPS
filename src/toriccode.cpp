@@ -23,7 +23,7 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
     n(static_cast<alps::uint32_t>(p.value_or_default("n",2))),      // Renyi index
     exc(static_cast<alps::uint32_t>(p.value_or_default("ExcType",4))),      // Type of underlying groundstate: 3(plaquettes) 4(vertices) 
     algo(static_cast<alps::uint32_t>(p.value_or_default("Algorithm",1))),      
-        // local updates (1),  deconfined updates (2), single-vertex-flips (3), non-isotropic single vertex flips (4)
+        // local updates (1),  deconfined updates (2), single-vertex-flips (3), non-isotropic single vertex flips (4), vertex_wolff (5)
     measure(static_cast<alps::uint32_t>(p.value_or_default("Measurement",1))),      
         // thermodynamic int (1),  ensemble switching (2), thermodynamic int with h (3), full_energy for specific heat (4)
     Total_Steps(0),
@@ -134,6 +134,16 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
             update_object = std::make_shared<interaction_metropolis>(seed, n, h, spins, plaqs, NofD);  //metropolis on plaquettes  = vertex groundstate
         }
     }
+    else if (algo == 5) {
+        assert (measure == 3);
+        for (auto s : spins)
+            s->copy_neighbors_internally(exc) ;
+        if (exc==3)
+            update_object = std::make_shared<interaction_wolff>(seed, n, h, spins, verts, NofD);  //metropolis on vertices = plaquette groundstate
+        else if (exc==4) {
+            update_object = std::make_shared<interaction_wolff>(seed, n, h, spins, plaqs, NofD);  //metropolis on plaquettes  = vertex groundstate
+        }
+    }
 
     std::cout << "# L: " << L << " Steps: " << Nb_Steps  << " Spins: " <<spins.size()<<" Sites: "<<numsites<< std::endl;
 
@@ -176,9 +186,9 @@ void toriccode::dostep() {
     //cout<<NofD<<endl;
 
     //TEST for VERTEX METROPOLIS
-    /*
+    /**
     int count;
-    for (plit_t plit = plaqs.begin(); plit != plaqs.end(); ++plit) {
+    for (iit_t plit = plaqs.begin(); plit != plaqs.end(); ++plit) {
         count=0;
         for (spit_t nbit = (*plit)->get_neighbors_begin(); nbit != (*plit)->get_neighbors_end(); ++nbit) {
             count += (*nbit)->get_value();
@@ -186,7 +196,7 @@ void toriccode::dostep() {
         if (count %4 == 2)
             cout<<Total_Steps<<": Error at a plaquette "<<endl;
     }
-    */
+    **/
     
     if (is_thermalized()) 
         measurement_object->measure();

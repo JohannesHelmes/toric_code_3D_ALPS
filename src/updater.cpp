@@ -347,7 +347,7 @@ void interaction_metropolis::update() {
             */
     }
 
-    do_winding_update();
+    //do_winding_update();
 
 
     // Try a single winding loop update
@@ -404,29 +404,85 @@ interaction_wolff::interaction_wolff(int seed, int reps, double h, std::vector<s
         else if (A_counter == 0) {
             (*iit)->set_boundary ( false );
         }
+        //else {
+         //   cout<<*iit<<" is boundary, Acounter= "<<A_counter<<endl;
+        //}
     }
-    cout<<"Wolff metropolis initialized, magnetization "<<h<<endl;
+    cout<<"Wolff initialized, magnetization "<<h<<endl;
 }
 
 
-void interaction_wolff::update() {
-    inter_ptr start_inter = interactions[random_interaction()];
-    start_inter->flip_neighbors();
-    for (nb_spin_it = start_inter->get_neighbors_begin(); nb_spin_it!=start_inter->get_neighbors_end(); ++nb_spin_it) {
-        wolff_runner(*nb_spin_it, start_inter);
-    }
-
-    // if the start vertex/plaquette is at the boundary, the Wolff update needs to be started for the other replica spins in B separately
-    if (start_inter->get_boundary()) {
-        start_inter= start_inter->get_next();
-        for (nb_spin_it = start_inter->get_neighbors_begin(); nb_spin_it!=start_inter->get_neighbors_end(); ++nb_spin_it) {
-            if ( (*nb_spin_it)->get_geometry() != 1) {
-                (*nb_spin_it)->flip();
-                wolff_runner(*nb_spin_it, start_inter);
+void interaction_wolff::flip_adjacents(inter_ptr the_inter) {
+    the_inter->flip_neighbors();
+    if (the_inter->get_boundary() ) {
+        inter_ptr other = the_inter->get_next();
+        //cout<<"  In Flipping boundary case "<<endl;
+        for (const_spit_t spit = other->get_neighbors_begin(); spit != other->get_neighbors_end(); ++spit) {
+            if ( (*spit)->get_geometry() != 1) {
+                (*spit)->flip();
             }
         }
     }
-    
+}
+
+void interaction_wolff::update() {
+    cluster_members.clear();
+    visited_vertices.clear();
+
+    inter_ptr start_inter = interactions[random_interaction()];
+    cluster_members.push_back(start_inter );
+    flip_adjacents(start_inter);
+    auto cluster_iterator = cluster_members.begin();
+
+    //do the Wolff in while loop
+    while ( cluster_iterator != cluster_members.end() ) {
+        at_inter = *(cluster_iterator);
+
+        if (visited_vertices.find(at_inter) != visited_vertices.end() ) {
+            //cout<<" Failed !!!, break "<<endl;
+            for (auto cm: cluster_members)
+                flip_adjacents(cm);
+            break;
+        }
+        visited_vertices.insert(at_inter);
+
+
+        //do the recursion
+        for (spit = at_inter->get_neighbors_begin(); spit != at_inter->get_neighbors_end(); ++spit) {
+            weight = (*spit)->get_geometry() == 1 ? 2*(*spit)->get_value() : (*spit)->get_value();
+            if ( weight > 0 ) {
+                next_iter = (*spit)->get_dual_interaction_neighbors_begin();
+                while ( ( (*next_iter) == at_inter) || ( (*next_iter) == at_inter->get_next() ) ) {
+                    ++next_iter;
+                }
+
+                //next_iter may or may not be the neighbor in the other replica 
+                if (random_01() < (1 - expmB[2*weight] ) ) {
+                    cluster_members.push_back(*next_iter) ;
+                    flip_adjacents(*next_iter);
+                }
+            }
+        }
+
+        if (at_inter->get_boundary() ) {
+            other = at_inter->get_next();
+            for (spit = other->get_neighbors_begin(); spit != other->get_neighbors_end(); ++spit) {
+                if ( (*spit)->get_geometry() != 1) {
+                    weight = (*spit)->get_value();
+                    if ( weight > 0 ) {
+                        next_iter = (*spit)->get_dual_interaction_neighbors_begin(); //plaquettes groundstate (=interaction) => vertices = dual interaction
+                        if ( ( (*next_iter) == other)  )
+                            ++next_iter;
+                        if ( (random_01() < (1 - expmB[2*weight] ) ) )  {
+                            cluster_members.push_back(*next_iter);
+                            flip_adjacents(*next_iter);
+                        }
+                    }
+                }
+            }
+        }
+        ++cluster_iterator;
+    }
 
     TMagn = 0;
     for (auto s : spins) {
@@ -435,14 +491,3 @@ void interaction_wolff::update() {
     
     do_winding_update();
 }
-
-void interaction_wolff::wolff_runner(spin_ptr spin, inter_ptr old_inter) {
-    if (spin->get_value() > 0) {
-        weight = spin->get_geometry() == 1 ? 2*spin->get_value() : spin->get_value() ;
-        if (random_01() < 1.-expmB[2*weight]) {
-            for (const_iit_t ia_it = spin->get_interaction_neighbors_begin(); ia_it != spin->get_interaction_neighbors_end(); ++ia_it )  {
-            }
-        }
-    }
-}
-

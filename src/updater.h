@@ -5,6 +5,7 @@
 #include <boost/random/uniform_int.hpp>
 #include <boost/random/variate_generator.hpp>
 #include <unordered_set>
+#include <list>
 
 typedef boost::random::mt19937 mt_rng;
 
@@ -13,6 +14,12 @@ namespace std {
         { 
             size_t
             operator()(const shared_ptr<spin>& __s) const { return std::hash<spin*>()(__s.get()); }
+        };
+
+    struct my_hash_inter
+        { 
+            size_t
+            operator()(const shared_ptr<interaction>& __s) const { return std::hash<interaction*>()(__s.get()); }
         };
 }
 
@@ -124,13 +131,19 @@ public:
     void update();
 private:
     std::vector<inter_ptr> interactions;
+    std::vector<spin_ptr> backup_spins;
     int const N_interactions;
     boost::random::uniform_int_distribution<> int_dist_interactions;
     boost::variate_generator<mt_rng&, boost::random::uniform_int_distribution<> > random_interaction;
     int &TMagn;
-    double weight;
 
     spit_t nb_spin_it;
 
-    void wolff_runner(spin_ptr spin, inter_ptr old_inter);
+    void flip_adjacents(inter_ptr the_inter);
+    inter_ptr at_inter, other;
+    double weight;
+    const_iit_t next_iter;
+    const_spit_t spit;
+    std::list<inter_ptr > cluster_members;
+    std::unordered_set<inter_ptr, std::my_hash_inter> visited_vertices;
 };
