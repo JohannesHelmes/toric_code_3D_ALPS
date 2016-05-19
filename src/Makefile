@@ -14,7 +14,8 @@ ifeq ($(host), l29)
 	include $(ALPS_ROOT)/share/alps/include.mk
 	SRC = /home/helmes/Work/toric_code_3D_ALPS/src
 	BIN = /home/helmes/Work/toric_code_3D_ALPS/bin
-	CXX = /home/helmes/intel/bin/icpc
+	#CXX = /home/helmes/intel/bin/icpc
+	CXX = /usr/bin/c++
 	CXXFLAGS = -O2 -DNDEBUG -march=corei7 -std=c++11 
 endif
 ifeq ($(host), johannes-thinkpad)
