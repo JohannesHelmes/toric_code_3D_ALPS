@@ -16,7 +16,7 @@ ifeq ($(host), l29)
 	BIN = /home/helmes/Work/toric_code_3D_ALPS/bin
 	#CXX = /home/helmes/intel/bin/icpc
 	CXX = /usr/bin/c++
-	CXXFLAGS = -O2 -DNDEBUG -march=corei7 -std=c++11 
+	CXXFLAGS = -O2 -DNDEBUG -march=corei7 -std=c++0x
 endif
 ifeq ($(host), johannes-thinkpad)
 	ALPS_ROOT = /opt/alps
