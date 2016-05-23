@@ -426,62 +426,65 @@ void interaction_wolff::flip_adjacents(inter_ptr the_inter) {
 }
 
 void interaction_wolff::update() {
-    cluster_members.clear();
-    visited_vertices.clear();
 
-    inter_ptr start_inter = interactions[random_interaction()];
-    cluster_members.push_back(start_inter );
-    flip_adjacents(start_inter);
-    auto cluster_iterator = cluster_members.begin();
+    for (int n=0; n<12; ++n) {
+        cluster_members.clear();
+        visited_vertices.clear();
 
-    //do the Wolff in while loop
-    while ( cluster_iterator != cluster_members.end() ) {
-        at_inter = *(cluster_iterator);
+        inter_ptr start_inter = interactions[random_interaction()];
+        cluster_members.push_back(start_inter );
+        flip_adjacents(start_inter);
+        auto cluster_iterator = cluster_members.begin();
 
-        if (visited_vertices.find(at_inter) != visited_vertices.end() ) {
-            //cout<<" Failed !!!, break "<<endl;
-            for (auto cm: cluster_members)
-                flip_adjacents(cm);
-            break;
-        }
-        visited_vertices.insert(at_inter);
+        //do the Wolff in while loop
+        while ( cluster_iterator != cluster_members.end() ) {
+            at_inter = *(cluster_iterator);
+
+            if (visited_vertices.find(at_inter) != visited_vertices.end() ) {
+                //cout<<" Failed !!!, break "<<endl;
+                for (auto cm: cluster_members)
+                    flip_adjacents(cm);
+                break;
+            }
+            visited_vertices.insert(at_inter);
 
 
-        //do the recursion
-        for (spit = at_inter->get_neighbors_begin(); spit != at_inter->get_neighbors_end(); ++spit) {
-            weight = (*spit)->get_geometry() == 1 ? 2*(*spit)->get_value() : (*spit)->get_value();
-            if ( weight > 0 ) {
-                next_iter = (*spit)->get_dual_interaction_neighbors_begin();
-                while ( ( (*next_iter) == at_inter) || ( (*next_iter) == at_inter->get_next() ) ) {
-                    ++next_iter;
-                }
+            //do the recursion
+            for (spit = at_inter->get_neighbors_begin(); spit != at_inter->get_neighbors_end(); ++spit) {
+                weight = (*spit)->get_geometry() == 1 ? 2*(*spit)->get_value() : (*spit)->get_value();
+                if ( weight > 0 ) {
+                    next_iter = (*spit)->get_dual_interaction_neighbors_begin();
+                    while ( ( (*next_iter) == at_inter) || ( (*next_iter) == at_inter->get_next() ) ) {
+                        ++next_iter;
+                    }
 
-                //next_iter may or may not be the neighbor in the other replica 
-                if (random_01() < (1 - expmB[2*weight] ) ) {
-                    cluster_members.push_back(*next_iter) ;
-                    flip_adjacents(*next_iter);
+                    //next_iter may or may not be the neighbor in the other replica 
+                    if (random_01() < (1 - expmB[2*weight] ) ) {
+                        cluster_members.push_back(*next_iter) ;
+                        flip_adjacents(*next_iter);
+                    }
                 }
             }
-        }
 
-        if (at_inter->get_boundary() ) {
-            other = at_inter->get_next();
-            for (spit = other->get_neighbors_begin(); spit != other->get_neighbors_end(); ++spit) {
-                if ( (*spit)->get_geometry() != 1) {
-                    weight = (*spit)->get_value();
-                    if ( weight > 0 ) {
-                        next_iter = (*spit)->get_dual_interaction_neighbors_begin(); //plaquettes groundstate (=interaction) => vertices = dual interaction
-                        if ( ( (*next_iter) == other)  )
-                            ++next_iter;
-                        if ( (random_01() < (1 - expmB[2*weight] ) ) )  {
-                            cluster_members.push_back(*next_iter);
-                            flip_adjacents(*next_iter);
+            if (at_inter->get_boundary() ) {
+                other = at_inter->get_next();
+                for (spit = other->get_neighbors_begin(); spit != other->get_neighbors_end(); ++spit) {
+                    if ( (*spit)->get_geometry() != 1) {
+                        weight = (*spit)->get_value();
+                        if ( weight > 0 ) {
+                            next_iter = (*spit)->get_dual_interaction_neighbors_begin(); //plaquettes groundstate (=interaction) => vertices = dual interaction
+                            if ( ( (*next_iter) == other)  )
+                                ++next_iter;
+                            if ( (random_01() < (1 - expmB[2*weight] ) ) )  {
+                                cluster_members.push_back(*next_iter);
+                                flip_adjacents(*next_iter);
+                            }
                         }
                     }
                 }
             }
+            ++cluster_iterator;
         }
-        ++cluster_iterator;
     }
 
     TMagn = 0;
