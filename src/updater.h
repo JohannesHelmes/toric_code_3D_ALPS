@@ -54,22 +54,29 @@ protected:
 private:
     int &TObs;
     double h;
+    bool dual;
+
     spin_ptr first_spin;
     int loop_weight;
     std::unordered_set<spin_ptr, std::my_hash> loop_set;
 };
 
 
-class single_spin_plaq : public winding_updater {
+class single_spin_plaq : public updater {
 public:
     single_spin_plaq(int seed, int reps, double beta, std::vector<spin_ptr>& s, std::vector<inter_ptr>& p, int& nofe);  //single spin update for plaquette Hamiltonian
     void update();
 private:
     int dummy_magn=0;
-    int cand_weight;
+    int cand_weight, orient;
     std::vector<inter_ptr> plaqs;
     spin_ptr candidate;
     int &NofExc;
+
+    spin_ptr first_spin;
+    int loop_weight;
+    std::unordered_set<spin_ptr, std::my_hash> loop_set;
+    void ss_plaq_fill_loop(spin_ptr spin, std::unordered_set<spin_ptr, std::my_hash>& l_set, int& weight);
 };
        
 class single_spin_vert : public updater {

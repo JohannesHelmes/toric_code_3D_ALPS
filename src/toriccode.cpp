@@ -115,8 +115,11 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
     }
 
     if (algo==1) {
-        if (exc==3)
+        if (exc==3) {
+            for (auto s : spins)
+                s->copy_neighbors_internally(exc) ;
             update_object = std::make_shared<single_spin_plaq>(seed, n, beta, spins, plaqs, NofD); //spins, plaqs and NofD are referenced
+        }
         else if (exc==4) {
             update_object = std::make_shared<single_spin_vert>(seed, n, beta, spins, verts, NofD);
         }

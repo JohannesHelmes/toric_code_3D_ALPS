@@ -25,7 +25,7 @@ updater::updater(int seed, int reps, double beta, std::vector<spin_ptr>& s) :
 /********** class single_spin_plaq **************/
 
 single_spin_plaq::single_spin_plaq(int seed, int reps, double beta, std::vector<spin_ptr>& s, std::vector<inter_ptr>& p, int& nofe) : 
-        winding_updater(seed, reps, beta, 0.0, s, dummy_magn),
+        updater(seed, reps, beta, s),
         plaqs(p),
         NofExc(nofe)
 {
@@ -44,8 +44,51 @@ void single_spin_plaq::update() {
         }
     }
 
-    do_winding_update();
+    //do_winding_update();
 
+    loop_weight = 0;
+    loop_set.clear();
+    first_spin = spins[random_int()];
+    orient = (random_int()%2 + first_spin->get_orientation() + 1) %3;
+
+    ss_plaq_fill_loop(first_spin, loop_set, loop_weight);
+    //cout<<"Loop has "<<loop_set.size()<<" elements and weight "<<loop_weight<<" and orientation "<<first_spin->get_orientation()<<", "<<orient<<" and geom "<<first_spin->get_geometry()<<endl;
+
+    if ((loop_weight>=0)||(random_01()<exp(2*beta*loop_weight))) {
+        for (auto l : loop_set)
+            l->flip_and_flip_plaqs();
+        NofExc -= 2*loop_weight;
+    }
+
+}
+
+void single_spin_plaq::ss_plaq_fill_loop(spin_ptr spin, std::unordered_set<spin_ptr, std::my_hash>& l_set, int& weight) {
+    if (l_set.find(spin) == l_set.end() ) {
+
+        l_set.insert(spin);
+        bool weightplaq;
+
+        for (const_iit_t loop_iit = spin->get_interaction_neighbors_begin(); loop_iit != spin->get_interaction_neighbors_end(); ++loop_iit) {
+            weightplaq = false;
+            for (const_spit_t loop_sit = (*loop_iit)->get_neighbors_begin(); loop_sit != (*loop_iit)->get_neighbors_end(); ++loop_sit ) {
+                if ( (*loop_sit)->get_orientation() ==orient) {
+                    weight += (*loop_iit)->get_value(); //value determined from plaquettes
+                    weightplaq = true;
+                    //cout<<"Plaquette "<<*loop_iit<<" considered for weight "<<weight<<endl;
+                    break;
+                }
+            }
+            if (weightplaq)
+                continue;
+
+            //cout<<"Plaquette "<<*loop_iit<<" considered for propagation "<<endl;
+            for (const_spit_t loop_sit = (*loop_iit)->get_neighbors_begin(); loop_sit != (*loop_iit)->get_neighbors_end(); ++loop_sit ) {
+                if ( (*loop_sit != spin)&&( (*loop_sit)->get_orientation() == spin->get_orientation() ) )  {
+                    ss_plaq_fill_loop(*loop_sit, l_set, weight);
+                }
+            }
+        }
+    }
 }
 
 /********** class single_spin_vert **************/
@@ -215,7 +258,8 @@ void deconfined_vert::try_flip(inter_ptr& v1, inter_ptr& v2, inter_ptr& v3, inte
 winding_updater::winding_updater(int seed, int reps, double beta, double h, std::vector<spin_ptr>& s, int& total_observable) :
         updater(seed, reps, beta, s),
         h(h),
-        TObs(total_observable)
+        TObs(total_observable),
+        dual(dual)
 {
     TObs = -spins.size();
     cout<<"Winding updater initialized, h = "<<h<<endl;
@@ -253,6 +297,7 @@ void winding_updater::fill_loop(spin_ptr spin, std::unordered_set<spin_ptr, std:
         }
     }
 }
+
 
 /*******************************************************/
 /*                                                     */
@@ -347,7 +392,7 @@ void interaction_metropolis::update() {
             */
     }
 
-    //do_winding_update();
+    do_winding_update();
 
 
     // Try a single winding loop update
