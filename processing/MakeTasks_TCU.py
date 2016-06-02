@@ -21,6 +21,7 @@ paramgroup.add_argument('--sweeps','-s', type=int,default=10000,help='Number of 
 paramgroup.add_argument('--therm','-t', type=int,default=1000,help='Number of thermalization steps, default=1000')
 paramgroup.add_argument('--n','-n', type=int,default=2,help='Order of Renyi entropy, default=2')
 paramgroup.add_argument('--length','-l', type=int,help='Lattice length')
+paramgroup.add_argument('--width','-w', type=int,help='Lattice width (3rd dimension in 3D)')
 paramgroup.add_argument('--lattice','-a', type=int,help='Lattice type, (0 = toric code, 1 = toric code fcr, 2 = toric code 3D), default = 2',default=2)
 paramgroup.add_argument('--ExcType','-e', type=int,help='Type of Excitation, (3 = plaquette, 4 = vertex), default = 4',default=4,choices={3,4})
 #paramgroup.add_argument('--ratio','-r', type=float,help='Ration (0.0 .. 1.0) between single spin flips and dual many-body flips, default =1.0 (only single spin)',default=1.0)
@@ -33,6 +34,7 @@ paramgroup.add_argument('--infile','-i', help='Prefix of .in.xml')
 paramgroup.add_argument('--geofile','-g', type=file, help='File containing the geometry of the increments')
 paramgroup.add_argument('--partsize','-p',default=1000, type=int,help='Size subsimulation partition for better distribution on HPC, default=1000')
 paramgroup.add_argument('--temper','-T',help='interpret beta as temperature',action='store_true')
+paramgroup.add_argument('--transversefield','-z',help='Set h=1 and h_z = tanh',action='store_true')
 paramgroup.add_argument('--directory','-d',help='Directory of the parameter files, default= /scratch/helmes/simulations/"name of parent directory"/')
 
 args=parser.parse_args()
@@ -144,6 +146,7 @@ for i,IncEl in enumerate(Geometry):
                 'THERMALIZATION': args.therm,
                 'SWEEPS'	: args.sweeps,
                 'L'		: args.length,
+                'W'		: args.width if args.width!=None else args.length,
                 'n'		: args.n,
                 'ExcType'	: args.ExcType,
                 'Algorithm'	: args.Algorithm,

@@ -114,6 +114,7 @@ void spin::flip_and_flip_verts() {
         (*vit)->flip();
 }
 
+
 int spin::get_weight_from_plaqs() {
     energy = 0;
     for (plit=p_neighbors.begin(); plit!=p_neighbors.end(); ++plit) {
@@ -129,6 +130,7 @@ int spin::get_weight_from_verts() {
     }
     return energy;
 }
+
 
 /********** class interaction *********/
 interaction::interaction(): site() { }
