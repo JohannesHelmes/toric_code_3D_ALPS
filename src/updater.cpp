@@ -511,6 +511,8 @@ void interaction_wolff::update() {
                         cluster_members.push_back(*next_iter) ;
                         flip_adjacents(*next_iter);
                         visited_vertices.insert(*next_iter);
+                        if ( (*spit)->get_geometry() ==1) 
+                            visited_vertices.insert( (*next_iter)->get_next() );
                     }
                 }
             }
@@ -530,6 +532,8 @@ void interaction_wolff::update() {
                                 cluster_members.push_back(*next_iter);
                                 flip_adjacents(*next_iter);
                                 visited_vertices.insert(*next_iter);
+                                if ( (*spit)->get_geometry() ==1) 
+                                    visited_vertices.insert( (*next_iter)->get_next() );
                             }
                         }
                     }
