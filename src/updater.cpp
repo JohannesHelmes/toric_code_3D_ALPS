@@ -511,7 +511,7 @@ void interaction_wolff::update() {
                         cluster_members.push_back(*next_iter) ;
                         flip_adjacents(*next_iter);
                         visited_vertices.insert(*next_iter);
-                        if ( (*spit)->get_geometry() ==1) 
+                        if ( ( (*spit)->get_geometry() ==1) || ( (*next_iter)->get_boundary() ) )
                             visited_vertices.insert( (*next_iter)->get_next() );
                     }
                 }
@@ -527,13 +527,13 @@ void interaction_wolff::update() {
                         next_iter = (*spit)->get_dual_interaction_neighbors_begin(); //plaquettes groundstate (=interaction) => vertices = dual interaction
                         if ( ( (*next_iter) == other)  )
                             ++next_iter;
-                        if (visited_vertices.find(*next_iter) == visited_vertices.end() ) {
+                        if ( (visited_vertices.find(*next_iter) == visited_vertices.end() ) ) {
                             if ( (random_01() < (1 - expmB[2*weight] ) ) )  {
                                 cluster_members.push_back(*next_iter);
                                 flip_adjacents(*next_iter);
                                 visited_vertices.insert(*next_iter);
-                                if ( (*spit)->get_geometry() ==1) 
-                                    visited_vertices.insert( (*next_iter)->get_next() );
+                                //if ( (*spit)->get_geometry() ==1) 
+                                //    visited_vertices.insert( (*next_iter)->get_next() );
                             }
                         }
                     }

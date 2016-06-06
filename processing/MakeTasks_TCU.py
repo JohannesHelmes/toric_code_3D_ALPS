@@ -34,7 +34,7 @@ paramgroup.add_argument('--infile','-i', help='Prefix of .in.xml')
 paramgroup.add_argument('--geofile','-g', type=file, help='File containing the geometry of the increments')
 paramgroup.add_argument('--partsize','-p',default=1000, type=int,help='Size subsimulation partition for better distribution on HPC, default=1000')
 paramgroup.add_argument('--temper','-T',help='interpret beta as temperature',action='store_true')
-paramgroup.add_argument('--transversefield','-z',help='Set h=1 and h_z = tanh',action='store_true')
+paramgroup.add_argument('--transversefield','-z',help='Set h=1 and h_z = m',action='store_true')
 paramgroup.add_argument('--directory','-d',help='Directory of the parameter files, default= /scratch/helmes/simulations/"name of parent directory"/')
 
 args=parser.parse_args()
@@ -141,7 +141,8 @@ for i,IncEl in enumerate(Geometry):
             {
                 'LATTICE_LIBRARY' : "mylatticelib.xml",
                 'LATTICE'	: latticename[args.lattice],
-                'h'         : float(h),
+                'h'             : 0.1 if args.transversefield else float(h),
+                'hz'            : float(h),
                 'beta'		: 1./float(beta) if args.temper else float(beta),
                 'THERMALIZATION': args.therm,
                 'SWEEPS'	: args.sweeps,

@@ -23,7 +23,7 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
     n(static_cast<alps::uint32_t>(p.value_or_default("n",2))),      // Renyi index
     exc(static_cast<alps::uint32_t>(p.value_or_default("ExcType",4))),      // Type of underlying groundstate: 3(plaquettes) 4(vertices) 
     algo(static_cast<alps::uint32_t>(p.value_or_default("Algorithm",1))),      
-        // local updates (1),  deconfined updates (2), single-vertex-flips (3), non-isotropic single vertex flips (4), vertex_wolff (5)
+        // local updates (1),  deconfined updates (2), single-vertex-flips (3), non-isotropic single vertex flips (4), vertex_wolff (5), non-isotropic vertex wolff (6)
     measure(static_cast<alps::uint32_t>(p.value_or_default("Measurement",1))),      
         // thermodynamic int (1),  ensemble switching (2), thermodynamic int with h (3), full_energy for specific heat (4)
     Total_Steps(0),
@@ -54,9 +54,9 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
             if (site_type(*sit)<=2) {
                 if ((geom[*sit]!=1)||(i==0)) {
                     spin_ptr nspin;
-                    if ((algo==4)&&(site_type(*sit)==2)) {
+                    if (((algo==4)||(algo==6))&&(site_type(*sit)==2)) {
                         nspin = std::make_shared<spin_z>(geom[*sit],hz); //spin_z is child of spin
-                        cout<<" created z spin"<<endl;
+                        //cout<<" created z spin"<<endl;
                     }
                     else
                         nspin = std::make_shared<spin>(geom[*sit], site_type(*sit));
@@ -127,7 +127,7 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
     else if (algo==2) {
         update_object = std::make_shared<deconfined_vert>(seed, n, beta, spins, verts, NofD); 
     }
-    else if (algo == 3) {
+    else if ( (algo == 3) || (algo==4) ) {
         assert (measure == 3);
         for (auto s : spins)
             s->copy_neighbors_internally(exc) ;
@@ -137,7 +137,7 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
             update_object = std::make_shared<interaction_metropolis>(seed, n, h, spins, plaqs, NofD);  //metropolis on plaquettes  = vertex groundstate
         }
     }
-    else if (algo == 5) {
+    else if ( (algo == 5) || (algo==6) ) {
         assert (measure == 3);
         for (auto s : spins)
             s->copy_neighbors_internally(exc) ;

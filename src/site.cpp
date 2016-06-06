@@ -147,6 +147,6 @@ void interaction::flip_neighbors() {
 
 
 /******** Anisotropic interactions in vertices **********/
-spin_z::spin_z(short geo, double nJ): spin(geo, 2), J(nJ)  { }
+spin_z::spin_z(short geo, double nJ): spin(geo, 2), J(nJ)  {  }
 
 
