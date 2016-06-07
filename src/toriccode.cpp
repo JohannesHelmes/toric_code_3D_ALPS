@@ -15,6 +15,7 @@ using namespace boost;
 toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,int node) : alps::scheduler::LatticeMCRun<graph_type>(where,p,node), 
     seed(static_cast<alps::uint32_t>(p["SEED"])),      
     L(static_cast<alps::uint32_t>(p["L"])),      // Linear lattice size
+    W(static_cast<alps::uint32_t>(p["W"])),      // Linear lattice size in z direction
     Nb_Steps(static_cast<alps::uint64_t>(p["SWEEPS"])),    // # of simulation steps
     Nb_Therm_Steps(static_cast<alps::uint64_t>(p["THERMALIZATION"])),
     beta(static_cast<double>(p["beta"])),
@@ -35,16 +36,34 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
     geom.resize(numsites,0);
     sit=sites().first;
     if (n > 1) {  //replica trick only senseful for n>=2 
-        for (int i=0; i<IncStep.length(); ++i,++sit) {
-            if (sit==sites().second)
-                break;
-            while (site_type(*sit)>2)
-                ++sit;
-            if (sit==sites().second)
-                break;
-            geom[*sit]=(int)(IncStep[i]-'0');
+        if ( (algo == 4) || (algo == 6) ) {
+            for (int i=0; i<IncStep.length(); ++i) {
+                for (int w=0; w<W; ++w,++sit) {
+                    if (sit==sites().second)
+                        break;
+                    while (site_type(*sit)>2)
+                        ++sit;
+                    if (sit==sites().second) {
+                        cout<<"ERROR: Geometry information and lattice dont fit !!"<<endl;
+                        break;
+                    }
+                    geom[*sit]=(int)(IncStep[i]-'0');
+                }
+            }
+        }
+        else {
+            for (int i=0; i<IncStep.length(); ++i,++sit) {
+                if (sit==sites().second)
+                    break;
+                while (site_type(*sit)>2)
+                    ++sit;
+                if (sit==sites().second)
+                    break;
+                geom[*sit]=(int)(IncStep[i]-'0');
+            }
         }
     }
+    //cout<<"Achieved site no "<<*sit<<endl;
 
     map_lat_to_spin.resize(n*numsites);
     map_lat_to_plaq.resize(n*numsites);

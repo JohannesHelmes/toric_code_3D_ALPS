@@ -24,7 +24,6 @@ paramgroup.add_argument('--length','-l', type=int,help='Lattice length')
 paramgroup.add_argument('--width','-w', type=int,help='Lattice width (3rd dimension in 3D)')
 paramgroup.add_argument('--lattice','-a', type=int,help='Lattice type, (0 = toric code, 1 = toric code fcr, 2 = toric code 3D), default = 2',default=2)
 paramgroup.add_argument('--ExcType','-e', type=int,help='Type of Excitation, (3 = plaquette, 4 = vertex), default = 4',default=4,choices={3,4})
-#paramgroup.add_argument('--ratio','-r', type=float,help='Ration (0.0 .. 1.0) between single spin flips and dual many-body flips, default =1.0 (only single spin)',default=1.0)
 paramgroup.add_argument('--Algorithm','-A', type=int,help='Type of algorithm: local updates (1) [default], deconfined updates (2), vertex metropolis (3), vertex wolff (5)',default=1)
 paramgroup.add_argument('--Measurement','-M', type=int,help='Type of measurement: thermodynamic integration (energy) (1) [default], ensemble switching(2), thermodynamic integration (magnetization) (3)',default=1)
 
@@ -35,6 +34,7 @@ paramgroup.add_argument('--geofile','-g', type=file, help='File containing the g
 paramgroup.add_argument('--partsize','-p',default=1000, type=int,help='Size subsimulation partition for better distribution on HPC, default=1000')
 paramgroup.add_argument('--temper','-T',help='interpret beta as temperature',action='store_true')
 paramgroup.add_argument('--transversefield','-z',help='Set h=1 and h_z = m',action='store_true')
+paramgroup.add_argument('--DeltaTau', type=float,help='Trotter discretization dtau = beta/W')
 paramgroup.add_argument('--directory','-d',help='Directory of the parameter files, default= /scratch/helmes/simulations/"name of parent directory"/')
 
 args=parser.parse_args()
@@ -141,8 +141,8 @@ for i,IncEl in enumerate(Geometry):
             {
                 'LATTICE_LIBRARY' : "mylatticelib.xml",
                 'LATTICE'	: latticename[args.lattice],
-                'h'             : 0.1 if args.transversefield else float(h),
-                'hz'            : float(h),
+                'h'             : 0.5 * args.DeltaTau * float(h) if args.transversefield else float(h),
+                'hz'            : -0.5 * np.log( np.tanh( args.DeltaTau) ) ,
                 'beta'		: 1./float(beta) if args.temper else float(beta),
                 'THERMALIZATION': args.therm,
                 'SWEEPS'	: args.sweeps,

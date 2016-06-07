@@ -7,13 +7,14 @@ from IncMakerGuiTC3D import Ui_Dialog as Dlg
 
 class MeinDialog(QtGui.QDialog, Dlg): 
     L=0
+    W=0
     Coords=[]
     Lines=[]
     Geometry=[]
     CurrIncStep=0
     MaxIncStep=0
     CurrPlane=0
-    framesize=760
+    framesize=980
     mycolors=[QtGui.QColor(255,255,255),QtGui.QColor(0,0,255),QtGui.QColor(255,0,0),QtGui.QColor(0,255,0),QtGui.QColor(0,0,0)]
     diam=7
     RecentlyTouched=[]
@@ -34,6 +35,7 @@ class MeinDialog(QtGui.QDialog, Dlg):
         self.connect(self.CopyPlane,QtCore.SIGNAL("clicked()"),self.onCopyToNextPlane)
         self.connect(self.IncStepNo,QtCore.SIGNAL("valueChanged(int)"),self.NoLChange)
         self.connect(self.PlaneNo,QtCore.SIGNAL("valueChanged(int)"),self.PlaneChange)
+        self.connect(self.LValue,QtCore.SIGNAL("valueChanged(int)"),self.LtoW)
         self.Choose.clicked.connect(self.onChoose)
         self.pen = QtGui.QPen(QtGui.QColor(0,0,0))
         self.pen.setWidth(2)
@@ -54,6 +56,9 @@ class MeinDialog(QtGui.QDialog, Dlg):
         self.update()
         self.setFocus()
 
+    def LtoW(self): 
+        self.WValue.setValue(self.LValue.value() )
+
     def NoLChange(self):
         self.CurrIncStep=self.IncStepNo.value()
         self.changed=True
@@ -61,7 +66,7 @@ class MeinDialog(QtGui.QDialog, Dlg):
         self.setFocus()
 
     def onCopyToNextPlane(self):
-        if self.CurrPlane==self.L-1:
+        if self.CurrPlane==self.W-1:
             return
         incstep=self.CurrIncStep
         k=self.CurrPlane
@@ -74,7 +79,7 @@ class MeinDialog(QtGui.QDialog, Dlg):
         if self.CurrIncStep==self.MaxIncStep:
             self.MaxIncStep+=1
             self.IncStepNo.setRange(0,self.MaxIncStep)
-            self.Geometry.append(np.zeros((self.L,self.L,self.L,3),dtype=np.int8))
+            self.Geometry.append(np.zeros((self.W,self.L,self.L,3),dtype=np.int8))
         self.Geometry[self.CurrIncStep+1]=np.copy(self.Geometry[self.CurrIncStep])
         self.IncStepNo.setValue(self.CurrIncStep+1)
         self.NoLChange()
@@ -83,7 +88,7 @@ class MeinDialog(QtGui.QDialog, Dlg):
     def onSave(self):
         self.File=open(self.Filename.text(),'w')
         for s in range(self.MaxIncStep+1):
-            for k in range(self.L):
+            for k in range(self.W):
                 for j in range(self.L):
                     for i in range(self.L):
                         for l in range(3):
@@ -155,15 +160,16 @@ class MeinDialog(QtGui.QDialog, Dlg):
 
     def onCreate(self):
         self.L=self.LValue.value()
+        self.W=self.WValue.value()
         xmin=10
         ymin=10
         xsize=self.framesize
         ysize=self.framesize
         plaqsize=self.framesize/self.L
-        self.Geometry=[np.zeros((self.L,self.L,self.L,3),dtype=np.int8)]
+        self.Geometry=[np.zeros((self.W,self.L,self.L,3),dtype=np.int8)]
         self.Coords=[]
         self.RecentlyTouched=np.zeros((self.L,self.L,3))
-        self.PlaneNo.setRange(0,self.L-1)
+        self.PlaneNo.setRange(0,self.W-1)
         for j,y in enumerate(np.linspace(0,ysize,self.L+1)[:-1]):
             self.Coords.append([])
             for i,x in enumerate(np.linspace(0,xsize,self.L+1)[:-1]):
