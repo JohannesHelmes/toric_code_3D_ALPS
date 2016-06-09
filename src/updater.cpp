@@ -46,18 +46,21 @@ void single_spin_plaq::update() {
 
     //do_winding_update();
 
-    loop_weight = 0;
-    loop_set.clear();
-    first_spin = spins[random_int()];
-    orient = (random_int()%2 + first_spin->get_orientation() + 1) %3;
+    for (int j=0; j<16; ++j) {
+        loop_weight = 0;
+        loop_set.clear();
+        first_spin = spins[random_int()];
+        orient = (random_int()%2 + first_spin->get_orientation() + 1) %3;
 
-    ss_plaq_fill_loop(first_spin, loop_set, loop_weight);
-    //cout<<"Loop has "<<loop_set.size()<<" elements and weight "<<loop_weight<<" and orientation "<<first_spin->get_orientation()<<", "<<orient<<" and geom "<<first_spin->get_geometry()<<endl;
+        ss_plaq_fill_loop(first_spin, loop_set, loop_weight);
+        //cout<<"Loop has "<<loop_set.size()<<" elements and weight "<<loop_weight<<" and orientation "<<first_spin->get_orientation()<<", "<<orient<<" and geom "<<first_spin->get_geometry()<<endl;
 
-    if ((loop_weight>=0)||(random_01()<exp(2*beta*loop_weight))) {
-        for (auto l : loop_set)
-            l->flip_and_flip_plaqs();
-        NofExc -= 2*loop_weight;
+        if ((loop_weight>=0)||(random_01()<exp(2*beta*loop_weight))) {
+            for (auto l : loop_set) {
+                l->flip_and_flip_plaqs();
+            }
+            NofExc -= 2*loop_weight;
+        }
     }
 
 }
@@ -351,7 +354,11 @@ void interaction_metropolis::update() {
             runner = cand;
             do {
                 for (nb_spin_it = runner->get_neighbors_begin(); nb_spin_it!=runner->get_neighbors_end(); ++nb_spin_it) {
+                    cout<<(*nb_spin_it)->get_value()<<endl;
+                    cout<<(*nb_spin_it)->get_orientation()<<endl;
+                    //CHANGE THE CODE HERE : cand_weight must be real!!!!!!!!!!!!!!!!!!!!!!!!!!
                     cand_weight += (*nb_spin_it)->get_value();
+                    cout<<cand_weight<<endl;
                 }
                 runner = runner->get_next();
             } while (runner != cand);

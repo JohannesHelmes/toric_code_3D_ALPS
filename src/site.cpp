@@ -74,7 +74,7 @@ void site::flip() {
 
 
 /********  class spin  **************/
-spin::spin(short geo, short orientation): site(), geometry(geo), orientation(orientation)   { }
+spin::spin(short geo, short orientation, double weight): site(), geometry(geo), orientation(orientation), weight(weight)   { }
 
 void spin::add_neighbor(plaq_ptr nb) {
     plaq_ptr new_nb(nb);

@@ -74,7 +74,7 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
                 if ((geom[*sit]!=1)||(i==0)) {
                     spin_ptr nspin;
                     if (((algo==4)||(algo==6))&&(site_type(*sit)==2)) {
-                        nspin = std::make_shared<spin_z>(geom[*sit],hz); //spin_z is child of spin
+                        nspin = std::make_shared<spin>(geom[*sit],2,hz); //spin_z is child of spin
                         //cout<<" created z spin"<<endl;
                     }
                     else

@@ -49,7 +49,7 @@ protected:
     friend alps::IDump& operator>>(alps::IDump& dump, std::vector<inter_ptr>& sp);
 
 public:
-    int get_value() const { return value? 1 : -1 ; }
+    double get_value() const { return value? 1 : -1 ; }
     void flip();
     site();
 };
@@ -61,6 +61,7 @@ class spin : public site {
 private:
     int energy;
     const short geometry, orientation;
+    const double weight;
     std::vector<plaq_ptr> p_neighbors;  //ToDo : remove these two, work only with interaction_neighbors
     std::vector<vert_ptr> v_neighbors;
     std::vector<inter_ptr> interaction_neighbors;
@@ -70,7 +71,9 @@ private:
     vit_t vit;
 
 public:
-    spin(short geo, short orientation); // orientation : x = 0, y = 1, z = 2
+    spin(short geo, short orientation, double weight=1.0); // orientation : x = 0, y = 1, z = 2
+    double get_value() const { return value? weight : -weight ; }
+
     void add_neighbor(plaq_ptr nb);
     void add_neighbor(vert_ptr nb);
     void copy_neighbors_internally(short excitation); //not very elegant: copies p_neighbors to interaction_neigbors and v_neighbors to dual_... or vv
@@ -129,7 +132,7 @@ private:
     const double J;
 public:
     spin_z(short geo, double nJ);
-    int get_value() const  { return value? J : -J; }   //overwrites get_value() of site class
+    double get_value_z() const { std::cout<<"here "<<std::endl; return value? J : -J; }   //overwrites get_value() of site class
 };
 /*
 class vertex_xxz;
