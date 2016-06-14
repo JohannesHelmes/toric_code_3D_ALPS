@@ -73,12 +73,7 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
             if (site_type(*sit)<=2) {
                 if ((geom[*sit]!=1)||(i==0)) {
                     spin_ptr nspin;
-                    if (((algo==4)||(algo==6))&&(site_type(*sit)==2)) {
-                        nspin = std::make_shared<spin>(geom[*sit],2,hz); //spin_z is child of spin
-                        //cout<<" created z spin"<<endl;
-                    }
-                    else
-                        nspin = std::make_shared<spin>(geom[*sit], site_type(*sit));
+                    nspin = std::make_shared<spin>(geom[*sit], site_type(*sit));
                     spins.push_back(nspin);
                 }
                 else 
@@ -146,24 +141,24 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
     else if (algo==2) {
         update_object = std::make_shared<deconfined_vert>(seed, n, beta, spins, verts, NofD); 
     }
-    else if ( (algo == 3) || (algo==4) ) {
+    else if (algo == 3) {
         assert (measure == 3);
         for (auto s : spins)
             s->copy_neighbors_internally(exc) ;
         if (exc==3)
-            update_object = std::make_shared<interaction_metropolis>(seed, n, h, spins, verts, NofD);  //metropolis on vertices = plaquette groundstate
+            update_object = std::make_shared<interaction_metropolis>(seed, n, h, spins, verts, NofD, hz);  //metropolis on vertices = plaquette groundstate
         else if (exc==4) {
-            update_object = std::make_shared<interaction_metropolis>(seed, n, h, spins, plaqs, NofD);  //metropolis on plaquettes  = vertex groundstate
+            update_object = std::make_shared<interaction_metropolis>(seed, n, h, spins, plaqs, NofD, hz);  //metropolis on plaquettes  = vertex groundstate
         }
     }
-    else if ( (algo == 5) || (algo==6) ) {
+    else if (algo == 5)  {
         assert (measure == 3);
         for (auto s : spins)
             s->copy_neighbors_internally(exc) ;
         if (exc==3)
-            update_object = std::make_shared<interaction_wolff>(seed, n, h, spins, verts, NofD);  //metropolis on vertices = plaquette groundstate
+            update_object = std::make_shared<interaction_wolff>(seed, n, h, spins, verts, NofD, hz);  //metropolis on vertices = plaquette groundstate
         else if (exc==4) {
-            update_object = std::make_shared<interaction_wolff>(seed, n, h, spins, plaqs, NofD);  //metropolis on plaquettes  = vertex groundstate
+            update_object = std::make_shared<interaction_wolff>(seed, n, h, spins, plaqs, NofD, hz);  //metropolis on plaquettes  = vertex groundstate
         }
     }
 

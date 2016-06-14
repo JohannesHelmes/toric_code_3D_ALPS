@@ -6,9 +6,10 @@ using namespace std;
 
 
 /********** base class updater **************/
-updater::updater(int seed, int reps, double beta, std::vector<spin_ptr>& s) : 
+updater::updater(int seed, int reps, double K, std::vector<spin_ptr>& s, double Kz=-8.0) : 
         spins(s),
-        beta(beta),
+        K(K),
+        Kz(Kz == -8.0 ? Kz : K),
         N(spins.size()),
         mtwister(seed), //change this!!!
         int_dist(0,N-1),
@@ -16,10 +17,47 @@ updater::updater(int seed, int reps, double beta, std::vector<spin_ptr>& s) :
         random_int(mtwister, int_dist),
         random_01(mtwister, real_dist)
 {
-    expmB.resize(24*reps+1);
-    expmB[0]=1.0;
-    for (int i=1; i<=24*reps; ++i) 
-        expmB[i]=std::exp(-1.*i*beta);
+    expmK.resize(24*reps+1);
+    expmK[0]=1.0;
+    expmKz.resize(24*reps+1);
+    expmKz[0]=1.0;
+    for (int i=1; i<=24*reps; ++i)  {
+        expmK[i]=std::exp(-1.*i*K);
+        expmKz[i]=std::exp(-1.*i*Kz);
+    }
+}
+
+double updater::get_weight_from_spin(spin_ptr s) { // returns exp(- Delta E)
+    if ( s->get_orientation()==2 ) {
+        if (s->get_geometry() == 1) {
+            if (s->get_value() == 1) {
+                return 1./expmKz[4];
+            }
+            else 
+                return expmKz[4];
+        }
+        else
+            if (s->get_value() == 1) {
+                return 1./expmKz[2];
+            }
+            else 
+                return expmKz[2];
+    }
+    else {
+        if (s->get_geometry() == 1) {
+            if (s->get_value() == 1) {
+                return 1./expmK[4];
+            }
+            else 
+                return expmK[4];
+        }
+        else
+            if (s->get_value() == 1) {
+                return 1./expmK[2];
+            }
+            else 
+                return expmK[2];
+    }
 }
     
 /********** class single_spin_plaq **************/
@@ -38,7 +76,7 @@ void single_spin_plaq::update() {
         candidate=spins[random_int()];
         cand_weight = candidate->get_weight_from_plaqs(); 
 
-        if ((cand_weight>=0)||(random_01()<expmB[-2*cand_weight])) {
+        if ((cand_weight>=0)||(random_01()<expmK[-2*cand_weight])) {
             NofExc -= 2*cand_weight; //is the old weight
             candidate->flip_and_flip_plaqs();
         }
@@ -55,7 +93,7 @@ void single_spin_plaq::update() {
         ss_plaq_fill_loop(first_spin, loop_set, loop_weight);
         //cout<<"Loop has "<<loop_set.size()<<" elements and weight "<<loop_weight<<" and orientation "<<first_spin->get_orientation()<<", "<<orient<<" and geom "<<first_spin->get_geometry()<<endl;
 
-        if ((loop_weight>=0)||(random_01()<exp(2*beta*loop_weight))) {
+        if ((loop_weight>=0)||(random_01()<exp(2*K*loop_weight))) {
             for (auto l : loop_set) {
                 l->flip_and_flip_plaqs();
             }
@@ -111,7 +149,7 @@ void single_spin_vert::update() {
         candidate=spins[random_int()];
         cand_weight = candidate->get_weight_from_verts();
 
-        if ((cand_weight>=0)||(random_01()<expmB[-2*cand_weight])) {
+        if ((cand_weight>=0)||(random_01()<expmK[-2*cand_weight])) {
             NofExc -= 2*cand_weight; //is the old weight
             candidate->flip_and_flip_verts();
         }
@@ -237,7 +275,7 @@ void deconfined_vert::update() {
 
 void deconfined_vert::try_flip(inter_ptr& v1, inter_ptr& v2, int& NofD) {
     cand_weight = v1->get_value() + v2->get_value() ;
-    if ((cand_weight>=0)||(random_01()<expmB[-2*cand_weight])) {
+    if ((cand_weight>=0)||(random_01()<expmK[-2*cand_weight])) {
         NofD -= 2*cand_weight; 
         v1->flip();
         v2->flip();
@@ -246,7 +284,7 @@ void deconfined_vert::try_flip(inter_ptr& v1, inter_ptr& v2, int& NofD) {
 
 void deconfined_vert::try_flip(inter_ptr& v1, inter_ptr& v2, inter_ptr& v3, inter_ptr& v4, int& NofD) {
     cand_weight = v1->get_value() + v2->get_value() + v3->get_value() + v4->get_value();
-    if ((cand_weight>=0)||(random_01()<expmB[-2*cand_weight])) {
+    if ((cand_weight>=0)||(random_01()<expmK[-2*cand_weight])) {
         NofD -= 2*cand_weight; 
         v1->flip();
         v2->flip();
@@ -258,38 +296,37 @@ void deconfined_vert::try_flip(inter_ptr& v1, inter_ptr& v2, inter_ptr& v3, inte
 
 /********** abstract class winding_updater  **************/
 
-winding_updater::winding_updater(int seed, int reps, double beta, double h, std::vector<spin_ptr>& s, int& total_observable) :
-        updater(seed, reps, beta, s),
-        h(h),
+winding_updater::winding_updater(int seed, int reps, double K, std::vector<spin_ptr>& s, int& total_observable, double Kz=-8.0) :
+        updater(seed, reps, K, s, Kz),
         TObs(total_observable),
         dual(dual)
 {
     TObs = -spins.size();
-    cout<<"Winding updater initialized, h = "<<h<<endl;
+    cout<<"Winding updater initialized, K = "<<K<<", Kz = "<<Kz<<endl;
 }
 
 void winding_updater::do_winding_update() {
-    loop_weight = 0;
+    loop_weight = 1.0;
+    delta = 0;
     loop_set.clear();
     first_spin = spins[random_int()];
 
 
     fill_loop(first_spin, loop_set, loop_weight);
-    //cout<<"Loop has "<<loop_set.size()<<" elements and weight "<<loop_weight<<" and orientation "<<first_spin->get_orientation()<<endl;
 
-    if ((loop_weight>=0)||(random_01()<exp(2*h*loop_weight))) {
+    if ((loop_weight>=1)||(random_01()<loop_weight)) {
+        //cout<<"Loop has "<<loop_set.size()<<" elements, delta="<<delta<<" and weight "<<loop_weight<<" and orientation "<<first_spin->get_orientation()<<endl;
         for (auto l : loop_set)
             l->flip();
-        TObs -= 2*loop_weight;
+        TObs -= 2*delta;
     }
 }
 
-void winding_updater::fill_loop(spin_ptr spin, std::unordered_set<spin_ptr, std::my_hash>& l_set, int& weight) {
+void winding_updater::fill_loop(spin_ptr spin, std::unordered_set<spin_ptr, std::my_hash>& l_set, double& weight) {
     if (l_set.find(spin) == l_set.end() ) {
         l_set.insert(spin);
-        weight += spin->get_value();
-        if (spin->get_geometry()==1)
-            weight += spin->get_value();
+        weight *= get_weight_from_spin(spin);
+        delta += ( spin->get_geometry()==1) ? 2*spin->get_value() : spin->get_value() ;
 
         for (const_iit_t loop_iit = spin->get_interaction_neighbors_begin(); loop_iit != spin->get_interaction_neighbors_end(); ++loop_iit) {
             for (const_spit_t loop_sit = (*loop_iit)->get_neighbors_begin(); loop_sit != (*loop_iit)->get_neighbors_end(); ++loop_sit ) {
@@ -308,8 +345,8 @@ void winding_updater::fill_loop(spin_ptr spin, std::unordered_set<spin_ptr, std:
 /*                                                     */
 /*******************************************************/
 
-interaction_metropolis::interaction_metropolis(int seed, int reps, double h, std::vector<spin_ptr>& s, std::vector<inter_ptr>& ia, int& total_magn) :
-        winding_updater(seed, reps, h, h, s, total_magn),
+interaction_metropolis::interaction_metropolis(int seed, int reps, double h, std::vector<spin_ptr>& s, std::vector<inter_ptr>& ia, int& total_magn, double hz) :
+        winding_updater(seed, reps, h, s, total_magn, hz),
         interactions(ia),
         N_interactions(ia.size()),
         TMagn(total_magn),
@@ -340,7 +377,7 @@ interaction_metropolis::interaction_metropolis(int seed, int reps, double h, std
             (*iit)->set_boundary ( false );
         }
     }
-    cout<<"Vertex metropolis initialized, vertices "<<N_interactions<<", magnetization "<<h<<endl;
+    cout<<"Vertex metropolis initialized, vertices "<<N_interactions<<", magnetization "<<h<<", magn_z "<<hz<<endl;
 
 }
 
@@ -348,22 +385,24 @@ void interaction_metropolis::update() {
     for (int j=0; j<N_interactions; ++j) {
         cand = interactions[random_interaction()];
         nb_spin_it= cand->get_neighbors_begin();
-        cand_weight = 0;
-        if ((cand->get_boundary()== true)||((*nb_spin_it)->get_geometry()==1)) { //the second option is for the case, that cand is completely in A
+        cand_weight = 1.0;
+        delta_magn = 0;
+        if ((cand->get_boundary()== true)) { //the second option is for the case, that cand is completely in A
             //in other replicas, too
-            runner = cand;
-            do {
-                for (nb_spin_it = runner->get_neighbors_begin(); nb_spin_it!=runner->get_neighbors_end(); ++nb_spin_it) {
-                    cout<<(*nb_spin_it)->get_value()<<endl;
-                    cout<<(*nb_spin_it)->get_orientation()<<endl;
-                    //CHANGE THE CODE HERE : cand_weight must be real!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    cand_weight += (*nb_spin_it)->get_value();
-                    cout<<cand_weight<<endl;
+            runner = cand->get_next();
+            for (nb_spin_it = cand->get_neighbors_begin(); nb_spin_it!=cand->get_neighbors_end(); ++nb_spin_it) {
+                cand_weight *= get_weight_from_spin(*nb_spin_it);
+                delta_magn += ( (*nb_spin_it)->get_geometry()==1 )? 2*(*nb_spin_it)->get_value() : (*nb_spin_it)->get_value();
+            }
+            for (nb_spin_it = runner->get_neighbors_begin(); nb_spin_it!=runner->get_neighbors_end(); ++nb_spin_it) {
+                if ( (*nb_spin_it)->get_geometry() != 1) {
+                    cand_weight *= get_weight_from_spin(*nb_spin_it);
+                    delta_magn += (*nb_spin_it)->get_value();
                 }
-                runner = runner->get_next();
-            } while (runner != cand);
+            }
             
-            if ((cand_weight>=0)||(random_01()<expmB[-2*cand_weight])) {
+            //cout<<delta_magn<<" -> "<<cand_weight<<endl;
+            if ((cand_weight>=1)||(random_01()<cand_weight) ) {
                 cand->flip_neighbors();
                 runner = cand->get_next();
                 while (runner != cand) { 
@@ -375,18 +414,20 @@ void interaction_metropolis::update() {
                     }
                     runner = runner->get_next();
                 }
-                TMagn -= 2*cand_weight; 
+                TMagn -= 2*delta_magn; 
             }
 
         }
         else {
             for (nb_spin_it; nb_spin_it!=cand->get_neighbors_end(); ++nb_spin_it) {
-                cand_weight += (*nb_spin_it)->get_value();
+                cand_weight *= get_weight_from_spin(*nb_spin_it);
+                delta_magn += ( (*nb_spin_it)->get_geometry()==1 )? 2*(*nb_spin_it)->get_value() : (*nb_spin_it)->get_value();
             }
 
-            if ((cand_weight>=0)||(random_01()<expmB[-2*cand_weight])) {
+            //cout<<delta_magn<<" -> "<<cand_weight<<endl;
+            if ((cand_weight>=1)||(random_01()<cand_weight)) {
                 cand->flip_neighbors();
-                TMagn -= 2*cand_weight; 
+                TMagn -= 2*delta_magn; 
             }
         }
 
@@ -402,20 +443,6 @@ void interaction_metropolis::update() {
     do_winding_update();
 
 
-    // Try a single winding loop update
-    //loop_weight = 0;
-    //loop_set.clear();
-    //first_spin = spins[random_int()];
-
-
-    //fill_loop(first_spin, loop_set, loop_weight);
-    ////cout<<"Loop has "<<loop_set.size()<<" elements and weight "<<loop_weight<<" and orientation "<<first_spin->get_orientation()<<endl;
-
-    //if ((loop_weight>=0)||(random_01()<exp(2*beta*loop_weight))) {
-    //    for (auto l : loop_set)
-    //        l->flip();
-    //    TMagn -= 2*loop_weight;
-    //}
 }
 
 
@@ -425,8 +452,8 @@ void interaction_metropolis::update() {
 /*                                                     */
 /*******************************************************/
 
-interaction_wolff::interaction_wolff(int seed, int reps, double h, std::vector<spin_ptr>& s, std::vector<inter_ptr>& ia, int& total_magn) :
-        winding_updater(seed, reps, h, h, s, total_magn),
+interaction_wolff::interaction_wolff(int seed, int reps, double h, std::vector<spin_ptr>& s, std::vector<inter_ptr>& ia, int& total_magn, double hz) :
+        winding_updater(seed, reps, h, s, total_magn, hz),
         interactions(ia),
         N_interactions(ia.size()),
         TMagn(total_magn),
@@ -505,7 +532,9 @@ void interaction_wolff::update() {
 
         //do the recursion
         for (spit = at_inter->get_neighbors_begin(); spit != at_inter->get_neighbors_end(); ++spit) {
-            weight = (*spit)->get_geometry() == 1 ? 2*(*spit)->get_value() : (*spit)->get_value();
+            //weight = (*spit)->get_geometry() == 1 ? 2*(*spit)->get_value() : (*spit)->get_value();
+            weight = 1.-get_weight_from_spin(*spit);
+
             if ( weight > 0  ) {
                 next_iter = (*spit)->get_dual_interaction_neighbors_begin();
                 while ( ( (*next_iter) == at_inter) || ( (*next_iter) == at_inter->get_next() ) ) {
@@ -514,7 +543,7 @@ void interaction_wolff::update() {
 
                 //next_iter may or may not be the neighbor in the other replica 
                 if (visited_vertices.find(*next_iter) == visited_vertices.end() ) {
-                    if (random_01() < (1 - expmB[2*weight] ) ) {
+                    if (random_01() < weight ) {
                         cluster_members.push_back(*next_iter) ;
                         flip_adjacents(*next_iter);
                         visited_vertices.insert(*next_iter);
@@ -529,13 +558,14 @@ void interaction_wolff::update() {
             other = at_inter->get_next();
             for (spit = other->get_neighbors_begin(); spit != other->get_neighbors_end(); ++spit) {
                 if ( (*spit)->get_geometry() != 1) {
-                    weight = (*spit)->get_value();
+                    weight = 1.-get_weight_from_spin(*spit);
+                    //weight = (*spit)->get_value();
                     if ( weight > 0 ) {
                         next_iter = (*spit)->get_dual_interaction_neighbors_begin(); //plaquettes groundstate (=interaction) => vertices = dual interaction
                         if ( ( (*next_iter) == other)  )
                             ++next_iter;
                         if ( (visited_vertices.find(*next_iter) == visited_vertices.end() ) ) {
-                            if ( (random_01() < (1 - expmB[2*weight] ) ) )  {
+                            if ( (random_01() <  weight ) )  {
                                 cluster_members.push_back(*next_iter);
                                 flip_adjacents(*next_iter);
                                 visited_vertices.insert(*next_iter);

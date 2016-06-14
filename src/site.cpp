@@ -74,7 +74,7 @@ void site::flip() {
 
 
 /********  class spin  **************/
-spin::spin(short geo, short orientation, double weight): site(), geometry(geo), orientation(orientation), weight(weight)   { }
+spin::spin(short geo, short orientation): site(), geometry(geo), orientation(orientation)  { }
 
 void spin::add_neighbor(plaq_ptr nb) {
     plaq_ptr new_nb(nb);
@@ -144,9 +144,5 @@ void interaction::flip_neighbors() {
     for (spit = neighbors.begin(); spit!=neighbors.end(); ++spit)
         (*spit)->flip();
 }
-
-
-/******** Anisotropic interactions in vertices **********/
-spin_z::spin_z(short geo, double nJ): spin(geo, 2), J(nJ)  {  }
 
 

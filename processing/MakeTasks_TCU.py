@@ -142,7 +142,7 @@ for i,IncEl in enumerate(Geometry):
                 'LATTICE_LIBRARY' : "mylatticelib.xml",
                 'LATTICE'	: latticename[args.lattice],
                 'h'             : 0.5 * args.DeltaTau * float(h) if args.transversefield else float(h),
-                'hz'            : -0.5 * np.log( np.tanh( args.DeltaTau) ) if args.transversefield else 1.0,
+                'hz'            : -0.5 * np.log( np.tanh( args.DeltaTau) ) if args.transversefield else float(h),
                 'beta'		: 1./float(beta) if args.temper else float(beta),
                 'THERMALIZATION': args.therm,
                 'SWEEPS'	: args.sweeps,

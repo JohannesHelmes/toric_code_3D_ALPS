@@ -26,38 +26,41 @@ namespace std {
 
 class updater {
 public:
-    updater(int seed, int reps, double beta, std::vector<spin_ptr>& s);
+    updater(int seed, int reps, double K, std::vector<spin_ptr>& s, double Kz);
     virtual void update()=0;
 protected:
     
     //The order of these declaration is crucial because of dependencies in the initialization list!
     std::vector<spin_ptr> spins;
     const int N;
-    const double beta;
+    const double K, Kz;
     mt_rng mtwister;
     boost::uniform_01<> real_dist;
     boost::variate_generator<mt_rng&, boost::uniform_01<> > random_01;
-    std::vector<double> expmB;
+    std::vector<double> expmK, expmKz;
     boost::multi_array<short, 4> option_dict{boost::extents[3][2][3][2]};
 
     boost::random::uniform_int_distribution<> int_dist;
     boost::variate_generator<mt_rng&, boost::random::uniform_int_distribution<> > random_int;
+
+    double get_weight_from_spin(spin_ptr s);
 };
 
 class winding_updater : public updater {         // abstract class which provides the global sector switching (update() is still not implemented)
 public:
-    winding_updater(int seed, int reps, double beta, double h, std::vector<spin_ptr>& s, int& total_observable);
+    winding_updater(int seed, int reps, double K, std::vector<spin_ptr>& s, int& total_observable, double Kz);
 protected:
+    double h;
     void do_winding_update();
-    void fill_loop(spin_ptr spin, std::unordered_set<spin_ptr, std::my_hash>& l_set, int& weight);
+    void fill_loop(spin_ptr spin, std::unordered_set<spin_ptr, std::my_hash>& l_set, double& weight);
 
 private:
     int &TObs;
-    double h;
     bool dual;
 
     spin_ptr first_spin;
-    int loop_weight;
+    double loop_weight;
+    int delta;
     std::unordered_set<spin_ptr, std::my_hash> loop_set;
 };
 
@@ -68,7 +71,8 @@ public:
     void update();
 private:
     int dummy_magn=0;
-    int cand_weight, orient;
+    double cand_weight;
+    int orient;
     std::vector<inter_ptr> plaqs;
     spin_ptr candidate;
     int &NofExc;
@@ -117,7 +121,7 @@ private:
 
 class interaction_metropolis : public winding_updater {
 public:
-    interaction_metropolis(int seed, int reps, double h, std::vector<spin_ptr>& s, std::vector<inter_ptr>& ia, int& total_magn);  //single vertex update for plaquette Hamiltonian
+    interaction_metropolis(int seed, int reps, double h, std::vector<spin_ptr>& s, std::vector<inter_ptr>& ia, int& total_magn, double hz=-8.0);  //single vertex update for plaquette Hamiltonian
     void update();
 private:
     std::vector<inter_ptr> interactions;
@@ -126,7 +130,8 @@ private:
     boost::variate_generator<mt_rng&, boost::random::uniform_int_distribution<> > random_interaction;
     int &TMagn;
 
-    int cand_weight;
+    double cand_weight;
+    int delta_magn;
     inter_ptr cand, runner;
     spit_t nb_spin_it;
 };
@@ -134,7 +139,7 @@ private:
 
 class interaction_wolff : public winding_updater {
 public:
-    interaction_wolff(int seed, int reps, double h, std::vector<spin_ptr>& s, std::vector<inter_ptr>& ia, int& total_magn);  //single vertex update for plaquette Hamiltonian
+    interaction_wolff(int seed, int reps, double h, std::vector<spin_ptr>& s, std::vector<inter_ptr>& ia, int& total_magn, double hz=-8.0);  //single vertex update for plaquette Hamiltonian
     void update();
 private:
     std::vector<inter_ptr> interactions;
