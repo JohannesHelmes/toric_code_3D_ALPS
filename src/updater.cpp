@@ -533,7 +533,7 @@ void interaction_wolff::update() {
         //do the recursion
         for (spit = at_inter->get_neighbors_begin(); spit != at_inter->get_neighbors_end(); ++spit) {
             //weight = (*spit)->get_geometry() == 1 ? 2*(*spit)->get_value() : (*spit)->get_value();
-            weight = 1.-get_weight_from_spin(*spit);
+            weight = 1.-1./get_weight_from_spin(*spit);
 
             if ( weight > 0  ) {
                 next_iter = (*spit)->get_dual_interaction_neighbors_begin();
@@ -558,7 +558,7 @@ void interaction_wolff::update() {
             other = at_inter->get_next();
             for (spit = other->get_neighbors_begin(); spit != other->get_neighbors_end(); ++spit) {
                 if ( (*spit)->get_geometry() != 1) {
-                    weight = 1.-get_weight_from_spin(*spit);
+                    weight = 1.-1./get_weight_from_spin(*spit);
                     //weight = (*spit)->get_value();
                     if ( weight > 0 ) {
                         next_iter = (*spit)->get_dual_interaction_neighbors_begin(); //plaquettes groundstate (=interaction) => vertices = dual interaction
