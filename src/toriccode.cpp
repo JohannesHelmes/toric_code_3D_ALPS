@@ -81,12 +81,12 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
 
                 map_lat_to_spin[*sit + i*numsites]=spins.size()-1;
             }
-            else if (site_type(*sit)==3) {
+            else if (site_type(*sit)<=5) {
                 plaq_ptr nplaq = std::make_shared<plaquette>();
                 plaqs.push_back(nplaq);
                 map_lat_to_plaq[*sit + i*numsites]=plaqs.size()-1;
             }
-            else if (site_type(*sit)==4) {
+            else if (site_type(*sit)==6) {
                 vert_ptr nver = std::make_shared<vertexx>();
                 verts.push_back(nver);
                 map_lat_to_vert[*sit + i*numsites]=verts.size()-1;
@@ -100,15 +100,18 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
         for (sit=sites().first; sit!=sites().second; ++sit) {
             if (site_type(*sit)<=2) {
                 spins[map_lat_to_spin[*sit + i*numsites]]->set_ninr(spins[map_lat_to_spin[*sit + ((i+1)%n)*numsites]] );
+                
+                //spins[map_lat_to_spin[(*sit + 1)%L + i*numsites]]->set_ninr(spins[map_lat_to_spin[*sit + ((i+1)%n)*numsites]] );
+
                 //cout<<"Geom "<<geom[*sit]<<", will be a pointer to itself "<< ( spins[map_lat_to_spin[*sit + i*numsites]] == spins[map_lat_to_spin[*sit + ((i+1)%n)*numsites]] ) <<endl;
 
                 for (nit=neighbors(*sit).first; nit!=neighbors(*sit).second; ++nit) {
-                    if (site_type(*nit)==3) { 
+                    if (site_type(*nit)<=5) { 
                         spins[map_lat_to_spin[*sit + i*numsites]]->add_neighbor(static_pointer_cast<plaquette>(plaqs[map_lat_to_plaq[*nit + i*numsites]]));
                         plaqs[map_lat_to_plaq[*nit + i*numsites]]->add_neighbor(spins[map_lat_to_spin[*sit + i*numsites]]);
                         plaqs[map_lat_to_plaq[*nit + i*numsites]]->set_ninr(plaqs[map_lat_to_plaq[*nit + ((i+1)%n)*numsites]] );
                     }
-                    if (site_type(*nit)==4) { 
+                    if (site_type(*nit)==6) { 
                         spins[map_lat_to_spin[*sit + i*numsites]]->add_neighbor(static_pointer_cast<vertexx>(verts[map_lat_to_vert[*nit + i*numsites]]));
                         verts[map_lat_to_vert[*nit + i*numsites]]->add_neighbor(spins[map_lat_to_spin[*sit + i*numsites]]);
                         verts[map_lat_to_vert[*nit + i*numsites]]->set_ninr(verts[map_lat_to_vert[*nit + ((i+1)%n)*numsites]] );
@@ -116,6 +119,9 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
                     }
                 }
             }
+            //set all lattice neighbors
+            //TODO!!
+
         }
     }
     cout<<"created all neighbors "<<n*numsites<<endl;
@@ -141,7 +147,7 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
     else if (algo==2) {
         update_object = std::make_shared<deconfined_vert>(seed, n, beta, spins, verts, NofD); 
     }
-    else if (algo == 3) {
+    else if ( (algo == 3) || (algo == 4) ) {
         assert (measure == 3);
         for (auto s : spins)
             s->copy_neighbors_internally(exc) ;
@@ -151,7 +157,7 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
             update_object = std::make_shared<interaction_metropolis>(seed, n, h, spins, plaqs, NofD, hz);  //metropolis on plaquettes  = vertex groundstate
         }
     }
-    else if (algo == 5)  {
+    else if ( (algo == 5) || (algo == 6) ) {
         assert (measure == 3);
         for (auto s : spins)
             s->copy_neighbors_internally(exc) ;

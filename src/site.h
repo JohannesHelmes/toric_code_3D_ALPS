@@ -42,6 +42,7 @@ alps::IDump& operator>>(alps::IDump& dump, std::vector<inter_ptr>& sp);
 class site {
 protected:
     bool value;
+    const short orientation;
     void set_value(bool newvalue){ value = newvalue; }
     friend alps::IDump& operator>>(alps::IDump& dump, std::vector<spin_ptr>& sp);
     friend alps::IDump& operator>>(alps::IDump& dump, std::vector<plaq_ptr>& sp);
@@ -50,8 +51,9 @@ protected:
 
 public:
     double get_value() const { return value? 1 : -1 ; }
+    int get_orientation() const { return orientation; }
     void flip();
-    site();
+    site(short orientation);
 };
 
 
@@ -60,7 +62,7 @@ class spin : public site {
     
 private:
     int energy;
-    const short geometry, orientation;
+    const short geometry;
     std::vector<plaq_ptr> p_neighbors;  //ToDo : remove these two, work only with interaction_neighbors
     std::vector<vert_ptr> v_neighbors;
     std::vector<inter_ptr> interaction_neighbors;
@@ -82,8 +84,8 @@ public:
     int get_weight_from_plaqs(); 
     int get_weight_from_verts(); 
     int get_geometry() const { return geometry; }
-    int get_orientation() const { return orientation; }
     spin_ptr get_next() {return neighbor_in_next_replica; }
+    spin_ptr move(short direction); //0 = x direction, 1 = y direction, 2 = z direction
 
     const_iit_t get_interaction_neighbors_begin() const {return interaction_neighbors.begin(); }
     const_iit_t get_interaction_neighbors_end() const {return interaction_neighbors.end(); }
@@ -95,7 +97,7 @@ public:
 /*************************  INTERACTIONS (many body terms)   *******************/
 class interaction : public site { // plaquette or vertex
 public:
-    interaction();
+    interaction(short orientation=6);
     void add_neighbor(spin_ptr nb);
     void flip_neighbors();
     void add_label(int nlabel) {label = nlabel; }
@@ -103,7 +105,9 @@ public:
     void set_boundary(bool nbound) {boundary = nbound; }
     bool get_boundary() { return boundary; }
     void set_ninr(inter_ptr nv) {neighbor_in_next_replica = nv; }
+    void set_nindir(inter_ptr nv, short dir) {lattice_neighbor_in_dir[dir] = nv; } //sets neighbor in x,y, or z direction
     inter_ptr get_next() {return neighbor_in_next_replica; }
+    inter_ptr move(short direction); //0 = x direction, 1 = y direction, 2 = z direction
 
     const_spit_t get_neighbors_begin() const {return neighbors.begin(); }
     const_spit_t get_neighbors_end() const {return neighbors.end(); }
@@ -115,6 +119,7 @@ protected:
     int label;
     bool boundary;
     inter_ptr neighbor_in_next_replica;
+    std::vector<inter_ptr> lattice_neighbor_in_dir;
 
     friend void spin::flip_and_flip_plaqs();
     friend void spin::flip_and_flip_verts();
@@ -124,32 +129,4 @@ protected:
 class plaquette : public interaction { using interaction::interaction; }; //inherit constructor
 class vertexx : public interaction { using interaction::interaction; };
 
-
-/*
-class vertex_xxz;
-typedef std::shared_ptr<vertex_xxz> vertxxz_ptr;
-typedef std::vector<vertxxz_ptr>::iterator vxxzit_t;
-
-class vertex_xxz : public site { 
-public:
-    vertex_xxz();
-    void add_neighbor(spin_ptr nb, bool z_neighbor);
-    void flip_neighbors();
-    void add_label(int nlabel) {label = nlabel; }
-    int get_label() { return label; }
-    void set_boundary(bool nbound) {boundary = nbound; }
-    bool get_boundary() { return boundary; }
-
-    spit_t get_neighbors_xy_begin() {return neighbors_xy.begin(); }
-    spit_t get_neighbors_xy_end() {return neighbors_xy.end(); }
-protected:
-    std::vector<spin_ptr> neighbors_xy, neighbors_z;
-    spit_t spit;
-    int label;
-    bool boundary;
-
-    friend void spin::flip_and_flip_plaqs();
-    friend void spin::flip_and_flip_verts();
-};
-*/
 #endif  /* SITE_H */
