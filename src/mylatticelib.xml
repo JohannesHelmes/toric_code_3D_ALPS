@@ -296,15 +296,14 @@
 </UNITCELL>
 
 <UNITCELL name="toric code 3D" dimension="3">
-  <VERTEX type="6"/> <!--vertex --!>
-  <VERTEX type="5"/> <!--plaquette yz--!>
-  <VERTEX type="4"/> <!--plaquette xz--!>
-  <VERTEX type="3"/> <!--plaquette xy--!>
-  <VERTEX type="2"/> <!--spin z --!>
-  <VERTEX type="1"/> <!--spin y --!>
-  <VERTEX type="0"/> <!--spin x --!>
-
-  <VERTEX type="7"/> <!--cube --!>
+    <VERTEX type="6"/> 
+    <VERTEX type="5"/> 
+    <VERTEX type="4"/> 
+    <VERTEX type="3"/> 
+    <VERTEX type="2"/> 
+    <VERTEX type="1"/> 
+    <VERTEX type="0"/> 
+    <VERTEX type="7"/> 
 
   <EDGE><SOURCE vertex="1"/><TARGET vertex="5"/></EDGE>
   <EDGE><SOURCE vertex="1"/><TARGET vertex="6"/></EDGE>
