@@ -300,9 +300,9 @@
     <VERTEX type="5"/> 
     <VERTEX type="4"/> 
     <VERTEX type="3"/> 
-    <VERTEX type="2"/> 
-    <VERTEX type="1"/> 
     <VERTEX type="0"/> 
+    <VERTEX type="1"/> 
+    <VERTEX type="2"/> 
     <VERTEX type="7"/> 
 
   <EDGE><SOURCE vertex="1"/><TARGET vertex="5"/></EDGE>
@@ -426,9 +426,9 @@
   <FINITELATTICE>
     <LATTICE ref="simple cubic lattice"/>
     <PARAMETER name="W" default="L"/>
-    <EXTENT dimension="1" size="L"/>
+    <EXTENT dimension="1" size="W"/>
     <EXTENT dimension="2" size="L"/>
-    <EXTENT dimension="3" size="W"/>
+    <EXTENT dimension="3" size="L"/>
     <BOUNDARY type="periodic"/>
   </FINITELATTICE>
   <UNITCELL ref="toric code 3D"/>

@@ -55,6 +55,7 @@ protected :
         return std::find((*d).begin(),(*d).end(),item);
     };
 
+    void print_information() ;
 
 };
 

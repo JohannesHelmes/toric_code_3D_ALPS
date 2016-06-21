@@ -66,7 +66,7 @@ alps::IDump& operator>>(alps::IDump& dump, std::vector<vert_ptr>& vt) {
 
 
 /*******  base class site  ***********/
-site::site(short orientation) : value(false), orientation(orientation) { }
+site::site(int name, short orientation) : value(false), name(name), orientation(orientation) { }
 
 void site::flip() {
     value=!value;
@@ -74,7 +74,7 @@ void site::flip() {
 
 
 /********  class spin  **************/
-spin::spin(short geo, short orientation): site(orientation), geometry(geo)   { }
+spin::spin(int name, short geo, short orientation): site(name, orientation), geometry(geo)   { }
 
 void spin::add_neighbor(plaq_ptr nb) {
     plaq_ptr new_nb(nb);
@@ -133,7 +133,7 @@ int spin::get_weight_from_verts() {
 
 
 /********** class interaction *********/
-interaction::interaction(short orientation): site(orientation) { 
+interaction::interaction(int name, short orientation): site(name,orientation) { 
     lattice_neighbor_in_dir.resize(3);
 }
 
@@ -147,5 +147,4 @@ void interaction::flip_neighbors() {
     for (spit = neighbors.begin(); spit!=neighbors.end(); ++spit)
         (*spit)->flip();
 }
-
 

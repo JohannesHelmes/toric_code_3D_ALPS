@@ -43,6 +43,7 @@ class site {
 protected:
     bool value;
     const short orientation;
+    const int name;
     void set_value(bool newvalue){ value = newvalue; }
     friend alps::IDump& operator>>(alps::IDump& dump, std::vector<spin_ptr>& sp);
     friend alps::IDump& operator>>(alps::IDump& dump, std::vector<plaq_ptr>& sp);
@@ -52,8 +53,9 @@ protected:
 public:
     double get_value() const { return value? 1 : -1 ; }
     int get_orientation() const { return orientation; }
+    int get_name() const { return name; }
     void flip();
-    site(short orientation);
+    site(int name, short orientation);
 };
 
 
@@ -72,7 +74,7 @@ private:
     vit_t vit;
 
 public:
-    spin(short geo, short orientation); // orientation : x = 0, y = 1, z = 2
+    spin(int name, short geo, short orientation); // orientation : x = 0, y = 1, z = 2
     double get_value() const { return value? 1 : -1 ; }
 
     void add_neighbor(plaq_ptr nb);
@@ -97,7 +99,7 @@ public:
 /*************************  INTERACTIONS (many body terms)   *******************/
 class interaction : public site { // plaquette or vertex
 public:
-    interaction(short orientation=6);
+    interaction(int name, short orientation=6);
     void add_neighbor(spin_ptr nb);
     void flip_neighbors();
     void add_label(int nlabel) {label = nlabel; }
@@ -106,8 +108,8 @@ public:
     bool get_boundary() { return boundary; }
     void set_ninr(inter_ptr nv) {neighbor_in_next_replica = nv; }
     void set_nindir(inter_ptr nv, short dir) {lattice_neighbor_in_dir[dir] = nv; } //sets neighbor in x,y, or z direction
-    inter_ptr get_next() {return neighbor_in_next_replica; }
-    inter_ptr move(short direction); //0 = x direction, 1 = y direction, 2 = z direction
+    inter_ptr get_next() const {return neighbor_in_next_replica; }
+    inter_ptr move(short direction) const {return lattice_neighbor_in_dir[direction]; } //0 = x direction, 1 = y direction, 2 = z direction
 
     const_spit_t get_neighbors_begin() const {return neighbors.begin(); }
     const_spit_t get_neighbors_end() const {return neighbors.end(); }

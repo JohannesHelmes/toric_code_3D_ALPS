@@ -37,8 +37,8 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
     sit=sites().first;
     if (n > 1) {  //replica trick only senseful for n>=2 
         if ( (algo == 4) || (algo == 6) ) {
-            for (int i=0; i<IncStep.length(); ++i) {
-                for (int w=0; w<W; ++w,++sit) {
+            for (int w=0; w<W; ++w) {
+                for (int i=0; i<IncStep.length(); ++i,++sit) {
                     if (sit==sites().second)
                         break;
                     while (site_type(*sit)>2)
@@ -73,7 +73,7 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
             if (site_type(*sit)<=2) {
                 if ((geom[*sit]!=1)||(i==0)) {
                     spin_ptr nspin;
-                    nspin = std::make_shared<spin>(geom[*sit], site_type(*sit));
+                    nspin = std::make_shared<spin>(*sit + i*numsites, geom[*sit], site_type(*sit));
                     spins.push_back(nspin);
                 }
                 else 
@@ -82,12 +82,12 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
                 map_lat_to_spin[*sit + i*numsites]=spins.size()-1;
             }
             else if (site_type(*sit)<=5) {
-                plaq_ptr nplaq = std::make_shared<plaquette>();
+                plaq_ptr nplaq = std::make_shared<plaquette>(*sit + i*numsites, site_type(*sit) );
                 plaqs.push_back(nplaq);
                 map_lat_to_plaq[*sit + i*numsites]=plaqs.size()-1;
             }
             else if (site_type(*sit)==6) {
-                vert_ptr nver = std::make_shared<vertexx>();
+                vert_ptr nver = std::make_shared<vertexx>(*sit + i*numsites);
                 verts.push_back(nver);
                 map_lat_to_vert[*sit + i*numsites]=verts.size()-1;
             }
@@ -119,8 +119,20 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
                     }
                 }
             }
-            //set all lattice neighbors
-            //TODO!!
+            else if (site_type(*sit) == 6) {
+                //set all lattice neighbors
+                //THIS PART IS ONLY COMPATIBLE WITH THE 3D TORIC CODE !!!!!!!!!!!!!!!!!!!!!!!!!!!
+                int x_off = ((*sit + 8)%(8*L) == 0 )? *sit - 8*(L-1) : *sit+8 ;
+                x_off = x_off%numsites;
+                verts[map_lat_to_vert[*sit + i*numsites]]->set_nindir(verts[map_lat_to_vert[x_off + i*numsites]] ,0 );
+                int y_off = ((*sit + 8*L)%(8*L*L) == 0 )? *sit - 8*L*(L-1) : *sit+8*L ;
+                y_off = y_off%numsites;
+                verts[map_lat_to_vert[*sit + i*numsites]]->set_nindir(verts[map_lat_to_vert[y_off + i*numsites]] ,1 );
+                int z_off = ((*sit + 8*L*L)%(8*L*L*W) == 0 )? *sit - 8*L*L*(W-1) : *sit+8*L*L ;
+                z_off = z_off%numsites;
+                verts[map_lat_to_vert[*sit + i*numsites]]->set_nindir(verts[map_lat_to_vert[z_off + i*numsites]] ,2 );
+
+            }
 
         }
     }
@@ -169,6 +181,7 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
     }
 
     std::cout << "# L: " << L << " Steps: " << Nb_Steps  << " Spins: " <<spins.size()<<" Sites: "<<numsites<< std::endl;
+    //print_information();
 
 }
 
@@ -227,6 +240,54 @@ void toriccode::dostep() {
 
 }
 
+void toriccode::print_information() {
+    for (int rep = 0; rep<n; ++rep) {
+        for (sit = sites().first; sit!=sites().second; ++sit) {
+            cout<<"On the level of ALPS lattice graph ------------------------------------------------------------- "<<endl;
+            cout<<"Site "<<*sit<<" in replica "<<rep<<" has type "<<site_type(*sit)<<", and neighbors ";
+            for (nit = neighbors(*sit).first; nit!= neighbors(*sit).second; ++nit) {
+                cout<<*nit<<"  ";
+            }
+            cout<<endl;
+            cout<<"On the level of the site object  ------------------------------------------------------------- "<<endl;
+            if (site_type(*sit) == 6) {
+                int siteindex = map_lat_to_vert[*sit + rep*numsites];
+                cout<<"VERTEX, maps to No. "<<siteindex<<" which in turn has name "<<verts[siteindex]->get_name()<<endl;
+                cout<<"Neighbors have names ";
+                for (spit_t spit = verts[siteindex]->get_neighbors_begin(); spit != verts[siteindex]->get_neighbors_end(); ++spit) {
+                    cout<<(*spit)->get_name()<<" ";
+                }
+                cout<<endl;
+                cout<<"Counterpart in next replica has name "<<(verts[siteindex]->get_next())->get_name()<<endl;
+                cout<<"Move in x direction yields vertex with name "<<(verts[siteindex]->move(0) )->get_name()<<endl;
+                cout<<"Move in y direction yields vertex with name "<<(verts[siteindex]->move(1) )->get_name()<<endl;
+                cout<<"Move in z direction yields vertex with name "<<(verts[siteindex]->move(2) )->get_name()<<endl;
+            }
+            else if (site_type(*sit) >= 3) {
+                int siteindex = map_lat_to_plaq[*sit + rep*numsites];
+                cout<<"PLAQUETTE with orientation "<<plaqs[siteindex]->get_orientation()<<", maps to No. "<<siteindex<<" which in turn has name "<<plaqs[siteindex]->get_name()<<endl;
+                cout<<"Neighbors have names ";
+                for (spit_t spit = plaqs[siteindex]->get_neighbors_begin(); spit != plaqs[siteindex]->get_neighbors_end(); ++spit) {
+                    cout<<(*spit)->get_name()<<" ";
+                }
+                cout<<endl;
+                cout<<"Counterpart in next replica has name "<<(plaqs[siteindex]->get_next())->get_name()<<endl;
+            }
+            else  {
+                int siteindex = map_lat_to_spin[*sit + rep*numsites];
+                cout<<"SPIN with orientation "<<spins[siteindex]->get_orientation()<<" with geometry "<<spins[siteindex]->get_geometry()<<", maps to No. "<<siteindex<<" which in turn has name "<<spins[siteindex]->get_name()<<endl;
+                cout<<"Neighbors have names ";
+                for (const_iit_t iit = spins[siteindex]->get_interaction_neighbors_begin(); iit != spins[siteindex]->get_interaction_neighbors_end(); ++iit) {
+                    cout<<(*iit)->get_name()<<" ";
+                }
+                cout<<endl;
+                cout<<"Counterpart in next replica has name "<<(spins[siteindex]->get_next())->get_name()<<endl;
+            }
+
+            cout<<endl;
+        }
+    }
+}
 
 /****************************************************          MAIN           ***************************************************/
 /****************************************************          MAIN           ***************************************************/
