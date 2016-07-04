@@ -281,6 +281,7 @@ void toriccode::print_information() {
                     cout<<(*iit)->get_name()<<" ";
                 }
                 cout<<endl;
+                cout<<"Initial weight is "<<update_object->get_weight_from_spin(spins[siteindex])<<endl;
                 cout<<"Counterpart in next replica has name "<<(spins[siteindex]->get_next())->get_name()<<endl;
             }
 

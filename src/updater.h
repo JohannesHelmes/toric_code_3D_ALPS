@@ -28,6 +28,7 @@ class updater {
 public:
     updater(int seed, int reps, double K, std::vector<spin_ptr>& s, double Kz);
     virtual void update()=0;
+    double get_weight_from_spin(spin_ptr s);
 protected:
     
     //The order of these declaration is crucial because of dependencies in the initialization list!
@@ -43,7 +44,6 @@ protected:
     boost::random::uniform_int_distribution<> int_dist;
     boost::variate_generator<mt_rng&, boost::random::uniform_int_distribution<> > random_int;
 
-    double get_weight_from_spin(spin_ptr s);
 };
 
 class winding_updater : public updater {         // abstract class which provides the global sector switching (update() is still not implemented)
