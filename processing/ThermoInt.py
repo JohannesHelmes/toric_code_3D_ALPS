@@ -16,6 +16,7 @@ parser.add_argument('--B','-b',default=1000,type=int,help='Number of Bootstrap s
 parser.add_argument('--N','-n',default=2,type=int,help='Renyi order, default=2')
 parser.add_argument('--System','-S',default='toriccode',choices=['toriccode','toriccode3D','ising2D','toriccodeacross'])
 parser.add_argument('--verbose','-v',action='store_true')
+parser.add_argument('--full','-f',help="This flag indicates that the observable is not per spin but total",action='store_true')
 parser.add_argument('--alternate','-a',action='store_true',help="If bipartitions 2 and 3 are NOT identical")
 parser.add_argument('--simple','-s',type=int,help="With this flag, bipartition 0 is assumed to be empty, compute the entropy itself instead of gamma, provide the bipartition number > 0")
 parser.add_argument('--Step','-e',default=2,type=int,help='Number of increment data points for thermodynamic integration, default=2')
@@ -158,6 +159,9 @@ W=renyi_dataG[0].props['W']
 dofs = 2*factor[args.System] *L** dim[args.System]
 if W!=L:
     dofs = 2*factor[args.System] *L** (dim[args.System]-1) * W
+
+if args.full:
+    dofs = 1
 
 #print dofs
 
