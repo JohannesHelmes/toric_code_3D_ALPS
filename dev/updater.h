@@ -164,7 +164,7 @@ private:
 /*****************       ANISOTROPIC VARIANTS       ****************************************/
 class interaction_metropolis_aniso : public winding_updater {
 public:
-    interaction_metropolis_aniso(int seed, int reps, double h, std::vector<spin_ptr>& s, std::vector<inter_ptr>& ia, int& total_magn, double hz);  //single vertex update for plaquette Hamiltonian
+    interaction_metropolis_aniso(int seed, int reps, double h, std::vector<spin_ptr>& s, std::vector<inter_ptr>& ia, int& total_magn, double hz, int& trans_magn);  //single vertex update for plaquette Hamiltonian
     void update();
 private:
     std::vector<inter_ptr> interactions;
@@ -172,6 +172,7 @@ private:
     boost::random::uniform_int_distribution<> int_dist_interactions;
     boost::variate_generator<mt_rng&, boost::random::uniform_int_distribution<> > random_interaction;
     int &TMagn;
+    int &TransMagn;
 
     double cand_weight;
     int delta_magn;
@@ -182,7 +183,7 @@ private:
 
 class interaction_wolff_aniso : public winding_updater {
 public:
-    interaction_wolff_aniso(int seed, int reps, double h, std::vector<spin_ptr>& s, std::vector<inter_ptr>& ia, int& total_magn, double hz);  //single vertex update for plaquette Hamiltonian
+    interaction_wolff_aniso(int seed, int reps, double h, std::vector<spin_ptr>& s, std::vector<inter_ptr>& ia, int& total_magn, double hz, int& trans_magn);  //single vertex update for plaquette Hamiltonian
     void update();
 private:
     std::vector<inter_ptr> interactions;
@@ -191,6 +192,7 @@ private:
     boost::random::uniform_int_distribution<> int_dist_interactions;
     boost::variate_generator<mt_rng&, boost::random::uniform_int_distribution<> > random_interaction;
     int &TMagn;
+    int &TransMagn;
 
     spit_t nb_spin_it;
 

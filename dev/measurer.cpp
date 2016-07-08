@@ -89,14 +89,16 @@ void full_energy::measure() {
 }
 
 /* class h_int_full */
-h_int_full::h_int_full(alps::ObservableSet& msmt,int& nofd) : measurer(msmt), NofD(nofd) {
+h_int_full::h_int_full(alps::ObservableSet& msmt,int& nofd,int& trans_nofd) : measurer(msmt), NofD(nofd), trans_NofD(trans_nofd) {
     std::cout<<"Full Magnetization measurer initialized"<<std::endl;
     measurements << alps::RealObservable("FullMagnetization");
+    measurements << alps::RealObservable("TransvMagnetization");
     measurements << alps::RealObservable("FullMagnetization2");
 }
 
 void h_int_full::measure() {
     measurements["FullMagnetization"] << double(NofD);
+    measurements["TransvMagnetization"] << double(trans_NofD);
     measurements["FullMagnetization2"] << double(NofD)*double(NofD);
 }
 

@@ -593,11 +593,12 @@ void interaction_wolff::update() {
 /*                                                     */
 /*******************************************************/
 
-interaction_metropolis_aniso::interaction_metropolis_aniso(int seed, int reps, double h, std::vector<spin_ptr>& s, std::vector<inter_ptr>& ia, int& total_magn, double hz) :
+interaction_metropolis_aniso::interaction_metropolis_aniso(int seed, int reps, double h, std::vector<spin_ptr>& s, std::vector<inter_ptr>& ia, int& total_magn, double hz, int& trans_magn) :
         winding_updater(seed, reps, h, s, total_magn, hz),
         interactions(ia),
         N_interactions(ia.size()),
         TMagn(total_magn),
+        TransMagn(trans_magn),
         int_dist_interactions(0,N_interactions-1),
         random_interaction(mtwister, int_dist_interactions)
 {
@@ -691,9 +692,12 @@ void interaction_metropolis_aniso::update() {
     do_winding_update();
 
     TMagn = 0;
+    TransMagn = 0;
     for (auto s : spins) {
         if (s->get_orientation()!=2)
             TMagn += s->get_value();
+        else
+            TransMagn += s->get_value();
     }
 
 }
@@ -705,11 +709,12 @@ void interaction_metropolis_aniso::update() {
 /*                                                     */
 /*******************************************************/
 
-interaction_wolff_aniso::interaction_wolff_aniso(int seed, int reps, double h, std::vector<spin_ptr>& s, std::vector<inter_ptr>& ia, int& total_magn, double hz) :
+interaction_wolff_aniso::interaction_wolff_aniso(int seed, int reps, double h, std::vector<spin_ptr>& s, std::vector<inter_ptr>& ia, int& total_magn, double hz, int& trans_magn) :
         winding_updater(seed, reps, h, s, total_magn, hz),
         interactions(ia),
         N_interactions(ia.size()),
         TMagn(total_magn),
+        TransMagn(trans_magn),
         int_dist_interactions(0,N_interactions-1),
         random_interaction(mtwister, int_dist_interactions)
 {
@@ -837,8 +842,11 @@ void interaction_wolff_aniso::update() {
     do_winding_update();
 
     TMagn = 0;
+    TransMagn = 0;
     for (auto s : spins) {
         if (s->get_orientation()!=2)
             TMagn += s->get_value();
+        else
+            TransMagn += s->get_value();
     }
 }

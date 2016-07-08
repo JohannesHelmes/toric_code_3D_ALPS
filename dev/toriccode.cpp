@@ -144,7 +144,7 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
         case 2: measurement_object = std::make_shared<switching>(measurements, spins, spins.size()/n ); break;
         case 3: measurement_object = std::make_shared<h_int>(measurements, NofD, spins.size() ); break;
         case 4: measurement_object = std::make_shared<full_energy>(measurements, NofD ); break;
-        case 5: measurement_object = std::make_shared<h_int_full>(measurements, NofD ); break; //can be used for h_plane only
+        case 5: measurement_object = std::make_shared<h_int_full>(measurements, NofD, trans_NofD ); break; //can be used for h_plane only
     }
 
     switch (algo) {
@@ -176,9 +176,9 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
                     for (auto s : spins)
                         s->copy_neighbors_internally(exc) ;
                     if (exc==3)
-                        update_object = std::make_shared<interaction_metropolis_aniso>(seed, n, h, spins, verts, NofD, hz);  //metropolis on vertices = plaquette gs
+                        update_object = std::make_shared<interaction_metropolis_aniso>(seed, n, h, spins, verts, NofD, hz, trans_NofD);  //metropolis on vertices = plaquette gs
                     else if (exc==4) {
-                        update_object = std::make_shared<interaction_metropolis_aniso>(seed, n, h, spins, plaqs, NofD, hz);  //metropolis on plaquettes  = vertex gs
+                        update_object = std::make_shared<interaction_metropolis_aniso>(seed, n, h, spins, plaqs, NofD, hz, trans_NofD);  //metropolis on plaquettes  = vertex gs
                     }
                 }
                 break;
@@ -198,9 +198,9 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
                     for (auto s : spins)
                         s->copy_neighbors_internally(exc) ;
                     if (exc==3)
-                        update_object = std::make_shared<interaction_wolff_aniso>(seed, n, h, spins, verts, NofD, hz);  //metropolis on vertices = plaquette gs
+                        update_object = std::make_shared<interaction_wolff_aniso>(seed, n, h, spins, verts, NofD, hz, trans_NofD);  //metropolis on vertices = plaquette gs
                     else if (exc==4) {
-                        update_object = std::make_shared<interaction_wolff_aniso>(seed, n, h, spins, plaqs, NofD, hz);  //metropolis on plaquettes  = vertex gs
+                        update_object = std::make_shared<interaction_wolff_aniso>(seed, n, h, spins, plaqs, NofD, hz, trans_NofD);  //metropolis on plaquettes  = vertex gs
                     }
                 }
                 break;

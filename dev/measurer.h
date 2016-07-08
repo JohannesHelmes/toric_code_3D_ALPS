@@ -58,8 +58,9 @@ private:
 class h_int_full : public measurer {
  
 public:
-    h_int_full(alps::ObservableSet& msmt,int& nofd);
+    h_int_full(alps::ObservableSet& msmt,int& nofd,int& trans_nofd);
     void measure();
 private:
     int& NofD;
+    int& trans_NofD;
 };

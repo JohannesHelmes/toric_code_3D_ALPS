@@ -24,7 +24,7 @@ protected :
     alps::uint64_t Nb_Steps;
     alps::uint64_t Nb_Therm_Steps;
     alps::uint64_t Total_Steps;
-    int L,W,N,numsites,start,n,NofD,exc,numspins,algo,seed,measure;
+    int L,W,N,numsites,start,n,NofD,exc,numspins,algo,seed,measure,trans_NofD;
     double beta,ratio,h,hz;
     string IncStep;
     std::vector<int> geom;
