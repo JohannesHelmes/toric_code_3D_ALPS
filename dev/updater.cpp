@@ -9,7 +9,7 @@ using namespace std;
 updater::updater(int seed, int reps, double K, std::vector<spin_ptr>& s, double iKz=32) : 
         spins(s),
         K(K),
-        Kz(iKz == 32 ? K : Kz),
+        Kz(iKz == 32 ? K : iKz),
         N(spins.size()),
         mtwister(seed), //change this!!!
         int_dist(0,N-1),
@@ -21,6 +21,7 @@ updater::updater(int seed, int reps, double K, std::vector<spin_ptr>& s, double 
     expmK[0]=1.0;
     expmKz.resize(24*reps+1);
     expmKz[0]=1.0;
+    cout<<"k "<<K<<", Kz "<<Kz<<endl;
     for (int i=1; i<=24*reps; ++i)  {
         expmK[i]=std::exp(-1.*i*K);
         expmKz[i]=std::exp(-1.*i*Kz);

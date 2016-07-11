@@ -56,6 +56,9 @@ xcube::xcube(const alps::ProcessList& where,const alps::Parameters& p,int node) 
         }
     }
 
+    for (auto s : spins)
+        s->copy_neighbors_internally(4) ;
+
     measurement_object = std::make_shared<full_energy>(measurements, NofD ); 
     //We only consider the energy from the unreplicated model
 
@@ -64,7 +67,7 @@ xcube::xcube(const alps::ProcessList& where,const alps::Parameters& p,int node) 
 
 
     std::cout << "# L: " << L << " Steps: " << Nb_Steps  << " Spins: " <<spins.size()<<" Sites: "<<numsites<< std::endl;
-    print_information();
+    //print_information();
 
 }
 
@@ -102,7 +105,7 @@ void xcube::dostep() {
     //cout<<"Sweep "<<Total_Steps<<endl;
 
     update_object->update();
-    //cout<<NofD<<endl;
+    //cout<<Total_Steps<<": "<<NofD<<endl;
 
     
     if (is_thermalized()) 

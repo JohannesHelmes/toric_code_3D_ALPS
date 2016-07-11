@@ -110,8 +110,12 @@ void spin::flip_and_flip_plaqs() {
 
 void spin::flip_and_flip_verts() {
     value=!value;
-    for (vit=v_neighbors.begin(); vit!=v_neighbors.end(); ++vit) 
+    //std::cout<<"Flipped "<<(this)->get_name();
+    for (vit=v_neighbors.begin(); vit!=v_neighbors.end(); ++vit)  {
         (*vit)->flip();
+        //std::cout<<"; "<<(*vit)->get_name();
+    }
+    //std::cout<<std::endl;
 }
 
 
