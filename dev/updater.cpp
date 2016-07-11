@@ -6,10 +6,10 @@ using namespace std;
 
 
 /********** base class updater **************/
-updater::updater(int seed, int reps, double K, std::vector<spin_ptr>& s, double Kz=-8.0) : 
+updater::updater(int seed, int reps, double K, std::vector<spin_ptr>& s, double iKz=32) : 
         spins(s),
         K(K),
-        Kz(Kz == -8.0 ? Kz : K),
+        Kz(iKz == 32 ? K : Kz),
         N(spins.size()),
         mtwister(seed), //change this!!!
         int_dist(0,N-1),

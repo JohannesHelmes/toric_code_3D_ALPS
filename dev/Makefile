@@ -35,7 +35,7 @@ endif
 
 
 
-all: toriccode_dev
+all: toriccode_dev xcube_dev
 	@echo $(host)
 	@echo $(BIN)
 	@echo $(LDFLAGS)
@@ -49,6 +49,9 @@ $(BIN)/%_dev.o: $(SRC)/%.cpp $(SRC)/%.h
 
 toriccode_dev: $(BIN)/site_dev.o $(BIN)/measurer_dev.o $(BIN)/updater_dev.o $(BIN)/toriccode_dev.o 
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $(BIN)/$@ $(BIN)/site_dev.o $(BIN)/measurer_dev.o $(BIN)/updater_dev.o $(BIN)/toriccode_dev.o $(LDFLAGS) $(LIBS) $(LINKFLAG) $(COMFLAG)
+
+xcube_dev: $(BIN)/site_dev.o $(BIN)/measurer_dev.o $(BIN)/updater_dev.o $(BIN)/xcube_dev.o 
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $(BIN)/$@ $(BIN)/site_dev.o $(BIN)/measurer_dev.o $(BIN)/updater_dev.o $(BIN)/xcube_dev.o $(LDFLAGS) $(LIBS) $(LINKFLAG) $(COMFLAG)
 
 clean:
 	$(RM) $(RMFLAGS) $(BIN)/*_dev.o toriccode_dev

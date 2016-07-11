@@ -326,6 +326,41 @@
 </UNITCELL>
 
 
+<UNITCELL name="xcube" dimension="3">
+    <VERTEX type="7"/> 
+    <VERTEX type="5"/> 
+    <VERTEX type="4"/> 
+    <VERTEX type="3"/> 
+    <VERTEX type="0"/> 
+    <VERTEX type="1"/> 
+    <VERTEX type="2"/> 
+
+  <EDGE><SOURCE vertex="1"/><TARGET vertex="5"/></EDGE>
+  <EDGE><SOURCE vertex="1"/><TARGET vertex="6"/></EDGE>
+  <EDGE><SOURCE vertex="1"/><TARGET vertex="7"/></EDGE>
+  <EDGE><SOURCE vertex="1"/><TARGET vertex="5" offset="0 1 0"/></EDGE>
+  <EDGE><SOURCE vertex="1"/><TARGET vertex="5" offset="1 0 0"/></EDGE>
+  <EDGE><SOURCE vertex="1"/><TARGET vertex="5" offset="1 1 0"/></EDGE>
+  <EDGE><SOURCE vertex="1"/><TARGET vertex="6" offset="1 0 0"/></EDGE>
+  <EDGE><SOURCE vertex="1"/><TARGET vertex="6" offset="0 0 1"/></EDGE>
+  <EDGE><SOURCE vertex="1"/><TARGET vertex="6" offset="1 0 1"/></EDGE>
+  <EDGE><SOURCE vertex="1"/><TARGET vertex="7" offset="0 1 0"/></EDGE>
+  <EDGE><SOURCE vertex="1"/><TARGET vertex="7" offset="0 0 1"/></EDGE>
+  <EDGE><SOURCE vertex="1"/><TARGET vertex="7" offset="0 1 1"/></EDGE>
+  <EDGE><SOURCE vertex="2"/><TARGET vertex="5"/></EDGE>
+  <EDGE><SOURCE vertex="2"/><TARGET vertex="6"/></EDGE>
+  <EDGE><SOURCE vertex="2"/><TARGET vertex="5" offset="0 1 0"/></EDGE>
+  <EDGE><SOURCE vertex="2"/><TARGET vertex="6" offset="0 0 1"/></EDGE>
+  <EDGE><SOURCE vertex="3"/><TARGET vertex="5"/></EDGE>
+  <EDGE><SOURCE vertex="3"/><TARGET vertex="7"/></EDGE>
+  <EDGE><SOURCE vertex="3"/><TARGET vertex="5" offset="1 0 0"/></EDGE>
+  <EDGE><SOURCE vertex="3"/><TARGET vertex="7" offset="0 0 1"/></EDGE>
+  <EDGE><SOURCE vertex="4"/><TARGET vertex="6"/></EDGE>
+  <EDGE><SOURCE vertex="4"/><TARGET vertex="7"/></EDGE>
+  <EDGE><SOURCE vertex="4"/><TARGET vertex="6" offset="1 0 0"/></EDGE>
+  <EDGE><SOURCE vertex="4"/><TARGET vertex="7" offset="0 1 0"/></EDGE>
+</UNITCELL>
+
 <LATTICEGRAPH name = "square lattice 3x3" vt_skip="true">
   <FINITELATTICE>
     <LATTICE ref="square lattice"/>
@@ -420,6 +455,18 @@
     <BOUNDARY type="periodic"/>
   </FINITELATTICE>
   <UNITCELL ref="toric code across"/>
+</LATTICEGRAPH>
+
+<LATTICEGRAPH name = "xcube" >
+  <FINITELATTICE>
+    <LATTICE ref="simple cubic lattice"/>
+    <PARAMETER name="W" default="L"/>
+    <EXTENT dimension="1" size="L"/>
+    <EXTENT dimension="2" size="L"/>
+    <EXTENT dimension="3" size="L"/>
+    <BOUNDARY type="periodic"/>
+  </FINITELATTICE>
+  <UNITCELL ref="xcube"/>
 </LATTICEGRAPH>
 
 <LATTICEGRAPH name = "toric code 3D" >
