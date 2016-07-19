@@ -35,7 +35,7 @@ endif
 
 
 
-all: toriccode_dev xcube_dev
+all: toriccode_dev xcube_dev haahcode_dev
 	@echo $(host)
 	@echo $(BIN)
 	@echo $(LDFLAGS)
@@ -53,5 +53,8 @@ toriccode_dev: $(BIN)/site_dev.o $(BIN)/measurer_dev.o $(BIN)/updater_dev.o $(BI
 xcube_dev: $(BIN)/site_dev.o $(BIN)/measurer_dev.o $(BIN)/updater_dev.o $(BIN)/xcube_dev.o 
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $(BIN)/$@ $(BIN)/site_dev.o $(BIN)/measurer_dev.o $(BIN)/updater_dev.o $(BIN)/xcube_dev.o $(LDFLAGS) $(LIBS) $(LINKFLAG) $(COMFLAG)
 
+haahcode_dev: $(BIN)/site_dev.o $(BIN)/measurer_dev.o $(BIN)/updater_dev.o $(BIN)/haahcode_dev.o 
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $(BIN)/$@ $(BIN)/site_dev.o $(BIN)/measurer_dev.o $(BIN)/updater_dev.o $(BIN)/haahcode_dev.o $(LDFLAGS) $(LIBS) $(LINKFLAG) $(COMFLAG)
+
 clean:
-	$(RM) $(RMFLAGS) $(BIN)/*_dev.o toriccode_dev
+	$(RM) $(RMFLAGS) $(BIN)/*_dev.o toriccode_dev xcube_dev haah_dev
