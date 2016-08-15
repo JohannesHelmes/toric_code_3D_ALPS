@@ -347,18 +347,20 @@
   <EDGE><SOURCE vertex="1"/><TARGET vertex="7" offset="0 1 0"/></EDGE>
   <EDGE><SOURCE vertex="1"/><TARGET vertex="7" offset="0 0 1"/></EDGE>
   <EDGE><SOURCE vertex="1"/><TARGET vertex="7" offset="0 1 1"/></EDGE>
-  <EDGE><SOURCE vertex="2"/><TARGET vertex="5"/></EDGE>
   <EDGE><SOURCE vertex="2"/><TARGET vertex="6"/></EDGE>
-  <EDGE><SOURCE vertex="2"/><TARGET vertex="5" offset="0 1 0"/></EDGE>
-  <EDGE><SOURCE vertex="2"/><TARGET vertex="6" offset="0 0 1"/></EDGE>
+  <EDGE><SOURCE vertex="2"/><TARGET vertex="7"/></EDGE>
+  <EDGE><SOURCE vertex="2"/><TARGET vertex="6" offset="0 -1 0"/></EDGE>
+  <EDGE><SOURCE vertex="2"/><TARGET vertex="7" offset="-1 0 0"/></EDGE>
+
   <EDGE><SOURCE vertex="3"/><TARGET vertex="5"/></EDGE>
   <EDGE><SOURCE vertex="3"/><TARGET vertex="7"/></EDGE>
-  <EDGE><SOURCE vertex="3"/><TARGET vertex="5" offset="1 0 0"/></EDGE>
-  <EDGE><SOURCE vertex="3"/><TARGET vertex="7" offset="0 0 1"/></EDGE>
+  <EDGE><SOURCE vertex="3"/><TARGET vertex="5" offset="0 0 -1"/></EDGE>
+  <EDGE><SOURCE vertex="3"/><TARGET vertex="7" offset="-1 0 0"/></EDGE>
+
+  <EDGE><SOURCE vertex="4"/><TARGET vertex="5"/></EDGE>
   <EDGE><SOURCE vertex="4"/><TARGET vertex="6"/></EDGE>
-  <EDGE><SOURCE vertex="4"/><TARGET vertex="7"/></EDGE>
-  <EDGE><SOURCE vertex="4"/><TARGET vertex="6" offset="1 0 0"/></EDGE>
-  <EDGE><SOURCE vertex="4"/><TARGET vertex="7" offset="0 1 0"/></EDGE>
+  <EDGE><SOURCE vertex="4"/><TARGET vertex="5" offset="0 0 -1"/></EDGE>
+  <EDGE><SOURCE vertex="4"/><TARGET vertex="6" offset="0 -1 0"/></EDGE>
 </UNITCELL>
 
 <UNITCELL name="haah" dimension="3">

@@ -19,6 +19,7 @@ xcube::xcube(const alps::ProcessList& where,const alps::Parameters& p,int node) 
     Nb_Therm_Steps(static_cast<alps::uint64_t>(p["THERMALIZATION"])),
     beta(static_cast<double>(p["beta"])),
     h(static_cast<double>(p.value_or_default("h",0.0))),
+    exc(static_cast<alps::uint32_t>(p.value_or_default("ExcType",4))),      // Type of underlying groundstate: 3(plaquettes) 4(cubes) 
     Total_Steps(0)
 {
 
@@ -28,6 +29,7 @@ xcube::xcube(const alps::ProcessList& where,const alps::Parameters& p,int node) 
 
     map_lat_to_spin.resize(numsites);
     map_lat_to_cube.resize(numsites);
+    map_lat_to_plaq.resize(numsites);
     for (sit=sites().first; sit!=sites().second; ++sit) {
         if (site_type(*sit)<=2) {
             spin_ptr nspin;
@@ -35,6 +37,11 @@ xcube::xcube(const alps::ProcessList& where,const alps::Parameters& p,int node) 
             spins.push_back(nspin);
 
             map_lat_to_spin[*sit ]=spins.size()-1;
+        }
+        else if (site_type(*sit)<=5) {
+            plaq_ptr nplaq = std::make_shared<plaquette>(*sit , site_type(*sit) );
+            plaqs.push_back(nplaq);
+            map_lat_to_plaq[*sit ]=plaqs.size()-1;
         }
         else if (site_type(*sit)==7) {
             vert_ptr nver = std::make_shared<vertexx>(*sit );
@@ -48,6 +55,10 @@ xcube::xcube(const alps::ProcessList& where,const alps::Parameters& p,int node) 
     for (sit=sites().first; sit!=sites().second; ++sit) {
         if (site_type(*sit)<=2) {
             for (nit=neighbors(*sit).first; nit!=neighbors(*sit).second; ++nit) {
+                if (site_type(*nit)<=5) { 
+                    spins[map_lat_to_spin[*sit ]]->add_neighbor(static_pointer_cast<plaquette>(plaqs[map_lat_to_plaq[*nit]]));
+                    plaqs[map_lat_to_plaq[*nit ]]->add_neighbor(spins[map_lat_to_spin[*sit ]]);
+                }
                 if (site_type(*nit)==7) { 
                     spins[map_lat_to_spin[*sit ]]->add_neighbor(static_pointer_cast<vertexx>(cubes[map_lat_to_cube[*nit ]]));
                     cubes[map_lat_to_cube[*nit ]]->add_neighbor(spins[map_lat_to_spin[*sit ]]);
@@ -62,8 +73,11 @@ xcube::xcube(const alps::ProcessList& where,const alps::Parameters& p,int node) 
     measurement_object = std::make_shared<full_energy>(measurements, NofD ); 
     //We only consider the energy from the unreplicated model
 
-    update_object = std::make_shared<single_spin_vert>(seed, 1, beta, spins, cubes, NofD);
-    //We only perform single spin flips, cubes can be regarded as vertices
+    if (exc==3)
+        update_object = std::make_shared<single_spin_vert>(seed, 1, beta, spins, plaqs, NofD);
+    else if (exc==4)
+        update_object = std::make_shared<single_spin_vert>(seed, 1, beta, spins, cubes, NofD);
+    cout<<exc<<endl;
 
 
     std::cout << "# L: " << L << " Steps: " << Nb_Steps  << " Spins: " <<spins.size()<<" Sites: "<<numsites<< std::endl;

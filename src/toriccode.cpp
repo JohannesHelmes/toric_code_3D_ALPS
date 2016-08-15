@@ -161,7 +161,6 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
         update_object = std::make_shared<deconfined_vert>(seed, n, beta, spins, verts, NofD); 
     }
     else if ( (algo == 3) || (algo == 4) ) {
-        assert (measure == 3);
         for (auto s : spins)
             s->copy_neighbors_internally(exc) ;
         if (exc==3)
@@ -171,7 +170,6 @@ toriccode::toriccode(const alps::ProcessList& where,const alps::Parameters& p,in
         }
     }
     else if ( (algo == 5) || (algo == 6) ) {
-        assert (measure == 3);
         for (auto s : spins)
             s->copy_neighbors_internally(exc) ;
         if (exc==3)

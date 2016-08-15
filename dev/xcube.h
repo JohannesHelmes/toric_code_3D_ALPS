@@ -24,11 +24,12 @@ protected :
     alps::uint64_t Nb_Steps;
     alps::uint64_t Nb_Therm_Steps;
     alps::uint64_t Total_Steps;
-    int L,N,numsites,NofD,numspins,seed,measure;
+    int L,N,numsites,NofD,numspins,seed,measure,exc;
     double beta,ratio,h;
-    std::vector<int> map_lat_to_spin, map_lat_to_cube;
+    std::vector<int> map_lat_to_spin, map_lat_to_cube, map_lat_to_plaq;
     std::vector<spin_ptr> spins;
     std::vector<inter_ptr> cubes;
+    std::vector<inter_ptr> plaqs;
     std::shared_ptr<updater> update_object;
     std::shared_ptr<measurer> measurement_object;
 
