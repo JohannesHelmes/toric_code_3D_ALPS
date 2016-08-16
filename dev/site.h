@@ -72,6 +72,7 @@ private:
     spin_ptr neighbor_in_next_replica;
     plit_t plit;
     vit_t vit;
+    iit_t iit;
 
 public:
     spin(int name, short geo, short orientation); // orientation : x = 0, y = 1, z = 2
@@ -83,8 +84,10 @@ public:
     void set_ninr(spin_ptr ns) {neighbor_in_next_replica = ns; }
     void flip_and_flip_plaqs();
     void flip_and_flip_verts();
+    void flip_and_flip_ints();
     int get_weight_from_plaqs(); 
     int get_weight_from_verts(); 
+    int get_weight_from_ints(); 
     int get_geometry() const { return geometry; }
     spin_ptr get_next() {return neighbor_in_next_replica; }
     spin_ptr move(short direction); //0 = x direction, 1 = y direction, 2 = z direction

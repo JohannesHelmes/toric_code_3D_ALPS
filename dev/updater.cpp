@@ -148,11 +148,11 @@ void single_spin_vert::update() {
     for (int j=0; j<N; ++j) { //generalize this !!!
 
         candidate=spins[random_int()];
-        cand_weight = candidate->get_weight_from_verts();
+        cand_weight = candidate->get_weight_from_ints();
 
         if ((cand_weight>=0)||(random_01()<expmK[-2*cand_weight])) {
             NofExc -= 2*cand_weight; //is the old weight
-            candidate->flip_and_flip_verts();
+            candidate->flip_and_flip_ints();
         }
     }
 }

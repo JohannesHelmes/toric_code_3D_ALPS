@@ -110,12 +110,16 @@ void spin::flip_and_flip_plaqs() {
 
 void spin::flip_and_flip_verts() {
     value=!value;
-    //std::cout<<"Flipped "<<(this)->get_name();
     for (vit=v_neighbors.begin(); vit!=v_neighbors.end(); ++vit)  {
         (*vit)->flip();
-        //std::cout<<"; "<<(*vit)->get_name();
     }
-    //std::cout<<std::endl;
+}
+
+void spin::flip_and_flip_ints() {
+    value=!value;
+    for (iit=interaction_neighbors.begin(); iit!=interaction_neighbors.end(); ++iit)  {
+        (*iit)->flip();
+    }
 }
 
 
@@ -135,6 +139,13 @@ int spin::get_weight_from_verts() {
     return energy;
 }
 
+int spin::get_weight_from_ints() {
+    energy = 0;
+    for (iit=interaction_neighbors.begin(); iit!=interaction_neighbors.end(); ++iit) {
+        energy+=(*iit)->get_value();
+    }
+    return energy;
+}
 
 /********** class interaction *********/
 interaction::interaction(int name, short orientation): site(name,orientation) { 

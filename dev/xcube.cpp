@@ -68,7 +68,7 @@ xcube::xcube(const alps::ProcessList& where,const alps::Parameters& p,int node) 
     }
 
     for (auto s : spins)
-        s->copy_neighbors_internally(4) ;
+        s->copy_neighbors_internally(exc) ;
 
     measurement_object = std::make_shared<full_energy>(measurements, NofD ); 
     //We only consider the energy from the unreplicated model
