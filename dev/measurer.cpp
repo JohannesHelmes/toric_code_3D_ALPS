@@ -94,11 +94,13 @@ h_int_full::h_int_full(alps::ObservableSet& msmt,int& nofd,int& trans_nofd) : me
     measurements << alps::RealObservable("FullMagnetization");
     measurements << alps::RealObservable("TransvMagnetization");
     measurements << alps::RealObservable("FullMagnetization2");
+    measurements << alps::RealObservable("PlaneTransvMagnetization");
 }
 
 void h_int_full::measure() {
     measurements["FullMagnetization"] << double(NofD);
     measurements["TransvMagnetization"] << double(trans_NofD);
     measurements["FullMagnetization2"] << double(NofD)*double(NofD);
+    measurements["PlaneTransvMagnetization"] << double(NofD)*double(trans_NofD);
 }
 

@@ -35,6 +35,7 @@ paramgroup.add_argument('--partsize','-p',default=1000, type=int,help='Size subs
 paramgroup.add_argument('--temper','-T',help='interpret beta as temperature',action='store_true')
 paramgroup.add_argument('--transversefield','-z',help='Set h=1 and h_z = m',action='store_true')
 paramgroup.add_argument('--DeltaTau', type=float,help='Trotter discretization dtau = beta/W')
+paramgroup.add_argument('--hzdiff', type=float,default=0.0,help='Difference in the transverse field for the thermodynamic integration with respect to hz')
 paramgroup.add_argument('--directory','-d',help='Directory of the parameter files, default= /scratch/helmes/simulations/"name of parent directory"/')
 
 args=parser.parse_args()
@@ -142,7 +143,7 @@ for i,IncEl in enumerate(Geometry):
                 'LATTICE_LIBRARY' : "mylatticelib.xml",
                 'LATTICE'	: latticename[args.lattice],
                 'h'             : 0.5 * args.DeltaTau * float(h) if args.transversefield else float(h),
-                'hz'            : -0.5 * np.log( np.tanh( args.DeltaTau) ) if args.transversefield else float(h),
+                'hz'            : -0.5 * np.log( np.tanh( args.DeltaTau) ) + args.hzdiff if args.transversefield else float(h),
                 'beta'		: 1./float(beta) if args.temper else float(beta),
                 'THERMALIZATION': args.therm,
                 'SWEEPS'	: args.sweeps,

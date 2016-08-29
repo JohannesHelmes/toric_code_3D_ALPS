@@ -73,6 +73,7 @@ if args.verbose:
     print path, filename
 
 if args.verbose:
+    print args.X, args.Y
     print pyalps.getResultFiles(prefix=args.infile)
     #print dataset
 
